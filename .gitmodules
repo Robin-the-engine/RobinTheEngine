@@ -20,6 +20,3 @@
 [submodule "RobinTheEngine/vendor/assimp"]
 	path = RobinTheEngine/vendor/assimp
 	url = https://github.com/AminAliari/assimp
-[submodule "RobinTheEngine/vendor/stb"]
-	path = RobinTheEngine/vendor/stb
-	url = https://github.com/nothings/stb
