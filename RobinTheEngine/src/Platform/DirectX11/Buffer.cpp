@@ -31,7 +31,6 @@ RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize)
 
 RTE::IndexBuffer::~IndexBuffer()
 {
-	//buffer->Release();
 }
 
 HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize)

@@ -70,9 +70,6 @@
     <ClInclude Include="src\RobinTheEngine\Core.h">
       <Filter>RobinTheEngine</Filter>
     </ClInclude>
-    <ClInclude Include="src\RobinTheEngine\DeviceResources.h">
-      <Filter>RobinTheEngine</Filter>
-    </ClInclude>
     <ClInclude Include="src\RobinTheEngine\Display.h">
       <Filter>RobinTheEngine</Filter>
     </ClInclude>

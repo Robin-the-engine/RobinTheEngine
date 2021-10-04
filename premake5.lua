@@ -16,7 +16,7 @@
    IncludeDir = {}
    IncludeDir["GLFW"] = "RobinTheEngine/vendor/GLFW/include"
    IncludeDir["ImGui"] = "RobinTheEngine/vendor/imgui"
-   IncludeDir["DirectXTK12"] = "RobinTheEngine/vendor/DirectXTK12"
+   --IncludeDir["DirectXTK12"] = "RobinTheEngine/vendor/DirectXTK12"
    IncludeDir["DirectXTK"] = "RobinTheEngine/vendor/DirectXTK"
    IncludeDir["assimp"] = "RobinTheEngine/vendor/assimp"
 
@@ -24,6 +24,7 @@
    include "RobinTheEngine/vendor/GLFW"
    include "RobinTheEngine/vendor/imgui"
    --include "RobinTheEngine/vendor/DirectXTK12"
+   include "RobinTheEngine/vendor/DirectXTK"
    include "RobinTheEngine/vendor/assimp"
    group ""
 

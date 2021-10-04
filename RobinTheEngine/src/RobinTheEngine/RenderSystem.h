@@ -1,6 +1,7 @@
 #pragma once
-#include "DeviceResources.h"
+
 namespace RTE {
+
 
 	class RenderSystem
 	{

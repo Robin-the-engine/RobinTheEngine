@@ -104,8 +104,6 @@ RTE::pixelShader::pixelShader(std::wstring filePath) :path(filePath)
 
 RTE::pixelShader::~pixelShader()
 {
-	/*shader->Release();
-	shaderBuffer->Release();*/
 }
 
 ID3D11PixelShader * RTE::pixelShader::GetShader()

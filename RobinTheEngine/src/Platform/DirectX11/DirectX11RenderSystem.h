@@ -1,11 +1,6 @@
 #pragma once
-//#include <D3Dcompiler.h>
 #include <DirectXMath.h>
-//#include <DirectXPackedVector.h>
-//#include <DirectXColors.h>
-//#include <DirectXCollision.h>
 #include <wrl.h>
-//#include <dxgi1_4.h>
 #include <d3d11.h>
 
 #include "RobinTheEngine/RenderSystem.h"
@@ -14,7 +9,6 @@
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "d3d11.lib")
-//#pragma comment(lib, "DirectXTK.lib")
 #pragma comment(lib, "dxgi.lib")
 
 using Microsoft::WRL::ComPtr;
@@ -32,7 +26,6 @@ namespace RTE {
 		void OnRenderBegin() override;
 		void OnRenderEnd() override;
 		void LogAdapters();
-		/*auto  GetCommandList() const noexcept { return m_CommandList.Get(); }*/
 		DirectX::XMFLOAT4& GetClearColor() { return clearColor; }
 
 
@@ -40,13 +33,7 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() { return m_DeviceContext; }
 		ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
-		/*ID3D12GraphicsCommandList* GetCmdList() { return m_CommandList.Get(); }*/
 	protected:
-		void CreateSwapChain();
-		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
-		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
-		ID3D12Resource* CurrentBackBuffer()const;
-		void FlushCommandQueue();
 
 	private:
 		void LogAdapterOutputs(IDXGIAdapter* adapter);
@@ -57,10 +44,7 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_RasterizerState;
-		/*	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-			Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_DirectCmdListAlloc;
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList;*/
+		
 		static const int SwapChainBufferCount = 1;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetView;
@@ -86,20 +70,8 @@ namespace RTE {
 
 		ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
-		/*	std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
-
-			std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
-
-			ComPtr<ID3DBlob> mvsByteCode = nullptr;
-			ComPtr<ID3DBlob> mpsByteCode = nullptr;
-
-			std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
-
-			ComPtr<ID3D12PipelineState> mPSO = nullptr;*/
-
-
 			// Set true to use 4X MSAA (§4.1.8).  The default is false.
-		bool      m_4xMsaaState = false; // 4X MSAA enabled
+		bool      m_4xMsaaState = true; // 4X MSAA enabled
 		UINT      m_4xMsaaQuality = 0;      // quality level of 4X MSAA
 
 		int mCurrBackBuffer = 0;

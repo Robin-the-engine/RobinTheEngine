@@ -12,8 +12,7 @@ using namespace DirectX;
 namespace RTE {
 
 
-	//const std::string DEFAULT_PATH_TO_ERROR_TEXTURE = "\\assets\\important\\error_checker.png";
-	const std::string DEFAULT_PATH_TO_ERROR_TEXTURE = "error_checker.png";
+	const std::string DEFAULT_PATH_TO_ERROR_TEXTURE = "\\assets\\textures\\error_checker.png";
 
 	class Texture
 	{
@@ -25,13 +24,11 @@ namespace RTE {
 		ID3D11ShaderResourceView * GetTextureResourceView();
 		ID3D11ShaderResourceView ** GetTextureResourceViewAddress();
 	private:
-		void CreateTextureFromFile(const std::string& path);
+		HRESULT CreateTextureFromFile(const std::string& path);
 		Microsoft::WRL::ComPtr<ID3D11Resource> texture = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView = nullptr;
 		aiTextureType type = aiTextureType::aiTextureType_UNKNOWN;
 
-
-		
 	};
 
 
