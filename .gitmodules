@@ -17,4 +17,5 @@
 	update = merge # <
 [submodule "RobinTheEngine/vendor/imgui"]
 	path = RobinTheEngine/vendor/imgui
-	url = https://github.com/stastmn/imgui
+	url = https://github.com/stastmn/imgui.git
+	branch = docking
