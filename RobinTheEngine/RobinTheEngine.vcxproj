@@ -215,6 +215,9 @@
     <ProjectReference Include="vendor\assimp\assimp.vcxproj">
       <Project>{724885F2-5EEA-AFC8-47A5-C31C33E63619}</Project>
     </ProjectReference>
+    <ProjectReference Include="vendor\DirectXTK\DirectXTK.vcxproj">
+      <Project>{F78B7304-63F6-277B-AC34-D92018DE05D0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
