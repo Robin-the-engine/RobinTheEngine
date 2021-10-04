@@ -10,12 +10,11 @@
 [submodule "RobinTheEngine/vendor/DirectXTK"]
 	path = RobinTheEngine/vendor/DirectXTK
 	url = https://github.com/stastmn/DirectXTK
-	branch = master
-
+	update = merge # <
 [submodule "RobinTheEngine/vendor/assimp"]
 	path = RobinTheEngine/vendor/assimp
 	url = https://github.com/AminAliari/assimp
 [submodule "RobinTheEngine/vendor/GLFW"]
 	path = RobinTheEngine/vendor/GLFW
 	url = https://github.com/stastmn/glfw
-	branch = master
+	update = merge # <
