@@ -10,9 +10,6 @@
 [submodule "RobinTheEngine/vendor/imgui"]
 	path = RobinTheEngine/vendor/imgui
 	url = https://github.com/TheCherno/imgui
-[submodule "RobinTheEngine/vendor/DirectXTK12"]
-	path = RobinTheEngine/vendor/DirectXTK12
-	url = https://github.com/stastmn/DirectXTK12
 [submodule "RobinTheEngine/vendor/DirectXTK"]
 	path = RobinTheEngine/vendor/DirectXTK
 	url = https://github.com/stastmn/DirectXTK
