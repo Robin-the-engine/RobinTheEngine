@@ -15,3 +15,6 @@
 	path = RobinTheEngine/vendor/GLFW
 	url = https://github.com/stastmn/glfw
 	update = merge # <
+[submodule "RobinTheEngine/vendor/imgui"]
+	path = RobinTheEngine/vendor/imgui
+	url = https://github.com/stastmn/imgui
