@@ -17,3 +17,4 @@
 [submodule "RobinTheEngine/vendor/GLFW"]
 	path = RobinTheEngine/vendor/GLFW
 	url = https://github.com/stastmn/glfw
+	branch = master
