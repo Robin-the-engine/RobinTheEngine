@@ -49,7 +49,7 @@ namespace RTE {
 
 	void Application::Run()
 	{
-		
+
 		vertexShader vs(L"shaders\\VS.hlsl");
 		pixelShader ps(L"shaders\\PS.hlsl");
 
@@ -69,13 +69,6 @@ namespace RTE {
 			m_Window->OnUpdate();
 			m_RenderSystem->OnRenderBegin();
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
-
-			for (Layer* layer : m_LayerStack)
-				layer->OnRender();
-
-
 			auto context = static_cast<DirectX11RenderSystem*>(m_RenderSystem.get())->GetContext();
 			context->IASetInputLayout(vs.GetInputLayout());
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -83,10 +76,12 @@ namespace RTE {
 			context->PSSetShader(ps.GetShader(), 0, 0);
 			context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
 			context->PSSetConstantBuffers(0, 1, lightCbuffer->GetAddressOf());
-			//i += 0.05f;
-			//context->VSSetConstantBuffers(0, 1, cbuffer.GetAddressOf());
-			//DirectX::XMStoreFloat4x4(&rotation.matrix, camera.GetViewMatrix()* camera.GetProjectionMatrix());
-			//cbuffer.WirteBuffer(rotation);
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate();
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnRender();
 
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)

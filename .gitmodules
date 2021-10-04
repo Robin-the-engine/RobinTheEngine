@@ -14,3 +14,6 @@
 [submodule "RobinTheEngine/vendor/assimp"]
 	path = RobinTheEngine/vendor/assimp
 	url = https://github.com/AminAliari/assimp
+[submodule "RobinTheEngine/vendor/GLFW"]
+	path = RobinTheEngine/vendor/GLFW
+	url = https://github.com/stastmn/glfw

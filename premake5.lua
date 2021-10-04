@@ -73,7 +73,8 @@
          "GLFW",
 		 "opengl32.lib",
 		 "ImGui",
-		 "assimp"
+		 "assimp",
+		 "DirectXTK"
 
       }
 	  
