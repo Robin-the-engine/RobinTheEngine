@@ -19,3 +19,6 @@
 	path = RobinTheEngine/vendor/imgui
 	url = https://github.com/stastmn/imgui.git
 	branch = docking
+[submodule "RobinTheEngine/vendor/ViennaGameJobSystem"]
+	path = RobinTheEngine/vendor/ViennaGameJobSystem
+	url = https://github.com/hlavacs/ViennaGameJobSystem.git
