@@ -21,4 +21,4 @@
 	branch = docking
 [submodule "RobinTheEngine/vendor/ViennaGameJobSystem"]
 	path = RobinTheEngine/vendor/ViennaGameJobSystem
-	url = https://github.com/hlavacs/ViennaGameJobSystem.git
+	url = https://github.com/Robin-the-engine/ViennaGameJobSystem
