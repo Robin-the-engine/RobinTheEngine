@@ -19,6 +19,7 @@
    --IncludeDir["DirectXTK12"] = "RobinTheEngine/vendor/DirectXTK12"
    IncludeDir["DirectXTK"] = "RobinTheEngine/vendor/DirectXTK"
    IncludeDir["assimp"] = "RobinTheEngine/vendor/assimp"
+   IncludeDir["entt"] = "RobinTheEngine/vendor/entt/single_include/entt"
 
    group "Dependencies"
    include "RobinTheEngine/vendor/GLFW"
@@ -62,6 +63,7 @@
          "%{prj.name}/vendor/DirectX12-Headers/include/directx",
          "%{IncludeDir.GLFW}",
 		 "%{IncludeDir.ImGui}",
+		 "%{IncludeDir.entt}",
 		 --"%{IncludeDir.DirectXTK12}/Inc",
 		 "%{IncludeDir.DirectXTK}/Inc",
 		 "%{IncludeDir.assimp}/include",
@@ -132,6 +134,7 @@
          "RobinTheEngine/src",
 		 "RobinTheEngine/vendor",
 		 "RobinTheEngine/vendor/assimp/include",
+		 "%{IncludeDir.entt}",
 		 
       }
 

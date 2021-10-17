@@ -1,6 +1,7 @@
 #include <iostream>
 #include <RTE.h>
 #include "imgui/imgui.h"
+#include "RobinTheEngine/Scene/GameObject.h"
 
 using namespace DirectX;
 
@@ -15,16 +16,16 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 	//RTE::GameObject spot;
-	RTE::GameObject ogre;
-	RTE::GameObject ogre1;
+	RTE::Deprecated::GameObject ogre;
+	RTE::Deprecated::GameObject ogre1;
 	//RTE::GameObject blub;
-	RTE::GameObject ball;
-	RTE::GameObject ball1;
-	RTE::GameObject ball2;
-	RTE::GameObject ball3;
-	RTE::GameObject amogus;
-	RTE::GameObject amogus1;
-	RTE::GameObject amogus2;
+	RTE::Deprecated::GameObject ball;
+	RTE::Deprecated::GameObject ball1;
+	RTE::Deprecated::GameObject ball2;
+	RTE::Deprecated::GameObject ball3;
+	RTE::Deprecated::GameObject amogus;
+	RTE::Deprecated::GameObject amogus1;
+	RTE::Deprecated::GameObject amogus2;
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
 	float ambientStrength = 1;
@@ -70,46 +71,46 @@ public:
 			blub.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
 			blub.AdjustPosition(5, 0, 0);*/
 
-			ball.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-			ball.SetTexturePath(0, 0, "objects\\green.png");
-			ball.SetTexturePath(1, 0, "objects\\green.png");
-			ball.SetTexturePath(2, 0, "objects\\green.png");
-			ball.SetScale(0.01f, 0.01f, 0.01f);
-			ball.AdjustPosition(2, 0, 0);
+		ball.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+		ball.SetTexturePath(0, 0, "objects\\green.png");
+		ball.SetTexturePath(1, 0, "objects\\green.png");
+		ball.SetTexturePath(2, 0, "objects\\green.png");
+		ball.SetScale(0.01f, 0.01f, 0.01f);
+		ball.AdjustPosition(2, 0, 0);
 
-			ball1.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-			ball1.SetTexturePath(0, 0, "objects\\spot\\spot_texture.png");
-			ball1.SetTexturePath(1, 0, "objects\\spot\\spot_texture.png");
-			ball1.SetTexturePath(2, 0, "objects\\spot\\spot_texture.png");
-			ball1.SetScale(0.01f, 0.01f, 0.01f);
+		ball1.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+		ball1.SetTexturePath(0, 0, "objects\\spot\\spot_texture.png");
+		ball1.SetTexturePath(1, 0, "objects\\spot\\spot_texture.png");
+		ball1.SetTexturePath(2, 0, "objects\\spot\\spot_texture.png");
+		ball1.SetScale(0.01f, 0.01f, 0.01f);
 
-			ball2.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-			ball2.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
-			ball2.SetTexturePath(1, 0, "objects\\blub\\blub_texture.png");
-			ball2.SetTexturePath(2, 0, "objects\\blub\\blub_texture.png");
-			ball2.SetScale(0.01f, 0.01f, 0.01f);
+		ball2.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+		ball2.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
+		ball2.SetTexturePath(1, 0, "objects\\blub\\blub_texture.png");
+		ball2.SetTexturePath(2, 0, "objects\\blub\\blub_texture.png");
+		ball2.SetScale(0.01f, 0.01f, 0.01f);
 
-			ball3.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-			ball3.SetTexturePath(0, 0, "objects\\black.png");
-			ball3.SetTexturePath(1, 0, "objects\\black.png");
-			ball3.SetTexturePath(2, 0, "objects\\black.png");
-			ball3.SetScale(0.01f, 0.01f, 0.01f);
-			ball3.AdjustPosition(-2, 0, 0);
+		ball3.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+		ball3.SetTexturePath(0, 0, "objects\\black.png");
+		ball3.SetTexturePath(1, 0, "objects\\black.png");
+		ball3.SetTexturePath(2, 0, "objects\\black.png");
+		ball3.SetScale(0.01f, 0.01f, 0.01f);
+		ball3.AdjustPosition(-2, 0, 0);
 
 
-			amogus.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-			amogus.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
-			amogus.SetScale(0.01, 0.01, 0.01);
-			amogus.AdjustPosition(-2, 0, 0);
+		amogus.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+		amogus.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
+		amogus.SetScale(0.01, 0.01, 0.01);
+		amogus.AdjustPosition(-2, 0, 0);
 
-			amogus1.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-			amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg");
-			amogus1.SetScale(0.005, 0.005, 0.005);
-			amogus1.AdjustPosition(0, 1, 0);
+		amogus1.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+		amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg");
+		amogus1.SetScale(0.005, 0.005, 0.005);
+		amogus1.AdjustPosition(0, 1, 0);
 
-			amogus2.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-			amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
-			amogus2.SetScale(0.01, 0.01, 0.01);
+		amogus2.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+		amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
+		amogus2.SetScale(0.01, 0.01, 0.01);
 	}
 
 	float angle = 0;
