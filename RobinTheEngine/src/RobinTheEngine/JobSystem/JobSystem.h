@@ -27,7 +27,7 @@ namespace RTE {
 			JobPriority priority = JobPriority::HIGH,
 			size_t threadNumber = -1,	// -1 means any thread
 			std::vector<JobHandle> *waitJobs = nullptr // which job should be done before start this job
-		) : function(function), priority(priority), threadNumber(threadNumber), waitJobs(waitJobs) {};
+		) : function(std::forward<decltype(function)>(function)), priority(priority), threadNumber(threadNumber), waitJobs(waitJobs) {};
 
 		F&& function;
 		JobPriority priority;
@@ -45,7 +45,9 @@ namespace RTE {
 
 		template<VGJS_JOB F>
 		JobHandle kickJob(const JobDescription<F>& desc) {
-			waitForJobs(*desc.waitJobs);
+			if (desc.waitJobs) {
+				waitForJobs(*desc.waitJobs);
+			}
 			std::pair <vgjs::Job*, uint64_t > scheduled = jobSystem.schedule(desc.function, desc.priority, vgjs::thread_index_t(desc.threadNumber));
 			return JobHandle{ scheduled.first, scheduled.second};
 		}
