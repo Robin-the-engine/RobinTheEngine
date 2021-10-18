@@ -4,7 +4,7 @@
 
 namespace RTE
 {
-	class GameObject
+	class GameObject final
 	{
 	public:
 		GameObject() = default;
