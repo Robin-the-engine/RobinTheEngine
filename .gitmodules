@@ -22,3 +22,6 @@
 [submodule "RobinTheEngine/vendor/entt"]
 	path = RobinTheEngine/vendor/entt
 	url = https://github.com/skypjack/entt.git
+[submodule "RobinTheEngine/vendor/yaml-cpp"]
+	path = RobinTheEngine/vendor/yaml-cpp
+	url = https://github.com/TheCherno/yaml-cpp.git

@@ -20,6 +20,7 @@
    IncludeDir["DirectXTK"] = "RobinTheEngine/vendor/DirectXTK"
    IncludeDir["assimp"] = "RobinTheEngine/vendor/assimp"
    IncludeDir["entt"] = "RobinTheEngine/vendor/entt/single_include/entt"
+   IncludeDir["yaml"] = "RobinTheEngine/vendor/yaml-cpp/include"
 
    group "Dependencies"
    include "RobinTheEngine/vendor/GLFW"
@@ -27,6 +28,7 @@
    --include "RobinTheEngine/vendor/DirectXTK12"
    include "RobinTheEngine/vendor/DirectXTK"
    include "RobinTheEngine/vendor/assimp"
+   include "RobinTheEngine/vendor/yaml-cpp"
    group ""
 
 
@@ -64,6 +66,7 @@
          "%{IncludeDir.GLFW}",
 		 "%{IncludeDir.ImGui}",
 		 "%{IncludeDir.entt}",
+		 "%{IncludeDir.yaml}",
 		 --"%{IncludeDir.DirectXTK12}/Inc",
 		 "%{IncludeDir.DirectXTK}/Inc",
 		 "%{IncludeDir.assimp}/include",
@@ -76,7 +79,8 @@
 		 "opengl32.lib",
 		 "ImGui",
 		 "assimp",
-		 "DirectXTK"
+		 "DirectXTK",
+         "yaml-cpp"
 
       }
 	  
