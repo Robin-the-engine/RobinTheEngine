@@ -25,6 +25,12 @@ namespace RTE
 
 		Transform& GetTransform();
 
+		operator bool() const;
+		operator entt::entity() const;
+
+		bool operator==(const GameObject& other) const;
+		bool operator!=(const GameObject& other) const;
+
 	private:
 		Scene* scene = nullptr;
 		entt::entity entity = entt::null;

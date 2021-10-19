@@ -13,6 +13,8 @@ namespace RTE
 		GameObject CreateGameObject();
 		GameObject GetGameObject(entt::entity entity);
 
+		std::string name = "Untitled";
+
 	private:
 		entt::registry registry;
 

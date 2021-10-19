@@ -49,5 +49,19 @@ namespace RTE
 	{
 		RTE_CORE_ERROR("You can't remove Transform component");
 	}
+
+
+	GameObject::operator bool() const { return scene && entity != entt::null; }
+	GameObject::operator entt::entity() const { return entity; }
+
+	bool GameObject::operator==(const GameObject& other) const
+	{
+		return entity == other.entity && scene == other.scene;
+	}
+
+	bool GameObject::operator!=(const GameObject& other) const
+	{
+		return !(*this == other);
+	}
 }
 
