@@ -7,6 +7,7 @@
 #include "RobinTheEngine/Layer.h"
 #include "RobinTheEngine/ImGui/ImGuiLayer.h"
 #include "RobinTheEngine/GameTimer.h"
+#include "RobinTheEngine/JobSystem/JobSystem.h"
 
 #include "Platform/DirectX11/Camera.h"
 #include "Platform/DirectX11/Model.h"

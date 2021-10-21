@@ -1,6 +1,8 @@
 #pragma once
 #include "d3d11.h"
 #include <wrl.h>
+#include "Platform/DirectX11/DirectX11RenderSystem.h"
+#include "RobinTheEngine/Application.h"
 
 namespace RTE {
 
