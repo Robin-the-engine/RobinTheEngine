@@ -2,6 +2,7 @@
 #include "Platform/DirectX11/Texture.h"
 #include "Platform/DirectX11/DirectX11RenderSystem.h"
 #include "RobinTheEngine/Application.h"
+#include "RobinTheEngine/ComsManager.h"
 
 #include "WICTextureLoader.h"
 #pragma comment(lib,"DirectXTK.lib")
@@ -36,10 +37,22 @@ ID3D11ShaderResourceView ** RTE::Texture::GetTextureResourceViewAddress()
 
 HRESULT RTE::Texture::CreateTextureFromFile(const std::string & path)
 {
+	if (ComsManager::Get().IsHaveComPtrResource(path + "\\Texture")) {
+		texture = ComsManager::Get().GetComPtrResource<ID3D11Resource>(path + "\\Texture");
+		textureView = ComsManager::Get().GetComPtrResource<ID3D11ShaderResourceView>(path + "\\TextureView");
+		return S_OK;
+	}
+
 	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 	std::wstring wpath(path.begin(), path.end());
-	return DirectX::CreateWICTextureFromFile(rs->GetDevice().Get(), wpath.c_str(),texture.GetAddressOf(), textureView.GetAddressOf());
-}
+	HRESULT hr = DirectX::CreateWICTextureFromFile(rs->GetDevice().Get(), wpath.c_str(), texture.GetAddressOf(), textureView.GetAddressOf());
 
+	if (SUCCEEDED(hr)) {
+		ComsManager::Get().RegisterComPtrResource<ID3D11Resource>(texture, path + "\\Texture");
+		ComsManager::Get().RegisterComPtrResource(textureView, path + "\\TextureView");
+	}
+	return hr;
+
+}
 
 

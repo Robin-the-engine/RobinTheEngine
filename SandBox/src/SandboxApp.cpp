@@ -8,7 +8,7 @@ class ExampleLayer : public RTE::Layer
 {
 public:
 
-	RTE::Camera* camera;
+	RTE::Camera camera;
 	RTE::Window* window;
 	GameTimer timer;
 	float cameraSensitivity;
@@ -38,17 +38,20 @@ public:
 	float specularStrength = 1;
 
 	float simulationSpeed = 1;
+
+		RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
+		RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
 	ExampleLayer()
-		: Layer("Example")
+		: Layer("Example"), cbuffer("MVPMatrix"), lightCbuffer("LightProps")
 	{
 
 	}
 
 	void OnAttach() {
 
-		camera = &RTE::Application::Get().camera;
-		camera->SetPosition(XMFLOAT3(0, 0, -10));
-		camera->SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()), 0.05, 1000);
+		
+		camera.SetPosition(XMFLOAT3(0, 0, -10));
+		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()), 0.05, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
@@ -58,11 +61,13 @@ public:
 		//spot.SetPosition(-6, 0.5, 0);
 		//spot.SetLookAtPos(XMFLOAT3(0, 0, 1));
 
+		auto context = rs->GetContext();
+		context->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 
-		ogre.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer);
+		ogre.Initialize("objects\\ogre\\bs_rest.obj", cbuffer);
 		ogre.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png");
 
-		ogre1.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer);
+		ogre1.Initialize("objects\\ogre\\bs_rest.obj", cbuffer);
 		ogre1.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png");
 		
 
@@ -70,26 +75,26 @@ public:
 			blub.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
 			blub.AdjustPosition(5, 0, 0);*/
 
-			ball.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+			ball.Initialize("objects\\PokemonBall.obj", cbuffer);
 			ball.SetTexturePath(0, 0, "objects\\green.png");
 			ball.SetTexturePath(1, 0, "objects\\green.png");
 			ball.SetTexturePath(2, 0, "objects\\green.png");
 			ball.SetScale(0.01f, 0.01f, 0.01f);
 			ball.AdjustPosition(2, 0, 0);
 
-			ball1.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+			ball1.Initialize("objects\\PokemonBall.obj", cbuffer);
 			ball1.SetTexturePath(0, 0, "objects\\spot\\spot_texture.png");
 			ball1.SetTexturePath(1, 0, "objects\\spot\\spot_texture.png");
 			ball1.SetTexturePath(2, 0, "objects\\spot\\spot_texture.png");
 			ball1.SetScale(0.01f, 0.01f, 0.01f);
 
-			ball2.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+			ball2.Initialize("objects\\PokemonBall.obj", cbuffer);
 			ball2.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
 			ball2.SetTexturePath(1, 0, "objects\\blub\\blub_texture.png");
 			ball2.SetTexturePath(2, 0, "objects\\blub\\blub_texture.png");
 			ball2.SetScale(0.01f, 0.01f, 0.01f);
 
-			ball3.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
+			ball3.Initialize("objects\\PokemonBall.obj", cbuffer);
 			ball3.SetTexturePath(0, 0, "objects\\black.png");
 			ball3.SetTexturePath(1, 0, "objects\\black.png");
 			ball3.SetTexturePath(2, 0, "objects\\black.png");
@@ -97,17 +102,17 @@ public:
 			ball3.AdjustPosition(-2, 0, 0);
 
 
-			amogus.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+			amogus.Initialize("objects\\amogus\\amogus.obj", cbuffer);
 			amogus.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
 			amogus.SetScale(0.01, 0.01, 0.01);
 			amogus.AdjustPosition(-2, 0, 0);
 
-			amogus1.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+			amogus1.Initialize("objects\\amogus\\amogus.obj", cbuffer);
 			amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg");
 			amogus1.SetScale(0.005, 0.005, 0.005);
 			amogus1.AdjustPosition(0, 1, 0);
 
-			amogus2.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
+			amogus2.Initialize("objects\\amogus\\amogus.obj", cbuffer);
 			amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
 			amogus2.SetScale(0.01, 0.01, 0.01);
 	}
@@ -147,7 +152,7 @@ public:
 		amogus1.SetRotation(XMFLOAT3(0,angle/3,0));
 		ball.SetRotation(XMFLOAT3(angle/3, angle/5, 0));
 		
-		ogre.SetLookAtPos(XMFLOAT3(camera->GetPositionFloat3().x * -1, camera->GetPositionFloat3().y * -1, camera->GetPositionFloat3().z *-1));
+		ogre.SetLookAtPos(XMFLOAT3(camera.GetPositionFloat3().x * -1, camera.GetPositionFloat3().y * -1, camera.GetPositionFloat3().z *-1));
 		//ogre.SetLookAtPos(camera->GetPositionFloat3());
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
@@ -191,7 +196,7 @@ public:
 		}
 
 		if (attachLightToCamera) {
-			this->lightPos = camera->GetPositionFloat3();
+			this->lightPos = camera.GetPositionFloat3();
 		}
 		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
@@ -213,7 +218,7 @@ public:
 
 	void OnRender()override
 	{
-		auto vp = camera->GetViewMatrix()* camera->GetProjectionMatrix();
+		auto vp = camera.GetViewMatrix()* camera.GetProjectionMatrix();
 		//spot.Draw(vp);
 		ogre.Draw(vp);
 		ogre1.Draw(vp);
@@ -240,48 +245,48 @@ public:
 			signY = offsetY > 0 ? -1 : 1;
 
 			if (offsetX) {
-				camera->AdjustRotation(XMFLOAT3(0, cameraSensitivity* -offsetX * timer.DeltaTime(), 0));
+				camera.AdjustRotation(XMFLOAT3(0, cameraSensitivity* -offsetX * timer.DeltaTime(), 0));
 				posX = RTE::Input::GetMouseX();
 			}
 			if (offsetY) {
-				camera->AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
+				camera.AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
 				posY = RTE::Input::GetMouseY();
 			}
 
 		}
 
 		if (RTE::Input::IsKeyPressed(RTE_KEY_W)) {
-			camera->AdjustPosition(camera->GetForwardVector() * cameraSpeed* timer.DeltaTime());
+			camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed* timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_S)) {
-			camera->AdjustPosition(camera->GetBackwardVector() * cameraSpeed* timer.DeltaTime());
+			camera.AdjustPosition(camera.GetBackwardVector() * cameraSpeed* timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_A)) {
-			camera->AdjustPosition(camera->GetLeftVector() * cameraSpeed* timer.DeltaTime());
+			camera.AdjustPosition(camera.GetLeftVector() * cameraSpeed* timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_D)) {
-			camera->AdjustPosition(camera->GetRightVector() * cameraSpeed* timer.DeltaTime());
+			camera.AdjustPosition(camera.GetRightVector() * cameraSpeed* timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_SPACE)) {
-			camera->AdjustPosition(XMFLOAT3(0.f, cameraSpeed* timer.DeltaTime(), 0.f));
+			camera.AdjustPosition(XMFLOAT3(0.f, cameraSpeed* timer.DeltaTime(), 0.f));
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_CONTROL)) {
-			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
+			camera.AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 	}
 	void UpdateLight() {
-		RTE::Application::Get().lightCbuffer->data.ambientStrength = this->ambientStrength;
-		RTE::Application::Get().lightCbuffer->data.ambientLightColor = this->ambientColor;
+		lightCbuffer.data.ambientStrength = this->ambientStrength;
+		lightCbuffer.data.ambientLightColor = this->ambientColor;
 
-		RTE::Application::Get().lightCbuffer->data.diffuseStrenght = this->diffuseStrength;
-		RTE::Application::Get().lightCbuffer->data.diffuseCollor = this->diffuseCollor;
+		lightCbuffer.data.diffuseStrenght = this->diffuseStrength;
+		lightCbuffer.data.diffuseCollor = this->diffuseCollor;
 
-		RTE::Application::Get().lightCbuffer->data.lightPosition = this->lightPos;
+		lightCbuffer.data.lightPosition = this->lightPos;
 
-		RTE::Application::Get().lightCbuffer->data.specularStrength = this->specularStrength;
-		RTE::Application::Get().lightCbuffer->data.viewPosition = this->camera->GetPositionFloat3();
+		lightCbuffer.data.specularStrength = this->specularStrength;
+		lightCbuffer.data.viewPosition = this->camera.GetPositionFloat3();
 
-		RTE::Application::Get().lightCbuffer->WriteBuffer();
+		lightCbuffer.WriteBuffer();
 	}
 
 	bool SetMousePosition(RTE::MouseButtonPressedEvent ev) {

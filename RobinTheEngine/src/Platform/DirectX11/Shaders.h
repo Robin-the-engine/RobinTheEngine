@@ -7,7 +7,6 @@
 namespace RTE {
 
 
-
 	class vertexShader
 	{
 	public:

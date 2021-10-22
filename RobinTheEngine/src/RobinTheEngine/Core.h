@@ -20,6 +20,7 @@
 #endif
 
 #ifdef RTE_ENABLE_ASSERTS
+#include "Log.h"
 	#define RTE_ASSERT(x, ...) { if(x){} else { RTE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 	#define RTE_CORE_ASSERT(x, ...) { if(x){} else { RTE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); }}
 

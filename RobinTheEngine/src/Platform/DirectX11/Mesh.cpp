@@ -8,15 +8,15 @@
 
 using namespace D3DUtils;
 
-RTE::Mesh::Mesh( std::vector<vertex_Gouraud_shading>& vertices, std::vector<DWORD>& indices,std::vector<Texture>& textures)
+RTE::Mesh::Mesh( std::vector<vertex_Gouraud_shading>& vertices, std::vector<DWORD>& indices,std::vector<Texture>& textures, std::string meshName): name(meshName)
 {
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 		this->deviceContext = rs->GetContext().Get(); 
 		this->textures = textures;
 
-	ThrowIfFailed(vertexbuffer.Init(vertices.data(), vertices.size()));
+	ThrowIfFailed(vertexbuffer.Init(vertices.data(), vertices.size(), name));
 
-	ThrowIfFailed(indexbuffer.Init( indices.data(), indices.size()));
+	ThrowIfFailed(indexbuffer.Init( indices.data(), indices.size(), name));
 	
 }
 
@@ -45,3 +45,4 @@ void RTE::Mesh::Draw()
 	this->deviceContext->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(this->indexbuffer.ElementCount(), 0, 0);
 }
+

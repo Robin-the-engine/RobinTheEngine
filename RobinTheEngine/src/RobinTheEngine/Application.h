@@ -1,16 +1,12 @@
 #pragma once
 #include "Core.h"
 #include "Window.h"
+#include "RenderSystem.h"
+#include "LayerStack.h"
+#include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
+#include "ImGui/ImGuiLayer.h"
 
-#include "Platform//DirectX12/DirectX12RenderSystem.h"
-
-#include "RobinTheEngine/LayerStack.h"
-#include "RobinTheEngine/Events/Event.h"
-#include "RobinTheEngine/Events/ApplicationEvent.h"
-#include "RobinTheEngine/ImGui/ImGuiLayer.h"
-#include "Platform/DirectX11/Camera.h"
-#include "Platform/DirectX11/ConstantBuffer.h"
-#include <memory>
 
 
 namespace RTE {
@@ -18,8 +14,6 @@ namespace RTE {
 	class RTE_API Application
 	{
 	public:
-		//TEMP camera for testing
-		Camera camera;
 		Application();
 		virtual ~Application();
 
@@ -33,11 +27,6 @@ namespace RTE {
 		inline RenderSystem* GetRenderSystem() { return m_RenderSystem.get(); }
 		inline static Application& Get() { return *s_Instance; }
 
-		//Temp cbuffer. TODO: remove this to the materials
-		std::unique_ptr<ConstantBuffer<CB_VS_MATRIX4x4>> cbuffer;
-		std::unique_ptr<ConstantBuffer<CB_PS_LIGHT>> lightCbuffer;
-
-
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
@@ -48,7 +37,7 @@ namespace RTE {
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
 
-		
+
 	};
 
 	Application* CreateApplication();

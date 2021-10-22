@@ -4,7 +4,6 @@
 #include <d3d11.h>
 
 #include "RobinTheEngine/RenderSystem.h"
-#include "RobinTheEngine/d3dUtils.h"
 
 
 #pragma comment(lib,"d3dcompiler.lib")
@@ -12,7 +11,6 @@
 #pragma comment(lib, "dxgi.lib")
 
 using Microsoft::WRL::ComPtr;
-using namespace D3DUtils;
 
 namespace RTE {
 
@@ -31,7 +29,6 @@ namespace RTE {
 
 		Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() { return m_d3dDevice; }
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() { return m_DeviceContext; }
-		ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
 	protected:
 
@@ -49,26 +46,15 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DepthStencilView;
-
 		Microsoft::WRL::ComPtr<ID3D11Resource> m_SwapChainBuffer[SwapChainBufferCount];
-
-
 
 		UINT64 m_CurrentFence = 0;
 		UINT m_RtvDescriptorSize = 0;
 		UINT m_DsvDescriptorSize = 0;
 		UINT m_CbvSrvUavDescriptorSize = 0;
 
-
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DsvHeap;
-
-
-
 		DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-		ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
 			// Set true to use 4X MSAA (§4.1.8).  The default is false.
 		bool      m_4xMsaaState = true; // 4X MSAA enabled

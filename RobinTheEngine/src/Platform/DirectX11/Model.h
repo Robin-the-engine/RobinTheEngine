@@ -16,7 +16,6 @@ namespace RTE {
 		std::vector<Mesh> meshes;
 
 
-
 	private:
 
 		bool LoadModel(const std::string & filePath);

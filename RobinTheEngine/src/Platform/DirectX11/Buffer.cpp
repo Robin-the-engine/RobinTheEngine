@@ -3,15 +3,26 @@
 #include "Buffer.h"
 #include "DirectX11RenderSystem.h"
 #include "RobinTheEngine/Application.h"
+#include "RobinTheEngine/ComsManager.h"
+#include <d3d11.h>
+#include "RobinTheEngine/ResourceFactory.h"
 
 
-
-RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize)
+RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize, std::string bufferName)
 {
+	using namespace D3DUtils;
+
 	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 	elementCount = arraySize;
 
+	name = bufferName;
+
+	if (ComsManager::Get().IsHaveComPtrResource(name+ "\\IndexBuffer")) {
+		auto res = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\IndexBuffer");
+		return;
+
+	}
 	D3D11_BUFFER_DESC desk;
 	ZeroMemory(&desk, sizeof(desk));
 
@@ -26,6 +37,7 @@ RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize)
 	bufferData.pSysMem = data;
 
 	ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf()));
+	ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\IndexBuffer");
 
 }
 
@@ -33,11 +45,20 @@ RTE::IndexBuffer::~IndexBuffer()
 {
 }
 
-HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize)
+HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize, std::string bufferName)
 {
 	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 	elementCount = arraySize;
+	name = bufferName;
+
+
+	if (ComsManager::Get().IsHaveComPtrResource(name + "\\IndexBuffer")) {
+		auto res = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\IndexBuffer");
+		return S_OK;
+
+	}
+
 
 	D3D11_BUFFER_DESC desk;
 	ZeroMemory(&desk, sizeof(desk));
@@ -52,5 +73,8 @@ HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize)
 	ZeroMemory(&bufferData, sizeof(bufferData));
 	bufferData.pSysMem = data;
 
-	return rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
+	auto res = rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
+	if(SUCCEEDED(res))
+	ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\IndexBuffer");
+	return res;
 }

@@ -4,6 +4,7 @@
 #include "RobinTheEngine/Core.h"
 #include "dxgi1_2.h"
 
+using namespace D3DUtils;
 
 RTE::DirectX11RenderSystem::DirectX11RenderSystem(HWND hwnd) :m_hMainWnd(hwnd), clearColor(1, 0, 1, 1)
 {

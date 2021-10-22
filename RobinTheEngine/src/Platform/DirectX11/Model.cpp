@@ -4,7 +4,11 @@
 #include "Platform/DirectX11/DirectX11RenderSystem.h"
 #include "RobinTheEngine/Application.h"
 
+#include <unordered_map>
+
 using namespace D3DUtils;
+
+std::unordered_map<std::string, std::vector<RTE::Mesh>> modelCache;
 
 bool RTE::Model::Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX4x4>& cb_vs_vertexshader)
 {
@@ -14,13 +18,17 @@ bool RTE::Model::Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX
 	this->deviceContext = rs->GetContext().Get();
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 	GetDirectoryFromPath(path);
+	if (modelCache.find(path) !=  modelCache.end()) {
 
+		this->meshes = modelCache[path];
+		return true;
+	}
 	if (!this->LoadModel(path)) {
 		std::string warn = "Cant load model with path: " + path;
 		RTE_CORE_WARN(warn);
 		return false;
 	}
-
+	modelCache[path] = meshes;
 	return true;
 }
 
@@ -86,7 +94,7 @@ RTE::Mesh RTE::Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
 		vertex_Gouraud_shading vertex;
-
+		
 		vertex.pos.x = mesh->mVertices[i].x;
 		vertex.pos.y = mesh->mVertices[i].y;
 		vertex.pos.z = mesh->mVertices[i].z;
@@ -125,7 +133,7 @@ RTE::Mesh RTE::Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures,directory + mesh->mName.C_Str());
 
 }
 
@@ -194,4 +202,5 @@ std::vector<RTE::Texture> RTE::Model::LoadMaterialTextures(aiMaterial* pMaterial
 
 	return materialTextures;
 }
+
 

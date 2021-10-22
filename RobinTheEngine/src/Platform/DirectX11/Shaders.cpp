@@ -4,9 +4,19 @@
 #include "RobinTheEngine/Log.h"
 #include "RobinTheEngine/Application.h"
 #include "DirectX11RenderSystem.h"
+#include "RobinTheEngine/ComsManager.h"
+
+using namespace D3DUtils;
 
 RTE::vertexShader::vertexShader(std::wstring filePath) :path(filePath)
 {
+	std::string charPath(path.begin(), path.end());
+	if (ComsManager::Get().IsHaveComPtrResource(charPath + "\\VertexShader")) {
+		shader = ComsManager::Get().GetComPtrResource<ID3D11VertexShader>(charPath + "\\VertexShader");
+		inputLayout = ComsManager::Get().GetComPtrResource<ID3D11InputLayout>(charPath + "\\InputLayout");
+		return;
+
+	}
 
 	Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 	HRESULT hr = D3DCompileFromFile(path.c_str(), //path
@@ -45,6 +55,13 @@ RTE::vertexShader::vertexShader(std::wstring filePath) :path(filePath)
 
 	UINT numElements = ARRAYSIZE(layout);
 	ThrowIfFailed(rs->GetDevice()->CreateInputLayout(layout, numElements, shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), inputLayout.GetAddressOf()));
+
+	{
+		ComsManager::Get().RegisterComPtrResource<ID3D11VertexShader>(shader, charPath + "\\VertexShader");
+
+		ComsManager::Get().RegisterComPtrResource<ID3D11InputLayout>(inputLayout, charPath + "\\InputLayout");
+
+	}
 
 }
 
@@ -115,3 +132,4 @@ ID3DBlob * RTE::pixelShader::GetBuffer()
 {
 	return shaderBuffer.Get();
 }
+

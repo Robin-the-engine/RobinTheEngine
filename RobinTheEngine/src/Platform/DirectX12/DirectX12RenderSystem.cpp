@@ -3,7 +3,7 @@
 #include "DirectXColors.h"
 #include "RobinTheEngine/Core.h"
 
-
+/*
 RTE::DirectX12RenderSystem::DirectX12RenderSystem(HWND hwnd) :m_hMainWnd(hwnd)
 {
 }
@@ -235,8 +235,8 @@ void RTE::DirectX12RenderSystem::OnResize(int width, int height)
 
 	m_ScissorRect = { 0, 0, m_ClientWidth, m_ClientHeight };
 
-}
-
+}*/
+/*
 void RTE::DirectX12RenderSystem::OnRenderBegin()
 {
 	// Reuse the memory associated with command recording.
@@ -443,5 +443,5 @@ void RTE::DirectX12RenderSystem::FlushCommandQueue()
 		CloseHandle(eventHandle);
 	}
 
-}
+}*/
 

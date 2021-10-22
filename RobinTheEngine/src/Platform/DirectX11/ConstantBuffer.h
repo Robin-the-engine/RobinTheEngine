@@ -3,7 +3,10 @@
 #include <wrl.h>
 #include <DirectXMath.h> 
 #include "RobinTheEngine/d3dUtils.h"
+#include "RobinTheEngine/Application.h"
+#include "RobinTheEngine/ComsManager.h"
 #include "Platform/DirectX11/DirectX11RenderSystem.h"
+#include "RobinTheEngine/d3dUtils.h"
 
 namespace RTE {
 
@@ -12,7 +15,14 @@ namespace RTE {
 
 	public:
 		T data;
-		ConstantBuffer() {
+		ConstantBuffer(std::string bufferName) : name(bufferName)
+		{
+			using namespace D3DUtils;
+			if (ComsManager::Get().IsHaveComPtrResource(name + "\\ConstBuffer")) {
+				buffer = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\ConstBuffer");
+				return;
+			}
+
 			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 			D3D11_BUFFER_DESC desk;
@@ -26,11 +36,13 @@ namespace RTE {
 			desk.StructureByteStride = 0; //?
 
 			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
+
+			ComsManager::Get().RegisterComPtrResource(buffer, name + "\\ConstBuffer");
 		}
 
-
 	private:
-
+		std::string name;
+		int slot;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 
 		//ConstantBuffer(ConstantBuffer<T>& rhs) = delete;
@@ -42,6 +54,7 @@ namespace RTE {
 		ID3D11Buffer* Get() { return buffer.Get(); }
 		ID3D11Buffer* const* GetAddressOf() { return buffer.GetAddressOf(); }
 		void WriteBuffer() {
+			using namespace D3DUtils;
 
 			RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 			D3D11_MAPPED_SUBRESOURCE subres;
@@ -56,6 +69,12 @@ namespace RTE {
 		}
 
 	};
+
+/*	template<class T>
+	RTE::ConstantBuffer<T>::ConstantBuffer(std::string bufferName)
+	{
+
+	}*/
 
 	//Constant buffer types
 	struct CB_VS_MATRIX4x4
@@ -83,7 +102,6 @@ namespace RTE {
 		DirectX::XMFLOAT3 viewPosition;
 		float specularStrength;
 	};
-
 
 }
 

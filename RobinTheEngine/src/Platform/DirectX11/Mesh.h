@@ -13,7 +13,7 @@ namespace RTE {
 	class Mesh
 	{
 	public:
-		Mesh(std::vector<vertex_Gouraud_shading> & vertices, std::vector<DWORD> & indices, std::vector<Texture>& textures);
+		Mesh(std::vector<vertex_Gouraud_shading> & vertices, std::vector<DWORD> & indices, std::vector<Texture>& textures, std::string meshName);
 		Mesh(const Mesh & mesh);
 		void Draw();
 		std::vector<Texture> textures;
@@ -21,9 +21,9 @@ namespace RTE {
 		vertexBuffer<vertex_Gouraud_shading> vertexbuffer;
 		IndexBuffer indexbuffer;
 		ID3D11DeviceContext * deviceContext;
+		std::string name;
 
 	};
-
 
 
 

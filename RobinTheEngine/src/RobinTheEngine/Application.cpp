@@ -14,6 +14,7 @@
 #include "Platform/DirectX11/Camera.h"
 #include "Platform/DirectX11/Model.h"
 #include "Platform/DirectX11/GameObject.h"
+#include "ResourceFactory.h"
 
 
 namespace RTE {
@@ -28,12 +29,10 @@ namespace RTE {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-		auto a = ((WindowsWindow*)(m_Window.get()))->GetHwnd();
-		m_RenderSystem = std::make_unique<DirectX11RenderSystem>(a);
+		auto hwnd = ((WindowsWindow*)(m_Window.get()))->GetHwnd();
+		m_RenderSystem = std::make_unique<DirectX11RenderSystem>(hwnd);
 		m_RenderSystem->Init();
 		m_RenderSystem->OnResize(m_Window->GetWidth(), m_Window->GetHeight());
-		cbuffer = std::make_unique<ConstantBuffer<CB_VS_MATRIX4x4>>();
-		lightCbuffer = std::make_unique<ConstantBuffer<CB_PS_LIGHT>>();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -75,7 +74,6 @@ namespace RTE {
 			context->VSSetShader(vs.GetShader(), 0, 0);
 			context->PSSetShader(ps.GetShader(), 0, 0);
 			context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
-			context->PSSetConstantBuffers(0, 1, lightCbuffer->GetAddressOf());
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
