@@ -105,7 +105,7 @@ public:
 			amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg"); 
 			amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg"); 
 		}));
-		std::this_thread::sleep(100);
+
 		jobSystem.waitForJobs(handles);
 		handles.clear();
 
