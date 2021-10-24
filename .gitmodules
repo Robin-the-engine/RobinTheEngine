@@ -28,3 +28,7 @@
 [submodule "RobinTheEngine/vendor/yaml-cpp"]
 	path = RobinTheEngine/vendor/yaml-cpp
 	url = https://github.com/Robin-the-engine/yaml-cpp.git
+[submodule "RobinTheEngine/vendor/sol2"]
+	path = RobinTheEngine/vendor/sol2
+	url = https://github.com/Robin-the-engine/sol2
+	branch = main
