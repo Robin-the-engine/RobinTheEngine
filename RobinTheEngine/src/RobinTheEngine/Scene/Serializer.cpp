@@ -1,3 +1,4 @@
+#include "rtepch.h"
 #include "Serializer.h"
 #include "GameObject.h"
 
@@ -8,7 +9,7 @@ namespace RTE
 {
 	Serializer::Serializer(Scene& scene) : scene(scene) { }
 
-	void Serializer::Serialize(std::string path, SerializerMode mode = SerializerMode::Text)
+	void Serializer::Serialize(std::string path, SerializerMode mode)
 	{
 		YAML::Emitter out;
 		out << YAML::BeginMap;
@@ -18,14 +19,17 @@ namespace RTE
 		scene.registry.each([&](auto entity)
 			{
 				out << YAML::BeginMap; // GameObject
-				out << YAML::Key << "GameObject ID" << YAML::Value << "TODO"; // TODO: GameObject ID goes here
+				out << YAML::Key << "GameObject ID" << YAML::Value << (uint32_t)entity;
 
 				// Transform (GameObject always has Transform)
 				{
 					Transform& transform = scene.registry.get<Transform>(entity);
 					out << YAML::Key << "Transform" << YAML::BeginMap;
 
-					out << YAML::Key << "Parent" << YAML::Value << "TODO"; // transform->parent->id
+					if (transform.HasParent())
+					{
+						out << YAML::Key << "Parent" << YAML::Value << transform.GetParent().GetGameObject().GetID();
+					}
 					out << YAML::Key << "Translation" << YAML::Value << transform.GetPosition();
 					out << YAML::Key << "Rotation" << YAML::Value << transform.GetRotation();
 					out << YAML::Key << "Scale" << YAML::Value << transform.GetScale();
@@ -43,15 +47,16 @@ namespace RTE
 
 					out << YAML::EndMap;
 				} // MeshRenderer
+
+				out << YAML::EndMap;
 			});
 		out << YAML::EndSeq;
-		out << YAML::EndMap;
 
 		std::ofstream fout(path);
 		fout << out.c_str();
 	}
 
-	void Serializer::Deserialize(std::string path, SerializerMode mode = SerializerMode::Text)
+	void Serializer::Deserialize(std::string path, SerializerMode mode)
 	{
 		YAML::Node data;
 		data = YAML::LoadFile(path);
@@ -63,27 +68,42 @@ namespace RTE
 		auto gameObjects = data["GameObjects"];
 		if (gameObjects)
 		{
+			// GameObjects creation and base initialization of components.
 			for (auto data : gameObjects)
 			{
-				std::string id = data["GameObject ID"].as<std::string>(); // TODO
+				uint32_t id = data["GameObject ID"].as<uint32_t>();
+				GameObject gameObject = scene.CreateGameObject((entt::entity)id);
 
-				GameObject gameObject = scene.CreateGameObject();
-
+				// Transform
 				if (auto componentData = data["Transform"])
 				{
-					Transform& transform = gameObject.GetComponent<Transform>();
+					Transform& transform = gameObject.GetTransform();
 
-					// tc.SetParent(transformComponent["Parent"].as<GameObject ID>());
 					transform.SetPosition(componentData["Translation"].as<DirectX::XMFLOAT3>());
 					transform.SetRotation(componentData["Rotation"].as<DirectX::XMFLOAT3>());
 					transform.SetScale(componentData["Scale"].as<DirectX::XMFLOAT3>());
-				}
+				} // Transform
 
+				// MeshRenderer
 				if (auto componentData = data["MeshRenderer"])
 				{
 					IMesh mesh = ResourceManager::Get<IMesh>(data["Mesh"].as<std::string>());
 					IMaterial material = ResourceManager::Get<IMaterial>(data["Material"].as<std::string>());
 					gameObject.AddComponent<MeshRenderer>(mesh, material);
+				} // MeshRenderer
+			}
+
+			// Update component references after all GameObjects have been created;
+			for (auto data : gameObjects)
+			{
+				if (data["Transform"] && data["Transform"]["Parent"])
+				{
+					uint32_t id = data["GameObject ID"].as<uint32_t>();
+					uint32_t parent_id = data["Transform"]["Parent"].as<uint32_t>();
+
+					Transform tranform = scene.registry.get<Transform>((entt::entity)id);
+					Transform parent_tranform = scene.registry.get<Transform>((entt::entity)parent_id);
+					tranform.SetParent(parent_tranform);
 				}
 			}
 		}
