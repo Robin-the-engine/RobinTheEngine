@@ -1,9 +1,15 @@
 #include <iostream>
 #include <RTE.h>
 #include "imgui/imgui.h"
+#include "RobinTheEngine/Scene/Serializer.h"
 #include "RobinTheEngine/Scene/GameObject.h"
 
 using namespace DirectX;
+
+const char saveloadFolder[] = "assets/scene/";
+const int nameSize = 30;
+char saveFileName[nameSize] = { "Untitled" };
+char loadFileName[nameSize] = { "Untitled" };
 
 class ExampleLayer : public RTE::Layer
 {
@@ -32,6 +38,8 @@ public:
   
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
+	RTE::Scene scene;
+
 	float ambientStrength = 1;
 	DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1, 1, 1);
 
@@ -50,6 +58,7 @@ public:
 	}
 
 	void OnAttach() {
+		scene.name = "Test Scene";
 
 		camera = &RTE::Application::Get().camera;
 		camera->SetPosition(XMFLOAT3(0, 0, -10));
@@ -170,6 +179,27 @@ public:
 	{
 		static bool attachLightToCamera = false;
 		ImGui::Begin("Test");
+		if (ImGui::CollapsingHeader("Scene Save/Load"))
+		{
+			ImGui::Text("Current directory: ");
+			ImGui::SameLine();
+			ImGui::Text(saveloadFolder);
+
+			ImGui::InputText("Save file name", saveFileName, nameSize);
+			if (ImGui::Button("Save Scene"))
+			{
+				RTE::Serializer sr(scene);
+				sr.Serialize(std::string(saveloadFolder) + saveFileName + ".scene");
+			}
+			ImGui::Separator();
+			ImGui::InputText("Load file name", (char*)&loadFileName, nameSize);
+			if (ImGui::Button("Load Scene"))
+			{
+				
+				RTE::Serializer sr(scene);
+				sr.Deserialize(std::string(saveloadFolder) + loadFileName + ".scene");
+			}
+		}
 		if (ImGui::CollapsingHeader("Camera settings")) {
 
 			ImGui::SliderFloat("Camera sensitivity", &cameraSensitivity, 0, 10000);

@@ -20,6 +20,7 @@ namespace RTE
 		entt::registry registry;
 
 		friend class GameObject;
+		friend class Serializer;
 	};
 }
 
