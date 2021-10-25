@@ -11,6 +11,7 @@ namespace RTE
 		Scene() = default;
 
 		GameObject CreateGameObject();
+		GameObject CreateGameObject(entt::entity id);
 		GameObject GetGameObject(entt::entity entity);
 
 		std::string name = "Untitled";

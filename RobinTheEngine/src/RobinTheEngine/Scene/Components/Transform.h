@@ -1,5 +1,7 @@
 #pragma once
 #include "RobinTheEngine/Scene/Component.h"
+#include "RobinTheEngine/Scene/GameObject.h"
+#include "RobinTheEngine/Log.h"
 #include <DirectXMath.h>
 
 namespace RTE
@@ -10,7 +12,7 @@ namespace RTE
 		using XMMATRIX = DirectX::XMMATRIX;
 
 	private:
-		// Transform* parent;
+		Transform* parent = nullptr;
 		XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
 		XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f };
 		XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };
@@ -20,6 +22,8 @@ namespace RTE
 		Transform(const Transform&) = default;
 		Transform(const XMFLOAT3 position, const XMFLOAT3 rotation, const XMFLOAT3 scale)
 			: position(position), rotation(rotation), scale(scale) { }
+		Transform(const XMFLOAT3 position, const XMFLOAT3 rotation, const XMFLOAT3 scale, Transform& parent)
+			: position(position), rotation(rotation), scale(scale), parent(&parent) { }
 
 		inline XMFLOAT3 GetPosition() const { return position; };
 		inline XMFLOAT3 GetRotation() const { return rotation; };
@@ -33,6 +37,15 @@ namespace RTE
 
 		inline void SetScale(float x, float y, float z) { SetScale({ x, y, z }); }
 		inline void SetScale(const XMFLOAT3 & scale) { this->scale = scale; }
+
+		inline bool HasParent() const { return parent; }
+		inline Transform& GetParent() const
+		{
+			RTE_ASSERT(HasParent(), "This GameObject hasn't parent.");
+			return *parent;
+		}
+		inline void SetParent(Transform& parent) { this->parent = &parent; }
+
 
 		XMMATRIX GetMatrix() const
 		{
@@ -57,5 +70,7 @@ namespace RTE
 				"Scale: { " << scale.x << ", " << scale.y << ", " << scale.z << " }";
 			return ss.str();
 		}
+
+		friend class Serializer;
 	};
 }
