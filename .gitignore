@@ -1,7 +1,8 @@
-# Directories
-.vs/
+# Build directories
 bin/
 bin-int/
 
-#Files
-*.user
+# Visual Studio clutter
+.vs/
+*.sln
+*.vcxproj*
