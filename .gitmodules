@@ -22,3 +22,6 @@
 [submodule "RobinTheEngine/vendor/ViennaGameJobSystem"]
 	path = RobinTheEngine/vendor/ViennaGameJobSystem
 	url = https://github.com/Robin-the-engine/ViennaGameJobSystem
+[submodule "RobinTheEngine/vendor/entt"]
+	path = RobinTheEngine/vendor/entt
+	url = https://github.com/skypjack/entt.git

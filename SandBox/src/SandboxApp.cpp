@@ -1,6 +1,7 @@
 #include <iostream>
 #include <RTE.h>
 #include "imgui/imgui.h"
+#include "RobinTheEngine/Scene/GameObject.h"
 
 using namespace DirectX;
 
@@ -17,17 +18,18 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 	//RTE::GameObject spot;
-	RTE::GameObject ogre;
-	RTE::GameObject ogre1;
+	RTE::Deprecated::GameObject ogre;
+	RTE::Deprecated::GameObject ogre1;
 	//RTE::GameObject blub;
-	RTE::GameObject ball;
-	RTE::GameObject ball1;
-	RTE::GameObject ball2;
-	RTE::GameObject ball3;
-	RTE::GameObject amogus;
-	RTE::GameObject amogus1;
-	RTE::GameObject amogus2;
+	RTE::Deprecated::GameObject ball;
+	RTE::Deprecated::GameObject ball1;
+	RTE::Deprecated::GameObject ball2;
+	RTE::Deprecated::GameObject ball3;
+	RTE::Deprecated::GameObject amogus;
+	RTE::Deprecated::GameObject amogus1;
+	RTE::Deprecated::GameObject amogus2;
 	RTE::JobSystem jobSystem;
+  
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
 	float ambientStrength = 1;
