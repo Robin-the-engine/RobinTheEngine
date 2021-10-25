@@ -19,6 +19,7 @@
    --IncludeDir["DirectXTK12"] = "RobinTheEngine/vendor/DirectXTK12"
    IncludeDir["DirectXTK"] = "RobinTheEngine/vendor/DirectXTK"
    IncludeDir["assimp"] = "RobinTheEngine/vendor/assimp"
+   IncludeDir["ViennaGameJobSystem"] = "RobinTheEngine/vendor/ViennaGameJobSystem"
    IncludeDir["entt"] = "RobinTheEngine/vendor/entt/single_include/entt"
 
    group "Dependencies"
@@ -34,9 +35,10 @@
       location "RobinTheEngine"
       kind "StaticLib"
       language "C++"
-	  cppdialect "C++17"
+	  cppdialect "C++20"
 	  staticruntime "on"
 	  libdirs { "%{prj.name}/../vendor/bin/DirectXTK/Debug/" }
+      defines {"NOMINMAX"}
 
       targetdir ("bin/" .. outputdir .. "/%{prj.name}")
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -67,7 +69,8 @@
 		 --"%{IncludeDir.DirectXTK12}/Inc",
 		 "%{IncludeDir.DirectXTK}/Inc",
 		 "%{IncludeDir.assimp}/include",
-		 
+		 "%{IncludeDir.ViennaGameJobSystem}/include",
+
       }
       
       links
@@ -84,6 +87,8 @@
 
       filter "system:windows"
          systemversion "latest"
+
+         buildoptions { "/await"}
 
          defines
          {
@@ -116,8 +121,9 @@
       location "Sandbox"
       kind "ConsoleApp"
       language "C++"
-	  cppdialect "C++17"
+	  cppdialect "C++20"
 	  staticruntime "on"
+      defines {"NOMINMAX"}
 
       targetdir ("bin/" .. outputdir .. "/%{prj.name}")
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -134,8 +140,8 @@
          "RobinTheEngine/src",
 		 "RobinTheEngine/vendor",
 		 "RobinTheEngine/vendor/assimp/include",
+		 "%{IncludeDir.ViennaGameJobSystem}/include",
 		 "%{IncludeDir.entt}",
-		 
       }
 
       links
@@ -144,7 +150,10 @@
       }
 
       filter "system:windows"
+
          systemversion "latest"
+
+         buildoptions { "/await"}
 
          defines
          {

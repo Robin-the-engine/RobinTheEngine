@@ -9,6 +9,8 @@ class ExampleLayer : public RTE::Layer
 {
 public:
 
+	using JobHandle = RTE::JobHandle;
+
 	RTE::Camera* camera;
 	RTE::Window* window;
 	GameTimer timer;
@@ -26,6 +28,8 @@ public:
 	RTE::Deprecated::GameObject amogus;
 	RTE::Deprecated::GameObject amogus1;
 	RTE::Deprecated::GameObject amogus2;
+	RTE::JobSystem jobSystem;
+  
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
 	float ambientStrength = 1;
@@ -40,7 +44,7 @@ public:
 
 	float simulationSpeed = 1;
 	ExampleLayer()
-		: Layer("Example")
+		: Layer("Example"), jobSystem()
 	{
 
 	}
@@ -59,58 +63,66 @@ public:
 		//spot.SetPosition(-6, 0.5, 0);
 		//spot.SetLookAtPos(XMFLOAT3(0, 0, 1));
 
+		std::vector<JobHandle> handles;
 
-		ogre.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer);
-		ogre.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png");
+		//RTE::JobDescription j(std::move([&]() {ogre.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer); }));
 
-		ogre1.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer);
-		ogre1.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png");
-		
+		handles.emplace_back(jobSystem.kickJob([&]() {ogre.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ogre1.Initialize("objects\\ogre\\bs_rest.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball1.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball2.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball3.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus1.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus2.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer); }));
+
+		jobSystem.waitForJobs(handles);
+		handles.clear();
+
+		handles.emplace_back(jobSystem.kickJob([&]() {ogre.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png"); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ogre1.SetTexturePath(0, 0, "objects\\ogre\\diffuse.png"); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {
+			ball.SetTexturePath(0, 0, "objects\\green.png"); 
+			ball.SetTexturePath(1, 0, "objects\\green.png"); 
+			ball.SetTexturePath(2, 0, "objects\\green.png"); 
+		}));
+		handles.emplace_back(jobSystem.kickJob([&]() {
+			ball1.SetTexturePath(0, 0, "objects\\spot\\spot_texture.png"); 
+			ball1.SetTexturePath(1, 0, "objects\\spot\\spot_texture.png"); 
+			ball1.SetTexturePath(2, 0, "objects\\spot\\spot_texture.png"); 
+		}));
+		handles.emplace_back(jobSystem.kickJob([&]() {
+			ball2.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png"); 
+			ball2.SetTexturePath(1, 0, "objects\\blub\\blub_texture.png"); 
+			ball2.SetTexturePath(2, 0, "objects\\blub\\blub_texture.png"); 
+		}));
+		handles.emplace_back(jobSystem.kickJob([&]() {
+			ball3.SetTexturePath(0, 0, "objects\\black.png");
+			ball3.SetTexturePath(1, 0, "objects\\black.png"); 
+			ball3.SetTexturePath(2, 0, "objects\\black.png"); 
+		}));
+		handles.emplace_back(jobSystem.kickJob([&]() { amogus.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg"); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {
+			amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg"); 
+			amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg"); 
+		}));
+
+		jobSystem.waitForJobs(handles);
+		handles.clear();
 
 		/*	blub.Initialize("objects\\blub\\blub_triangulated.obj", *RTE::Application::Get().cbuffer);
-			blub.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
-			blub.AdjustPosition(5, 0, 0);*/
-
-		ball.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-		ball.SetTexturePath(0, 0, "objects\\green.png");
-		ball.SetTexturePath(1, 0, "objects\\green.png");
-		ball.SetTexturePath(2, 0, "objects\\green.png");
-		ball.SetScale(0.01f, 0.01f, 0.01f);
-		ball.AdjustPosition(2, 0, 0);
-
-		ball1.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-		ball1.SetTexturePath(0, 0, "objects\\spot\\spot_texture.png");
-		ball1.SetTexturePath(1, 0, "objects\\spot\\spot_texture.png");
-		ball1.SetTexturePath(2, 0, "objects\\spot\\spot_texture.png");
-		ball1.SetScale(0.01f, 0.01f, 0.01f);
-
-		ball2.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-		ball2.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
-		ball2.SetTexturePath(1, 0, "objects\\blub\\blub_texture.png");
-		ball2.SetTexturePath(2, 0, "objects\\blub\\blub_texture.png");
-		ball2.SetScale(0.01f, 0.01f, 0.01f);
-
-		ball3.Initialize("objects\\PokemonBall.obj", *RTE::Application::Get().cbuffer);
-		ball3.SetTexturePath(0, 0, "objects\\black.png");
-		ball3.SetTexturePath(1, 0, "objects\\black.png");
-		ball3.SetTexturePath(2, 0, "objects\\black.png");
-		ball3.SetScale(0.01f, 0.01f, 0.01f);
-		ball3.AdjustPosition(-2, 0, 0);
-
-
-		amogus.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-		amogus.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
-		amogus.SetScale(0.01, 0.01, 0.01);
-		amogus.AdjustPosition(-2, 0, 0);
-
-		amogus1.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-		amogus1.SetTexturePath(0, 0, "objects\\amogus\\amogusNormal.jpg");
-		amogus1.SetScale(0.005, 0.005, 0.005);
-		amogus1.AdjustPosition(0, 1, 0);
-
-		amogus2.Initialize("objects\\amogus\\amogus.obj", *RTE::Application::Get().cbuffer);
-		amogus2.SetTexturePath(0, 0, "objects\\amogus\\amogusDiffuse.jpg");
-		amogus2.SetScale(0.01, 0.01, 0.01);
+		blub.SetTexturePath(0, 0, "objects\\blub\\blub_texture.png");
+		blub.AdjustPosition(5, 0, 0);*/
+		handles.emplace_back(jobSystem.kickJob([&]() {ball.SetScale(0.01f, 0.01f, 0.01f); ball.AdjustPosition(2, 0, 0); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball1.SetScale(0.01f, 0.01f, 0.01f); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball2.SetScale(0.01f, 0.01f, 0.01f); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {ball3.SetScale(0.01f, 0.01f, 0.01f); ball3.AdjustPosition(-2, 0, 0); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus.SetScale(0.01, 0.01, 0.01); amogus.AdjustPosition(-2, 0, 0); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus1.SetScale(0.005, 0.005, 0.005); amogus1.AdjustPosition(0, 1, 0); }));
+		handles.emplace_back(jobSystem.kickJob([&]() {amogus2.SetScale(0.01, 0.01, 0.01); }));
+		
+		jobSystem.waitForJobs(handles);
 	}
 
 	float angle = 0;
@@ -212,7 +224,7 @@ public:
 	}
 
 
-	void OnRender()override
+	void OnRender() override
 	{
 		auto vp = camera->GetViewMatrix()* camera->GetProjectionMatrix();
 		//spot.Draw(vp);

@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "Window.h"
 
-#include "Platform//DirectX12/DirectX12RenderSystem.h"
+#include "Platform/DirectX12/DirectX12RenderSystem.h"
 
 #include "RobinTheEngine/LayerStack.h"
 #include "RobinTheEngine/Events/Event.h"
