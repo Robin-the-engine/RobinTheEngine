@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
+#include <unordered_map>
 #include "Core.h"
 #include "Platform/DirectX11/Material.h"
 #include "Platform/DirectX11/Model.h"
+
 
 
 
@@ -51,14 +53,24 @@ namespace RTE {
 			Model model;
 			ConstantBuffer<CB_VS_MATRIX4x4> cbuff("LightProps");
 
-			RTE_CORE_ASSERT( model.Initialize(key, cbuff), "Cannot initialize model with that key");
+			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+
+			std::string path = yamlKeys[key];
+
+			RTE_CORE_ASSERT( model.Initialize(path, cbuff), "Cannot initialize model with that key");
 			return model;
 		}
 		
+		int GetHashValue(std::string name);
 
 	private:
-		void ReadYamlKeys() {};
-		ResourceFactory() {};
+		void ReadYamlKeys();
+		ResourceFactory() {
+			ReadYamlKeys();
+		};
+
+		// Its maps yaml keys to paths
+		std::unordered_map<std::string, std::string> yamlKeys;
 
 	};
 

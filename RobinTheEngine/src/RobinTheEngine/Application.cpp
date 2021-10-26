@@ -51,7 +51,8 @@ namespace RTE {
 
 		vertexShader vs(L"shaders\\VS.hlsl");
 		pixelShader ps(L"shaders\\PS.hlsl");
-
+		ResourceFactory::Get().GetResource<Model>("ogre");
+		auto id = ResourceFactory::Get().GetHashValue("ogre");
 		CB_VS_MATRIX4x4 rotation;
 
 		//Create sampler description for sampler state
