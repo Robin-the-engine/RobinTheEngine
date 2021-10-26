@@ -7,6 +7,15 @@
 #include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
 
+#include "Platform/DirectX12/DirectX12RenderSystem.h"
+
+#include "RobinTheEngine/LayerStack.h"
+#include "RobinTheEngine/Events/Event.h"
+#include "RobinTheEngine/Events/ApplicationEvent.h"
+#include "RobinTheEngine/ImGui/ImGuiLayer.h"
+#include "Platform/DirectX11/Camera.h"
+#include "Platform/DirectX11/ConstantBuffer.h"
+#include <memory>
 
 
 namespace RTE {

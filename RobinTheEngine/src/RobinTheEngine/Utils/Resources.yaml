@@ -1,0 +1,10 @@
+# ussage:
+# key: value
+
+ogre : objects\ogre\bs_rest.obj
+pokeball : objects\\PokemonBall.obj
+
+
+
+
+

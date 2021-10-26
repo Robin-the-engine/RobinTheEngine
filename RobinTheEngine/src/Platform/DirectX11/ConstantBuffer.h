@@ -10,6 +10,8 @@
 
 namespace RTE {
 
+	class Application;
+
 	template<class T>
 	class  ConstantBuffer {
 

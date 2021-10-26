@@ -19,6 +19,9 @@
    --IncludeDir["DirectXTK12"] = "RobinTheEngine/vendor/DirectXTK12"
    IncludeDir["DirectXTK"] = "RobinTheEngine/vendor/DirectXTK"
    IncludeDir["assimp"] = "RobinTheEngine/vendor/assimp"
+   IncludeDir["ViennaGameJobSystem"] = "RobinTheEngine/vendor/ViennaGameJobSystem"
+   IncludeDir["entt"] = "RobinTheEngine/vendor/entt/single_include/entt"
+   IncludeDir["yaml"] = "RobinTheEngine/vendor/yaml-cpp/include"
 
    group "Dependencies"
    include "RobinTheEngine/vendor/GLFW"
@@ -26,6 +29,7 @@
    --include "RobinTheEngine/vendor/DirectXTK12"
    include "RobinTheEngine/vendor/DirectXTK"
    include "RobinTheEngine/vendor/assimp"
+   include "RobinTheEngine/vendor/yaml-cpp"
    group ""
 
 
@@ -36,6 +40,7 @@
 	  cppdialect "C++20"
 	  staticruntime "on"
 	  libdirs { "%{prj.name}/../vendor/bin/DirectXTK/Debug/" }
+      defines {"NOMINMAX"}
 
       targetdir ("bin/" .. outputdir .. "/%{prj.name}")
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -62,10 +67,13 @@
          "%{prj.name}/vendor/DirectX12-Headers/include/directx",
          "%{IncludeDir.GLFW}",
 		 "%{IncludeDir.ImGui}",
+		 "%{IncludeDir.entt}",
+		 "%{IncludeDir.yaml}",
 		 --"%{IncludeDir.DirectXTK12}/Inc",
 		 "%{IncludeDir.DirectXTK}/Inc",
 		 "%{IncludeDir.assimp}/include",
-		 
+		 "%{IncludeDir.ViennaGameJobSystem}/include",
+
       }
       
       links
@@ -74,7 +82,8 @@
 		 "opengl32.lib",
 		 "ImGui",
 		 "assimp",
-		 "DirectXTK"
+		 "DirectXTK",
+         "yaml-cpp"
 
       }
 	  
@@ -82,6 +91,8 @@
 
       filter "system:windows"
          systemversion "latest"
+
+         buildoptions { "/await"}
 
          defines
          {
@@ -116,6 +127,7 @@
       language "C++"
 	  cppdialect "C++20"
 	  staticruntime "on"
+      defines {"NOMINMAX"}
 
       targetdir ("bin/" .. outputdir .. "/%{prj.name}")
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -132,7 +144,8 @@
          "RobinTheEngine/src",
 		 "RobinTheEngine/vendor",
 		 "RobinTheEngine/vendor/assimp/include",
-		 
+		 "%{IncludeDir.ViennaGameJobSystem}/include",
+		 "%{IncludeDir.entt}",
       }
 
       links
@@ -141,7 +154,10 @@
       }
 
       filter "system:windows"
+
          systemversion "latest"
+
+         buildoptions { "/await"}
 
          defines
          {

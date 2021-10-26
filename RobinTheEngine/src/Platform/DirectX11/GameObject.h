@@ -2,7 +2,7 @@
 #include "Model.h"
 
 
-namespace RTE {
+namespace RTE::Deprecated {
 
 
 	class GameObject

@@ -7,7 +7,7 @@ using namespace DirectX;
 namespace RTE {
 
 
-	class RTE_API Model
+	class Model
 	{
 	public:
 		bool Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX4x4>& cb_vs_vertexshader);

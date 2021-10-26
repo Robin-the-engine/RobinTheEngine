@@ -197,8 +197,9 @@ void RTE::DirectX12RenderSystem::OnResize(int width, int height)
 	optClear.Format = m_DepthStencilFormat;
 	optClear.DepthStencil.Depth = 1.0f;
 	optClear.DepthStencil.Stencil = 0;
+	CD3DX12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	ThrowIfFailed(m_d3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		&defaultHeapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&depthStencilDesc,
 		D3D12_RESOURCE_STATE_COMMON,
@@ -214,8 +215,9 @@ void RTE::DirectX12RenderSystem::OnResize(int width, int height)
 	m_d3dDevice->CreateDepthStencilView(m_DepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
 
 	// Transition the resource from its initial state to be used as a depth buffer.
-	m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_DepthStencilBuffer.Get(),
-		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_DepthStencilBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	m_CommandList->ResourceBarrier(1, &barrier);
 
 	// Execute the resize commands.
 	ThrowIfFailed(m_CommandList->Close());
@@ -248,8 +250,9 @@ void RTE::DirectX12RenderSystem::OnRenderBegin()
 	ThrowIfFailed(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
 	// Indicate a state transition on the resource usage.
-	m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_CommandList->ResourceBarrier(1, &barrier);
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
 	m_CommandList->RSSetViewports(1, &m_ScreenViewport);
@@ -260,7 +263,9 @@ void RTE::DirectX12RenderSystem::OnRenderBegin()
 	m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	// Specify the buffers we are going to render to.
-	m_CommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+	D3D12_CPU_DESCRIPTOR_HANDLE curBBView = CurrentBackBufferView();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsView = DepthStencilView();
+	m_CommandList->OMSetRenderTargets(1, &curBBView, true, &dsView);
 	
 	
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mCbvHeap.Get() };
@@ -276,8 +281,9 @@ void RTE::DirectX12RenderSystem::OnRenderEnd()
 {
 
 	// Indicate a state transition on the resource usage.
-	m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	m_CommandList->ResourceBarrier(1, &barrier);
 
 	// Done recording commands.
 	ThrowIfFailed(m_CommandList->Close());
@@ -433,7 +439,7 @@ void RTE::DirectX12RenderSystem::FlushCommandQueue()
 	// Wait until the GPU has completed commands up to this fence point.
 	if (m_Fence->GetCompletedValue() < m_CurrentFence)
 	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 
 		// Fire event when GPU hits current fence.  
 		ThrowIfFailed(m_Fence->SetEventOnCompletion(m_CurrentFence, eventHandle));
