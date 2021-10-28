@@ -8,6 +8,7 @@
 #include "RobinTheEngine/ImGui/ImGuiLayer.h"
 #include "RobinTheEngine/GameTimer.h"
 #include "RobinTheEngine/JobSystem/JobSystem.h"
+#include "RobinTheEngine/Scene/Components.h"
 
 #include "Platform/DirectX11/Camera.h"
 #include "Platform/DirectX11/Model.h"
@@ -21,8 +22,5 @@
 #include "RobinTheEngine/EntryPoint.h"
 //---------------------------------------
 
-
 //temp includes
 #include "Platform/DirectX11/ConstantBuffer.h"
-
-

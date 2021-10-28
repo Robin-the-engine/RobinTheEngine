@@ -1,6 +1,6 @@
 #pragma once
 #include "Model.h"
-
+#include "../../RobinTheEngine/Scene/Components/Scripting.h"
 
 namespace RTE::Deprecated {
 
@@ -8,6 +8,8 @@ namespace RTE::Deprecated {
 	class GameObject
 	{
 	public:
+		~GameObject();
+
 		bool Initialize(const std::string & path, ConstantBuffer<CB_VS_MATRIX4x4>& cb_vs_vertexshader);
 		void Draw(const XMMATRIX & viewProjectionMatrix);
 
@@ -15,7 +17,8 @@ namespace RTE::Deprecated {
 		const XMFLOAT3 & GetPositionFloat3();
 		const XMVECTOR & GetRotationVec();
 		const XMFLOAT3 & GetRotationFloat3();
-
+		void SetScript(RTE::ScriptComponent* script);
+		RTE::ScriptComponent* GetScript();
 		void SetPosition(const XMVECTOR & pos);
 		void SetPosition(const XMFLOAT3 & pos);
 		void SetPosition(float x, float y, float z);
@@ -59,5 +62,4 @@ namespace RTE::Deprecated {
 		XMVECTOR vec_backward;
 	};
 */
-
 }

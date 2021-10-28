@@ -23,6 +23,3 @@ namespace RTE
 		friend class Serializer;
 	};
 }
-
-
-
