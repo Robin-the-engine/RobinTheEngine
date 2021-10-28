@@ -22,6 +22,8 @@
    IncludeDir["ViennaGameJobSystem"] = "RobinTheEngine/vendor/ViennaGameJobSystem"
    IncludeDir["entt"] = "RobinTheEngine/vendor/entt/single_include/entt"
    IncludeDir["yaml"] = "RobinTheEngine/vendor/yaml-cpp/include"
+   IncludeDir["sol2"] = "RobinTheEngine/vendor/sol2/include"
+   IncludeDir["lua"] = "vendor/lua/include"
 
    group "Dependencies"
    include "RobinTheEngine/vendor/GLFW"
@@ -39,8 +41,7 @@
       language "C++"
 	  cppdialect "C++20"
 	  staticruntime "on"
-	  libdirs { "%{prj.name}/../vendor/bin/DirectXTK/Debug/" }
-      defines {"NOMINMAX"}
+	  libdirs {"vendor/lua/lib/", }
 
       targetdir ("bin/" .. outputdir .. "/%{prj.name}")
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -56,7 +57,9 @@
 	  defines
 	  {
 	     "_CRT_SECURE_NO_WARNINGS",
-		 "GLFW_INCLUDE_NONE"
+		 "GLFW_INCLUDE_NONE",
+         "SOL_ALL_SAFETIES_ON",
+         "NOMINMAX"
 	  }
 
       includedirs
@@ -73,18 +76,19 @@
 		 "%{IncludeDir.DirectXTK}/Inc",
 		 "%{IncludeDir.assimp}/include",
 		 "%{IncludeDir.ViennaGameJobSystem}/include",
+		 "%{IncludeDir.sol2}",
+		 "%{IncludeDir.lua}",
 
       }
       
       links
       {
          "GLFW",
-		 "opengl32.lib",
 		 "ImGui",
 		 "assimp",
 		 "DirectXTK",
-         "yaml-cpp"
-
+         "yaml-cpp",
+         "liblua54",
       }
 	  
 
@@ -98,7 +102,9 @@
          {
             "RTE_PLATFORM_WINDOWS",
             "RTE_BUILD_DLL",
-			"GLFW_INCLUDE_NONE"
+			"GLFW_INCLUDE_NONE",
+            "SOL_ALL_SAFETIES_ON",
+            "NOMINMAX"
          }
 
 
@@ -106,19 +112,16 @@
          defines "RTE_DEBUG"
          symbols "on"
 		 runtime "Debug"
-		 libdirs { "vendor/bin/DirectXTK/Debug/" }
 
       filter "configurations:Release"
          defines "RTE_RELEASE"
          optimize "on"
 		 runtime "Release"
-		 libdirs { "vendor/bin/DirectXTK/Release/" }
 
       filter "configurations:Dist"
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
-		 libdirs { "vendor/bin/DirectXTK/Release/" }
 
 
    project "Sandbox"
@@ -128,9 +131,11 @@
 	  cppdialect "C++20"
 	  staticruntime "on"
       defines {"NOMINMAX"}
-
-      targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+      
+      td = "bin/" .. outputdir .. "/%{prj.name}"
+      targetdir (td)
       objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+      postbuildcommands('{COPYFILE} "$(SolutionDir)vendor/lua/lib/lua54.dll" ' .. '"$(SolutionDir)' .. td .. '"')
 
       files
       {
@@ -146,6 +151,9 @@
 		 "RobinTheEngine/vendor/assimp/include",
 		 "%{IncludeDir.ViennaGameJobSystem}/include",
 		 "%{IncludeDir.entt}",
+		 "%{IncludeDir.sol2}",
+		 "%{IncludeDir.lua}",
+
       }
 
       links
@@ -178,9 +186,3 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
-
-
-
-
-
-
