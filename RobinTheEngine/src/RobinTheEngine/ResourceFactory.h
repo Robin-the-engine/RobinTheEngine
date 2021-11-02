@@ -4,22 +4,12 @@
 #include "Core.h"
 #include "Platform/DirectX11/Material.h"
 #include "Platform/DirectX11/Model.h"
+#include "Platform/DirectX11/Shaders.h"
 
 
 
 
 namespace RTE {
-
-
-	/*
-	Usage:
-		#include "RobinTheEngine/ReosurceFactory.h"
-	
-		//Right now its work only with file path
-		Model model = ResourceFactory::Get().GetResource<Model>("objects\\ogre\\bs_rest.obj");
-	
-	*/
-
 
 	class ResourceFactory
 	{
@@ -33,20 +23,60 @@ namespace RTE {
 		}
 
 		template<class T>
-		T GetResource(std::string key){ 
+		T GetResource(std::string key) {
 			//We dont use that method. Its FALSE alwayse 	
-			STATIC_ASSERT(false); 
+			STATIC_ASSERT(false);
 			return T();
 		}
 
 		template<>
 		Material GetResource<Material>(std::string key) {
-			//TODO: its temp method. need real emplementation! 
-			return Material();
+
+			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+			auto stringKey = yamlKeys[key];
+			int intKey = std::atoi(stringKey.c_str());
+			RTE_CORE_ASSERT(intKey, "Cannot convert yaml key to int or its equal to zero.");
+
+			switch (intKey)
+			{
+			default:
+			case 1:
+				return DefaultMaterial();
+			}
+
 		}
 
-		//пока что передаю модель. хз стоит ли отдавать отдельные куски меша т.к. 
-		//у них может не быть названия и получается брать их можно будет только по индексу
+		template<>
+		pixelShader GetResource<pixelShader>(std::string key) {
+
+			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+			auto path = yamlKeys[key];
+
+			std::wstring convertedString(path.begin(), path.end());
+			return pixelShader(convertedString);
+
+		}
+
+		template<>
+		vertexShader GetResource<vertexShader>(std::string key) {
+
+			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+			auto path = yamlKeys[key];
+
+
+			const D3D11_INPUT_ELEMENT_DESC layout[] =
+			{
+				D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+				D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+			};
+			UINT numElements = ARRAYSIZE(layout);
+
+			std::wstring convertedString(path.begin(), path.end());
+			return vertexShader(convertedString, layout, numElements);
+
+		}
+
 		template<>
 		Model GetResource<Model>(std::string key) {
 
@@ -57,10 +87,10 @@ namespace RTE {
 
 			std::string path = yamlKeys[key];
 
-			RTE_CORE_ASSERT( model.Initialize(path, cbuff), "Cannot initialize model with that key");
+			RTE_CORE_ASSERT(model.Initialize(path, cbuff), "Cannot initialize model with that key");
 			return model;
 		}
-		
+
 		int GetHashValue(std::string name);
 
 	private:

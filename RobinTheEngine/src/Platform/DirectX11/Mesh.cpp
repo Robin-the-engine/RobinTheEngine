@@ -8,19 +8,19 @@
 
 using namespace D3DUtils;
 
-RTE::Mesh::Mesh( std::vector<vertex_Gouraud_shading>& vertices, std::vector<DWORD>& indices,std::vector<Texture>& textures, std::string meshName): name(meshName)
+RTE::Mesh::Mesh(std::vector<vertex_Gouraud_shading>& vertices, std::vector<DWORD>& indices, std::vector<Texture>& textures, std::string meshName) : name(meshName)
 {
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
-		this->deviceContext = rs->GetContext().Get(); 
-		this->textures = textures;
+	this->deviceContext = rs->GetContext().Get();
+	this->textures = textures;
 
 	ThrowIfFailed(vertexbuffer.Init(vertices.data(), vertices.size(), name));
 
-	ThrowIfFailed(indexbuffer.Init( indices.data(), indices.size(), name));
-	
+	ThrowIfFailed(indexbuffer.Init(indices.data(), indices.size(), name));
+
 }
 
-RTE::Mesh::Mesh(const Mesh & mesh)
+RTE::Mesh::Mesh(const Mesh& mesh)
 {
 	this->deviceContext = mesh.deviceContext;
 	this->indexbuffer = mesh.indexbuffer;

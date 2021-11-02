@@ -49,7 +49,16 @@ namespace RTE {
 	void Application::Run()
 	{
 
-		vertexShader vs(L"shaders\\VS.hlsl");
+
+		const D3D11_INPUT_ELEMENT_DESC layout[] =
+		{
+			D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+			D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+		};
+
+		UINT numElements = ARRAYSIZE(layout);
+		vertexShader vs(L"shaders\\VS.hlsl",layout,numElements);
 		pixelShader ps(L"shaders\\PS.hlsl");
 		//ResourceFactory::Get().GetResource<Model>("ogre");
 		//auto id = ResourceFactory::Get().GetHashValue("ogre");
@@ -74,6 +83,7 @@ namespace RTE {
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			context->VSSetShader(vs.GetShader(), 0, 0);
 			context->PSSetShader(ps.GetShader(), 0, 0);
+			context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 			context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
 
 			for (Layer* layer : m_LayerStack)

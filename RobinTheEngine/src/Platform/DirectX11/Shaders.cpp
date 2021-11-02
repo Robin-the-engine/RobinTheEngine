@@ -8,7 +8,7 @@
 
 using namespace D3DUtils;
 
-RTE::vertexShader::vertexShader(std::wstring filePath) :path(filePath)
+RTE::vertexShader::vertexShader(std::wstring filePath, const D3D11_INPUT_ELEMENT_DESC layoutElements[], UINT numLayoutElements ) :path(filePath)
 {
 	std::string charPath(path.begin(), path.end());
 	if (ComsManager::Get().IsHaveComPtrResource(charPath + "\\VertexShader")) {
@@ -46,29 +46,27 @@ RTE::vertexShader::vertexShader(std::wstring filePath) :path(filePath)
 	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 	ThrowIfFailed(rs->GetDevice()->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, shader.GetAddressOf()));
 
+	/*
 	const D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 		D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
-
-	UINT numElements = ARRAYSIZE(layout);
-	ThrowIfFailed(rs->GetDevice()->CreateInputLayout(layout, numElements, shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), inputLayout.GetAddressOf()));
+	*/
+	//UINT numElements = ARRAYSIZE(layout);
+//	UINT numElements = ARRAYSIZE(layoutElements);
+	ThrowIfFailed(rs->GetDevice()->CreateInputLayout(layoutElements, numLayoutElements, shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(),  inputLayout.GetAddressOf()));
 
 	{
 		ComsManager::Get().RegisterComPtrResource<ID3D11VertexShader>(shader, charPath + "\\VertexShader");
-
 		ComsManager::Get().RegisterComPtrResource<ID3D11InputLayout>(inputLayout, charPath + "\\InputLayout");
-
 	}
 
 }
 
 RTE::vertexShader::~vertexShader()
 {
-	/*shader->Release();
-	shaderBuffer->Release();*/
 }
 
 ID3D11VertexShader * RTE::vertexShader::GetShader()

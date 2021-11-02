@@ -63,7 +63,7 @@ public:
 	void OnAttach() {
 		scene.name = "Test Scene";
 
-		
+		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		camera.SetPosition(XMFLOAT3(0, 0, -10));
 		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()), 0.05, 1000);
 		window = &RTE::Application::Get().GetWindow();
@@ -247,6 +247,7 @@ public:
 	void OnRender() override
 	{
 		auto vp = camera.GetViewMatrix()* camera.GetProjectionMatrix();
+		//rs->GetContext()->PSSetConstantBuffers(0, 0, lightCbuffer.GetAddressOf());
 		//spot.Draw(vp);
 		ogre.Draw(vp);
 		ogre1.Draw(vp);

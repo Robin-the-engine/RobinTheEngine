@@ -18,7 +18,7 @@ bool RTE::Model::Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX
 	this->deviceContext = rs->GetContext().Get();
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 	GetDirectoryFromPath(path);
-	if (modelCache.find(path) !=  modelCache.end()) {
+	if (modelCache.find(path) != modelCache.end()) {
 
 		this->meshes = modelCache[path];
 		return true;
@@ -32,16 +32,16 @@ bool RTE::Model::Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX
 	return true;
 }
 
-void RTE::Model::SetTexture(ID3D11ShaderResourceView * texture)
+void RTE::Model::SetTexture(ID3D11ShaderResourceView* texture)
 {
 	this->texture = texture;
 }
 
-void RTE::Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX & viewProjectionMatrix)
+void RTE::Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
 {
 	//Update Constant buffer with WVP Matrix
 	XMStoreFloat4x4(&cb_vs_vertexshader->data.mvpMatrix, XMMatrixTranspose(worldMatrix * viewProjectionMatrix)); //Calculate World-View-Projection Matrix
-	XMStoreFloat4x4(&cb_vs_vertexshader->data.worldMatrix, XMMatrixTranspose(worldMatrix)); 
+	XMStoreFloat4x4(&cb_vs_vertexshader->data.worldMatrix, XMMatrixTranspose(worldMatrix));
 
 	cb_vs_vertexshader->WriteBuffer();
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
@@ -54,7 +54,7 @@ void RTE::Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX & viewProjecti
 }
 
 
-bool RTE::Model::LoadModel(const std::string & filePath)
+bool RTE::Model::LoadModel(const std::string& filePath)
 {
 	Assimp::Importer importer;
 
@@ -70,7 +70,7 @@ bool RTE::Model::LoadModel(const std::string & filePath)
 	return true;
 }
 
-void RTE::Model::ProcessNode(aiNode * node, const aiScene * scene)
+void RTE::Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
@@ -84,7 +84,7 @@ void RTE::Model::ProcessNode(aiNode * node, const aiScene * scene)
 	}
 }
 
-RTE::Mesh RTE::Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
+RTE::Mesh RTE::Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
 	// Data to fill
 	std::vector<vertex_Gouraud_shading> vertices;
@@ -94,7 +94,7 @@ RTE::Mesh RTE::Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
 		vertex_Gouraud_shading vertex;
-		
+
 		vertex.pos.x = mesh->mVertices[i].x;
 		vertex.pos.y = mesh->mVertices[i].y;
 		vertex.pos.z = mesh->mVertices[i].z;
@@ -133,11 +133,11 @@ RTE::Mesh RTE::Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	return Mesh(vertices, indices, textures,directory + mesh->mName.C_Str());
+	return Mesh(vertices, indices, textures, directory + mesh->mName.C_Str());
 
 }
 
-void RTE::Model::GetDirectoryFromPath(const std::string & path)
+void RTE::Model::GetDirectoryFromPath(const std::string& path)
 {
 	size_t off1 = path.find_last_of('\\');
 	size_t off2 = path.find_last_of('/');
@@ -161,7 +161,7 @@ void RTE::Model::GetDirectoryFromPath(const std::string & path)
 }
 
 
-int RTE::Model::GetTextureIndex(aiString * pStr)
+int RTE::Model::GetTextureIndex(aiString* pStr)
 {
 	assert(pStr->length >= 2);
 	return atoi(&pStr->C_Str()[1]);
@@ -204,3 +204,167 @@ std::vector<RTE::Texture> RTE::Model::LoadMaterialTextures(aiMaterial* pMaterial
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+std::shared_ptr<RTE::IMeshTwo> processDefaultMesh(aiMesh* mesh) {
+	// Data to fill
+	std::vector<RTE::vertex_pos_color> vertices;
+	std::vector<DWORD> indices;
+
+	//Get vertices
+	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	{
+		RTE::vertex_pos_color vertex;
+
+		vertex.pos.x = mesh->mVertices[i].x;
+		vertex.pos.y = mesh->mVertices[i].y;
+		vertex.pos.z = mesh->mVertices[i].z;
+
+		vertex.normal.x = mesh->mNormals[i].x;
+		vertex.normal.y = mesh->mNormals[i].y;
+		vertex.normal.z = mesh->mNormals[i].z;
+
+		vertices.push_back(vertex);
+	}
+
+	//Get indices
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+
+		for (UINT j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+	using namespace RTE;
+	//std::shared_ptr<RTE::IMeshTwo> meshPtr = std::make_shared<RTE::MeshTwo<RTE::vertex_pos_color>>(vertices, indices);
+	std::shared_ptr<IMeshTwo> meshPtr = std::shared_ptr<MeshTwo<vertex_pos_color>>(new MeshTwo<vertex_pos_color>(vertices, indices));
+	return meshPtr;
+}
+
+std::shared_ptr<RTE::IMeshTwo> processTexturedMesh(aiMesh* mesh) {
+	// Data to fill
+	std::vector<RTE::vertex_Gouraud_shading> vertices;
+	std::vector<DWORD> indices;
+
+	//Get vertices
+	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	{
+		RTE::vertex_Gouraud_shading vertex;
+
+		vertex.pos.x = mesh->mVertices[i].x;
+		vertex.pos.y = mesh->mVertices[i].y;
+		vertex.pos.z = mesh->mVertices[i].z;
+
+		vertex.normal.x = mesh->mNormals[i].x;
+		vertex.normal.y = mesh->mNormals[i].y;
+		vertex.normal.z = mesh->mNormals[i].z;
+
+		if (mesh->mTextureCoords[0])
+		{
+			vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
+			vertex.texCoord.y = (float)mesh->mTextureCoords[0][i].y;
+		}
+
+		vertices.push_back(vertex);
+	}
+
+	//Get indices
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+
+		for (UINT j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+	std::shared_ptr<RTE::IMeshTwo> meshPtr = std::make_shared<RTE::MeshTwo<RTE::vertex_Gouraud_shading>>(vertices, indices);
+	return meshPtr;
+}
+
+
+std::unordered_map<std::string, std::vector<std::shared_ptr<RTE::IMeshTwo>>> meshesCache;
+
+bool RTE::MModel::Initialize(const std::string& path, int layout)
+{
+	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*> (Application::Get().GetRenderSystem());
+
+	if (modelCache.find(path) != modelCache.end()) {
+
+		this->meshes = meshesCache[path];
+		return true;
+	}
+	if (!this->LoadModel(path, layout)) {
+		std::string warn = "Cant load model with path: " + path;
+		RTE_CORE_WARN(warn);
+		return false;
+	}
+	meshesCache[path] = meshes;
+	return true;
+
+}
+
+bool RTE::MModel::LoadModel(const std::string& filePath, int layout)
+{
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile(filePath,
+		aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded);
+
+	if (pScene == NULL)
+		return false;
+
+
+	this->ProcessNode(pScene->mRootNode, pScene, layout);
+	return true;
+}
+
+void RTE::MModel::ProcessNode(aiNode* node, const aiScene* scene, int layout)
+{
+	for (UINT i = 0; i < node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		meshes.push_back(this->ProcessMesh(mesh, layout));
+	}
+
+	for (UINT i = 0; i < node->mNumChildren; i++)
+	{
+		this->ProcessNode(node->mChildren[i], scene, layout);
+	}
+}
+
+
+std::shared_ptr<RTE::IMeshTwo> RTE::MModel::ProcessMesh(aiMesh* mesh, int layout)
+{
+	//UNDONE: place for adding mesh processing functions for new mesh layouts
+	switch (layout)
+	{
+	case (1):
+		 return processDefaultMesh(mesh);
+		break;
+	case (2):
+		return processTexturedMesh(mesh);
+		break;
+	default:
+		RTE_CORE_ASSERT(false, "Bad layout index");
+		//return std::make_shared<RTE::IMeshTwo>(nullptr);
+		break;
+	}
+}

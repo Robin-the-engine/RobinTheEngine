@@ -10,7 +10,7 @@ namespace RTE {
 	class vertexShader
 	{
 	public:
-		vertexShader(std::wstring filePath);
+		vertexShader(std::wstring filePath, const D3D11_INPUT_ELEMENT_DESC layoutElements[], UINT numLayoutElements );
 		~vertexShader();
 
 		ID3D11VertexShader* GetShader();

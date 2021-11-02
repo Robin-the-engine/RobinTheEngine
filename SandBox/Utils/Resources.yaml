@@ -1,9 +1,26 @@
 # ussage:
 # key: value
 
-ogre : objects\ogre\bs_rest.obj
-pokeball : objects\\PokemonBall.obj
+#meshes
+ogre :
+	Layout: 2
+	Path: objects\ogre\bs_rest.obj
 
+pokeball : 
+	Layout: 2
+	Path: objects\\PokemonBall.obj
+
+
+#textures
+textureErrorChecker: assets\textures\error_checker.png
+
+
+
+#shaders
+litColorPS: shaders\\coloredps.hlsl
+litColorVS: shaders\\coloredvs.hlsl
+texturedPS: shaders\\PS.hlsl
+texturedVS: shaders\\VS.hlsl
 
 
 
