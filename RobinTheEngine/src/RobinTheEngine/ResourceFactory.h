@@ -5,11 +5,21 @@
 #include "Platform/DirectX11/Material.h"
 #include "Platform/DirectX11/Model.h"
 #include "Platform/DirectX11/Shaders.h"
-
+#include "Platform/DirectX11/Texture.h"
 
 
 
 namespace RTE {
+
+
+	struct MeshDesc
+	{
+		std::string key;
+		int layout;
+		std::string path;
+		MeshDesc() :layout(-1), path(""), key("") {}
+
+	};
 
 	class ResourceFactory
 	{
@@ -29,21 +39,26 @@ namespace RTE {
 			return T();
 		}
 
+
 		template<>
 		Material GetResource<Material>(std::string key) {
 
-			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
-			auto stringKey = yamlKeys[key];
-			int intKey = std::atoi(stringKey.c_str());
-			RTE_CORE_ASSERT(intKey, "Cannot convert yaml key to int or its equal to zero.");
+			RTE_CORE_ASSERT(materialDescriptors.find(key) != materialDescriptors.end(), "Dont have that key in material file!");
+			auto desc = materialDescriptors[key];
 
-			switch (intKey)
-			{
-			default:
-			case 1:
-				return DefaultMaterial();
-			}
+			Material mat(desc);
+			return mat;
+		}
 
+		template<>
+		Texture GetResource<Texture>(std::string key) {
+
+			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in material file!");
+			auto path = yamlKeys[key];
+
+			Texture tex(path, aiTextureType::aiTextureType_DIFFUSE);
+			
+			return tex;
 		}
 
 		template<>
@@ -74,20 +89,33 @@ namespace RTE {
 
 			std::wstring convertedString(path.begin(), path.end());
 			return vertexShader(convertedString, layout, numElements);
-
 		}
 
+		/*
 		template<>
 		Model GetResource<Model>(std::string key) {
 
 			Model model;
-			ConstantBuffer<CB_VS_MATRIX4x4> cbuff("LightProps");
+			//TODO: memory leak
+			ConstantBuffer<CB_VS_MATRIX4x4>* cbuff = new ConstantBuffer<CB_VS_MATRIX4x4>(("MVPMatrix"));
 
 			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
 
 			std::string path = yamlKeys[key];
 
-			RTE_CORE_ASSERT(model.Initialize(path, cbuff), "Cannot initialize model with that key");
+			RTE_CORE_ASSERT(model.Initialize(path, *cbuff), "Cannot initialize model with that key");
+			return model;
+		}*/
+
+		template<>
+		Model GetResource<Model>(std::string key) {
+
+			Model model;
+
+			RTE_CORE_ASSERT(meshDescriptors.find(key) != meshDescriptors.end(), "Dont have that key in resource file!");
+			auto desc = meshDescriptors[key];
+
+			RTE_CORE_ASSERT(model.Initialize(desc.path, desc.layout), "Cannot initialize model with that key");
 			return model;
 		}
 
@@ -95,12 +123,17 @@ namespace RTE {
 
 	private:
 		void ReadYamlKeys();
+		void ReadMaterialDescriptors();
 		ResourceFactory() {
 			ReadYamlKeys();
+			ReadMaterialDescriptors();
 		};
+
 
 		// Its maps yaml keys to paths
 		std::unordered_map<std::string, std::string> yamlKeys;
+		std::unordered_map<std::string, MeshDesc> meshDescriptors;
+		std::unordered_map<std::string, MaterialDescriptor> materialDescriptors;
 
 	};
 

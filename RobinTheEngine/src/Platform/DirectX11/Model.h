@@ -2,20 +2,41 @@
 #include "Platform/DirectX11/Mesh.h"
 #include <string>
 #include <memory>
+#include "RobinTheEngine/Scene/BaseResource.h"
 
 using namespace DirectX;
 
 namespace RTE {
 
+	class Model: public BaseResource
+	{
+	public:
+		Model():BaseResource("invalid"){}
+		bool Initialize(const std::string& path, int layout);
+		std::vector<std::shared_ptr<IMesh>> meshes;
 
-	class Model
+
+	private:
+		bool LoadModel(const std::string& filePath, int lauout);
+		void ProcessNode(aiNode* node, const aiScene* scene, int layout);
+		std::shared_ptr<IMesh> ProcessMesh(aiMesh* mesh, int layout);
+
+	};
+
+
+
+
+
+
+	/*	class Model : public IMesh
 	{
 	public:
 		bool Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX4x4>& cb_vs_vertexshader);
 		void SetTexture(ID3D11ShaderResourceView* texture);
-		void Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix);
+		//void Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix);
+		void Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix) override;
 		std::vector<Mesh> meshes;
-
+		Model() = default;
 
 	private:
 
@@ -34,26 +55,7 @@ namespace RTE {
 
 		std::string directory = "";
 
-	};
-
-
-	class MModel
-	{
-	public:
-		bool Initialize(const std::string& path, int layout);
-		std::vector<std::shared_ptr<IMeshTwo>> meshes;
-
-
-	private:
-		bool LoadModel(const std::string& filePath, int lauout);
-		void ProcessNode(aiNode* node, const aiScene* scene, int layout);
-		std::shared_ptr<IMeshTwo> ProcessMesh(aiMesh* mesh, int layout);
-
-
-	};
-
-
-
+	};*/
 
 
 }

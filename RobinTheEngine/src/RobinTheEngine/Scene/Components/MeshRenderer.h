@@ -1,10 +1,18 @@
 #pragma once
 #include "RobinTheEngine/Scene/Component.h"
+#include <DirectXMath.h>
+#include "RobinTheEngine/Scene/BaseResource.h"
+#include "RobinTheEngine/Scene/Components/IDrawable.h"
+
+#include "Platform/DirectX11/Model.h"
+#include "Platform/DirectX11/Material.h"
+
 
 namespace RTE
 {
 #pragma region Dymmy
 
+	/*
 	//  TEMP: Resource manager interface
 	class ResourceManager
 	{
@@ -15,46 +23,47 @@ namespace RTE
 			T result(id);
 			return result;
 		}
-	};
-	//  TEMP: Base resource class
-	class BaseResource
-	{
-	public:
-		using ResourceID = std::string;
-	private:
-		ResourceID id = "invalid";
-	public:
-		BaseResource() = default;
-		BaseResource(const BaseResource&) = default;
+	};*/
 
-		BaseResource(ResourceID id) : id(id) { }
-
-
-		const ResourceID GetResourceID() const { return id; }
-	};
+/*
 	//  TEMP: Abstract Mesh class
-	class IMesh : public BaseResource { public: IMesh(ResourceID id) : BaseResource(id) { } };
+	class IMesh : public BaseResource {
+
+	public:
+
+		virtual void BindMesh(ID3D11DeviceContext* context) {
+			RTE_CORE_ASSERT(false, "we dont use that implementation");
+		}
+		int elementCount;
+
+		IMesh(ResourceID id) : BaseResource(id) { }
+		IMesh() : BaseResource("invalid") {};
+		virtual void Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewProjectionMatrix) {};
+	};
+
+
+
 	//  TEMP: Abstract Material class
 	class IMaterial : public BaseResource { public: IMaterial(ResourceID id) : BaseResource(id) { } };
-
+*/
 #pragma endregion
 
-	struct MeshRenderer: public Component
+	struct MeshRenderer : public Component
 	{
 	private:
-		IMesh mesh;
-		IMaterial material;
+		Model mesh;
+		Material material;
 
 	public:
 		MeshRenderer() = default;
 		MeshRenderer(const MeshRenderer&) = default;
-		MeshRenderer(const IMesh& mesh, const IMaterial& material)
+		MeshRenderer(const Model& mesh, const Material& material)
 			: mesh(mesh), material(material) { }
 
-		IMesh GetMesh() const { return mesh; }
-		IMaterial GetMaterial() const { return material; }
+		Model GetMesh() const { return mesh; }
+		Material GetMaterial() const { return material; }
 
-		void SetMesh(const IMesh& newMesh) { mesh = newMesh; }
-		void SetMaterial(const IMaterial& newMaterial) { material = newMaterial; }
+		void SetMesh(const Model& newMesh) { mesh = newMesh; }
+		void SetMaterial(const Material& newMaterial) { material = newMaterial; }
 	};
 }

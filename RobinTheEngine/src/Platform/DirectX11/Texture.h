@@ -18,6 +18,7 @@ namespace RTE {
 	{
 		
 	public:
+		Texture() {};
 		Texture( const std::string & filePath, aiTextureType type);
 		//Texture(const Texture&) = default;
 		aiTextureType GetType();

@@ -1,0 +1,20 @@
+# This is storage of materials in all engine
+# Firstly you can se default material, that engine support right out of the box
+
+litMaterial:
+    materialType: 1
+    vsshader: litColorVS
+    psshader: litColorPS
+    color:
+        r: 0.5
+        g: 0.0
+        b: 0.5
+        a: 1.0
+
+
+texturedMaterial:
+    materialType: 2
+    vsshader: texturedVS
+    psshader: texturedPS
+    textureKey: ogreDiffuse
+

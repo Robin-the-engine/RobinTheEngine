@@ -58,11 +58,8 @@ namespace RTE {
 		};
 
 		UINT numElements = ARRAYSIZE(layout);
-		vertexShader vs(L"shaders\\VS.hlsl",layout,numElements);
+		vertexShader vs(L"shaders\\VS.hlsl", layout, numElements);
 		pixelShader ps(L"shaders\\PS.hlsl");
-		//ResourceFactory::Get().GetResource<Model>("ogre");
-		//auto id = ResourceFactory::Get().GetHashValue("ogre");
-		CB_VS_MATRIX4x4 rotation;
 
 		//Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
@@ -73,18 +70,19 @@ namespace RTE {
 		ComPtr<ID3D11SamplerState> samplerState;
 		ThrowIfFailed(rs->GetDevice()->CreateSamplerState(&sampDesc, samplerState.GetAddressOf())); //Create sampler state
 
+
+		auto context = static_cast<DirectX11RenderSystem*>(m_RenderSystem.get())->GetContext();
+		context->IASetInputLayout(vs.GetInputLayout());
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->VSSetShader(vs.GetShader(), 0, 0);
+		context->PSSetShader(ps.GetShader(), 0, 0);
+		context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
+		context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
+
 		float i = 5;
 		while (m_Running) {
 			m_Window->OnUpdate();
 			m_RenderSystem->OnRenderBegin();
-
-			auto context = static_cast<DirectX11RenderSystem*>(m_RenderSystem.get())->GetContext();
-			context->IASetInputLayout(vs.GetInputLayout());
-			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			context->VSSetShader(vs.GetShader(), 0, 0);
-			context->PSSetShader(ps.GetShader(), 0, 0);
-			context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
-			context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();

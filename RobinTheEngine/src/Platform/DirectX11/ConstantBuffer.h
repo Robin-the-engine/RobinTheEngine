@@ -17,8 +17,30 @@ namespace RTE {
 
 	public:
 		T data;
-		ConstantBuffer(std::string bufferName) : name(bufferName)
-		{
+
+		void InitializeUniqueBuffer() {
+			using namespace D3DUtils;
+			
+
+			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+
+			D3D11_BUFFER_DESC desk;
+			ZeroMemory(&desk, sizeof(desk));
+			desk.Usage = D3D11_USAGE_DYNAMIC;
+			desk.ByteWidth = sizeof(T) + (16 - (sizeof(T) % 16));
+			desk.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			desk.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			desk.MiscFlags = 0;
+			desk.StructureByteStride = 0; //?
+
+			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
+			isInitialized = true;
+
+		}
+
+		void InitializeSharedBuffer(std::string bufferName) {
+			this->name = bufferName;
+			isInitialized = true;
 			using namespace D3DUtils;
 			if (ComsManager::Get().IsHaveComPtrResource(name + "\\ConstBuffer")) {
 				buffer = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\ConstBuffer");
@@ -40,10 +62,18 @@ namespace RTE {
 			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
 
 			ComsManager::Get().RegisterComPtrResource(buffer, name + "\\ConstBuffer");
+
 		}
+
+		ConstantBuffer(): isInitialized(false)
+		{
+		}
+
+
 
 	private:
 		std::string name;
+		bool isInitialized;
 		int slot;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 
@@ -57,7 +87,7 @@ namespace RTE {
 		ID3D11Buffer* const* GetAddressOf() { return buffer.GetAddressOf(); }
 		void WriteBuffer() {
 			using namespace D3DUtils;
-
+			RTE_CORE_ASSERT(isInitialized, "That buffer is not initialized!");
 			RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 			D3D11_MAPPED_SUBRESOURCE subres;
 			ThrowIfFailed(rs->GetContext()->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subres));
@@ -72,13 +102,11 @@ namespace RTE {
 
 	};
 
-/*	template<class T>
-	RTE::ConstantBuffer<T>::ConstantBuffer(std::string bufferName)
-	{
 
-	}*/
 
-	//Constant buffer types
+
+
+		//Constant buffer types
 	struct CB_VS_MATRIX4x4
 	{
 		DirectX::XMFLOAT4X4 mvpMatrix;

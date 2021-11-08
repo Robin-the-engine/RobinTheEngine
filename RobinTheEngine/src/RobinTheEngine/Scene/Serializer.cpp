@@ -5,6 +5,7 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
+#include "RobinTheEngine/ResourceFactory.h"
 namespace RTE
 {
 	Serializer::Serializer(Scene& scene) : scene(scene) { }
@@ -87,8 +88,8 @@ namespace RTE
 				// MeshRenderer
 				if (auto componentData = data["MeshRenderer"])
 				{
-					IMesh mesh = ResourceManager::Get<IMesh>(data["Mesh"].as<std::string>());
-					IMaterial material = ResourceManager::Get<IMaterial>(data["Material"].as<std::string>());
+					Model mesh = RTE::ResourceFactory::Get().GetResource<Model>(data["Mesh"].as<std::string>());
+					Material material = RTE::ResourceFactory::Get().GetResource<Material>(data["Material"].as<std::string>());
 					gameObject.AddComponent<MeshRenderer>(mesh, material);
 				} // MeshRenderer
 			}

@@ -8,6 +8,8 @@
 
 using namespace D3DUtils;
 
+
+/*
 RTE::Mesh::Mesh(std::vector<vertex_Gouraud_shading>& vertices, std::vector<DWORD>& indices, std::vector<Texture>& textures, std::string meshName) : name(meshName)
 {
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
@@ -46,3 +48,4 @@ void RTE::Mesh::Draw()
 	this->deviceContext->DrawIndexed(this->indexbuffer.ElementCount(), 0, 0);
 }
 
+*/
