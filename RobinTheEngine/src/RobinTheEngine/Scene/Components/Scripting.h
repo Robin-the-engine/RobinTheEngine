@@ -44,9 +44,4 @@ namespace RTE {
         bool scriptAttached = false;
     };
 
-    template<typename UserType>
-    void registerUserType() {
-        static_assert("you must create specializetion of this template for the type you need" && false);
-    }
-
 }

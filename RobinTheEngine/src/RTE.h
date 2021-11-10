@@ -9,6 +9,7 @@
 #include "RobinTheEngine/GameTimer.h"
 #include "RobinTheEngine/JobSystem/JobSystem.h"
 #include "RobinTheEngine/Scene/Components.h"
+#include "RobinTheEngine/Scene/ScriptingAPI.h"
 
 #include "Platform/DirectX11/Camera.h"
 #include "Platform/DirectX11/Model.h"

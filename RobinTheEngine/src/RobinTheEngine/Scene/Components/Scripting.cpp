@@ -1,12 +1,14 @@
 #include "rtepch.h"
 #include "Scripting.h"
+#include "../ScriptingAPI.h"
 
 using namespace RTE;
 
-ScriptComponent::ScriptComponent() : 
+ScriptComponent::ScriptComponent():
     lua(), script(""), executable(), isFile(false), scriptAttached(false) 
 {
     lua.open_libraries(sol::lib::base);
+    registerEngineAPI(lua);
 }
 
 bool ScriptComponent::checkScript() {
