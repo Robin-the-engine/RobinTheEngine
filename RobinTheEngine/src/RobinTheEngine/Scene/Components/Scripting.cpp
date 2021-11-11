@@ -1,8 +1,21 @@
 #include "rtepch.h"
 #include "Scripting.h"
-#include "../ScriptingAPI/ScriptingAPI.h"
+#include "../ScriptingAPI/ScriptingAPIIMpl.h"
 
 using namespace RTE;
+
+
+void registerEngineAPI(sol::state& lua) {
+    // we don't need these two probably
+    //registerUserType<DirectX::XMFLOAT3>(lua);
+    //registerUserType<DirectX::XMMATRIX>(lua);
+
+    registerUserType<Scene>(lua);
+    registerUserType<GameObject>(lua);
+    registerUserType<Transform>(lua);
+    registerUserType<MeshRenderer>(lua);
+    registerUserType<Serializer>(lua);
+}
 
 ScriptComponent::ScriptComponent():
     lua(), script(""), executable(), isFile(false), scriptAttached(false) 
