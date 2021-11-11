@@ -1,6 +1,6 @@
 #include "rtepch.h"
 #include "Scripting.h"
-#include "../ScriptingAPI.h"
+#include "../ScriptingAPI/ScriptingAPI.h"
 
 using namespace RTE;
 
@@ -59,6 +59,7 @@ bool ScriptComponent::reloadScript() {
     if (scriptAttached) {
         return attachScript(script, isFile);
     }
+    return false;
 }
 
 sol::state& ScriptComponent::getState() {
