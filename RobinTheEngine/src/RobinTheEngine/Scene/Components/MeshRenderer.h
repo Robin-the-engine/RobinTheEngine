@@ -55,7 +55,7 @@ namespace RTE
 		Material material;
 
 	public:
-		MeshRenderer() = default;
+		MeshRenderer() = delete;
 		MeshRenderer(const MeshRenderer&) = default;
 		MeshRenderer(const Model& mesh, const Material& material)
 			: mesh(mesh), material(material) { }
