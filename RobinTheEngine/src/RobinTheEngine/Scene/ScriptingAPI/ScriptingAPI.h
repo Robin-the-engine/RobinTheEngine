@@ -9,6 +9,3 @@ namespace RTE {
     }
 
 }
-
-// Need to add JobSystem and ResourceManager API
-// Fix inlining - users only need templated registerUserType function without any implemetation

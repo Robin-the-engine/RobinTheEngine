@@ -9,6 +9,8 @@
 #include "../Serializer.h"
 #include "../Components/Transform.h"
 #include "../Components/MeshRenderer.h"
+#include "RobinTheEngine/GameTimer.h"
+#include "Platform/DirectX11/Camera.h"
 
 namespace RTE {
     template<>
@@ -22,18 +24,62 @@ namespace RTE {
         ut["name"] = &Scene::name;
     }
 
+    template<>
+    void registerUserType<Camera>(sol::state& lua) {
+        sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera", sol::constructors<Camera()>());
+        ut["SetProjectionProperties"] = &Camera::SetProjectionProperties;
+        ut["GetViewMatrix"] = &Camera::GetViewMatrix;
+        ut["GetProjectionMatrix"] = &Camera::GetProjectionMatrix;
+        ut["GetPositionVec"] = &Camera::GetPositionVec;
+        ut["GetRotationVec"] = &Camera::GetRotationVec;
+        ut["GetPositionFloat3"] = &Camera::GetPositionFloat3;
+        ut["GetRotationFloat3"] = &Camera::GetRotationFloat3;
+        ut["SetPosition"] = sol::overload(
+            [](Camera& camera, const XMVECTOR& vec) {camera.SetPosition(vec); },
+            [](Camera& camera, const XMFLOAT3& vec) {camera.SetPosition(vec); }
+        );
+        ut["AdjustPosition"] = sol::overload(
+            [](Camera& camera, const XMVECTOR& vec) {camera.AdjustPosition(vec); },
+            [](Camera& camera, const XMFLOAT3& vec) {camera.AdjustPosition(vec); }
+        );
+        ut["SetRotation"] = sol::overload(
+            [](Camera& camera, const XMVECTOR& vec) {camera.SetRotation(vec); },
+            [](Camera& camera, const XMFLOAT3& vec) {camera.SetRotation(vec); }
+        );
+        ut["AdjustRotation"] = sol::overload(
+            [](Camera& camera, const XMVECTOR& vec) {camera.AdjustRotation(vec); },
+            [](Camera& camera, const XMFLOAT3& vec) {camera.AdjustRotation(vec); }
+        );
+        ut["GetForwardVector"] = &Camera::GetForwardVector;
+        ut["GetBackwardVector"] = &Camera::GetBackwardVector;
+        ut["GetRightVector"] = &Camera::GetRightVector;
+        ut["GetLeftVector"] = &Camera::GetLeftVector;
+    }
+
+    template<>
+    void registerUserType<GameTimer>(sol::state& lua) {
+        sol::usertype<GameTimer> ut = lua.new_usertype<GameTimer>("GameTimer", sol::constructors<GameTimer()>());
+        ut["TotalTime"] = &GameTimer::TotalTime;
+        ut["DeltaTime"] = &GameTimer::DeltaTime;
+        ut["Reset"] = &GameTimer::Reset;
+        ut["Start"] = &GameTimer::Start;
+        ut["Stop"] = &GameTimer::Stop;
+        ut["Tick"] = &GameTimer::Tick;
+    }
+
     //TODO: finish
     template<>
     void registerUserType<GameObject>(sol::state& lua) {
         sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject",
             sol::constructors<
-            GameObject(),
-            GameObject(const GameObject&),
-            GameObject(entt::entity, Scene*)
+                GameObject(),
+                GameObject(const GameObject&),
+                GameObject(entt::entity, Scene*)
             >()
-            );
+        );
         ut["GetID"] = &GameObject::GetID;
         ut["GetTransform"] = &GameObject::GetTransform;
+
         /*
          template<typename T>
          bool HasComponent()
@@ -81,13 +127,13 @@ namespace RTE {
         using XMFLOAT3 = DirectX::XMFLOAT3;
         sol::usertype<XMFLOAT3> ut = lua.new_usertype<XMFLOAT3>("XMFLOAT3",
             sol::constructors<
-            XMFLOAT3(),
-            XMFLOAT3(const XMFLOAT3&),
-            XMFLOAT3(XMFLOAT3&&),
-            XMFLOAT3(float, float, float),
-            XMFLOAT3(_In_reads_(3) const float*)
+                XMFLOAT3(),
+                XMFLOAT3(const XMFLOAT3&),
+                XMFLOAT3(XMFLOAT3&&),
+                XMFLOAT3(float, float, float),
+                XMFLOAT3(_In_reads_(3) const float*)
             >()
-            );
+        );
         ut["x"] = &XMFLOAT3::x;
         ut["y"] = &XMFLOAT3::y;
         ut["z"] = &XMFLOAT3::z;
@@ -116,13 +162,13 @@ namespace RTE {
 
         sol::usertype<Transform> ut = lua.new_usertype<Transform>("Transform",
             sol::constructors<
-            Transform(),
-            Transform(const Transform&),
-            Transform(const XMFLOAT3, const XMFLOAT3, const XMFLOAT3),
-            Transform(const XMFLOAT3, const XMFLOAT3, const XMFLOAT3, Transform&)
+                Transform(),
+                Transform(const Transform&),
+                Transform(const XMFLOAT3, const XMFLOAT3, const XMFLOAT3),
+                Transform(const XMFLOAT3, const XMFLOAT3, const XMFLOAT3, Transform&)
             >(),
             sol::base_classes, sol::bases<Component>()
-            );
+        );
         ut["GetPosition"] = &Transform::GetPosition;
         ut["GetRotation"] = &Transform::GetRotation;
         ut["GetScale"] = &Transform::GetScale;
@@ -168,3 +214,7 @@ namespace RTE {
     }
 
 }
+
+// TODO:
+// Move all api to a namespace (lua table)
+// Add JobSystem and ResourceManager API
