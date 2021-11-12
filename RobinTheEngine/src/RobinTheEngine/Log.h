@@ -30,12 +30,12 @@ namespace RTE
 #define RTE_CORE_INFO(...)		::RTE::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define RTE_CORE_WARN(...)		::RTE::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define RTE_CORE_ERROR(...)		::RTE::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define RTE_CORE_FATAL(...)		::RTE::Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#define RTE_CORE_FATAL(...)		::RTE::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 //core log macros
 #define RTE_TRACE(...)		::RTE::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define RTE_INFO(...)		::RTE::Log::GetClientLogger()->info(__VA_ARGS__)
 #define RTE_WARN(...)		::RTE::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define RTE_ERROR(...)		::RTE::Log::GetClientLogger()->error(__VA_ARGS__)
-#define RTE_FATAL(...)		::RTE::Log::GetClientLogger()->fatal(__VA_ARGS__)
+#define RTE_FATAL(...)		::RTE::Log::GetClientLogger()->critical(__VA_ARGS__)
 

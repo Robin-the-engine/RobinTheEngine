@@ -4,7 +4,7 @@
 
 namespace RTE::Deprecated {
 
-
+/*
 	class GameObject
 	{
 	public:
@@ -58,6 +58,6 @@ namespace RTE::Deprecated {
 		XMVECTOR vec_right;
 		XMVECTOR vec_backward;
 	};
-
+*/
 
 }

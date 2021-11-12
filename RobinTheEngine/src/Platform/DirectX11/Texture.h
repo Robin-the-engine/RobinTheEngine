@@ -18,8 +18,9 @@ namespace RTE {
 	{
 		
 	public:
+		Texture() {};
 		Texture( const std::string & filePath, aiTextureType type);
-		Texture(const Texture&) = default;
+		//Texture(const Texture&) = default;
 		aiTextureType GetType();
 		ID3D11ShaderResourceView * GetTextureResourceView();
 		ID3D11ShaderResourceView ** GetTextureResourceViewAddress();

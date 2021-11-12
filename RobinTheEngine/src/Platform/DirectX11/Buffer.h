@@ -125,8 +125,6 @@ namespace RTE {
 		~IndexBuffer();
 		HRESULT Init(DWORD* data, int arraySize, std::string name);
 
-
-
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 		UINT elementCount;
