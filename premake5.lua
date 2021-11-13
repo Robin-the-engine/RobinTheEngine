@@ -96,15 +96,16 @@
       filter "system:windows"
          systemversion "latest"
 
-         buildoptions { "/await"}
+         buildoptions {
+             "/await",
+             "/bigobj" -- need only for debug build
+          }
 
          defines
          {
             "RTE_PLATFORM_WINDOWS",
             "RTE_BUILD_DLL",
-			"GLFW_INCLUDE_NONE",
-            "SOL_ALL_SAFETIES_ON",
-            "NOMINMAX"
+			"GLFW_INCLUDE_NONE"
          }
 
 
