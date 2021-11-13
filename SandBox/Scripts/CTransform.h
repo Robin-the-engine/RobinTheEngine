@@ -2,5 +2,4 @@
 
 #include <RTE.h>
 
-class TransformScript : public RTE::ScriptComponent {
-};
+class TransformScript : public RTE::ScriptComponent {};
