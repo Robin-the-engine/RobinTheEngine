@@ -11,8 +11,10 @@
 #include "../Components/MeshRenderer.h"
 #include "RobinTheEngine/GameTimer.h"
 #include "Platform/DirectX11/Camera.h"
+#include "../../Log.h"
 
 namespace RTE {
+
     template<>
     void registerUserType<Scene>(sol::state& lua) {
         sol::usertype<Scene> ut = lua.new_usertype<Scene>("Scene", sol::constructors<Scene()>());
@@ -213,6 +215,15 @@ namespace RTE {
         ut["Deserialize"] = &Serializer::Deserialize;
     }
 
+    template<>
+    void registerUserType<Log>(sol::state& lua) {
+        sol::usertype<Log> ut = lua.new_usertype<Log>("Log");
+        ut["trace"] = [](std::string msg) {Log::GetClientLogger()->trace(msg); };
+        ut["info"] = [](std::string msg) {Log::GetClientLogger()->info(msg); };
+        ut["warn"] = [](std::string msg) {Log::GetClientLogger()->warn(msg); };
+        ut["error"] = [](std::string msg) {Log::GetClientLogger()->error(msg); };
+        ut["fatal"] = [](std::string msg) {Log::GetClientLogger()->critical(msg); };
+    }
 }
 
 // TODO:

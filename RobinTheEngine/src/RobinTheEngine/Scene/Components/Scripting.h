@@ -3,8 +3,12 @@
 #include <string>
 #include <sol/sol.hpp>
 #include "../Component.h"
+#include "../../Events/Event.h"
 
 namespace RTE {
+
+    template<typename T>
+    concept NONPRIMITIVE = !std::is_fundamental_v<std::remove_pointer_t<std::decay_t<T>>>;
 
     class ScriptComponent {
     public:
@@ -14,27 +18,39 @@ namespace RTE {
         virtual bool reloadScript();
         virtual sol::state& getState();
 
-        template<typename ...Params>
-        void call(Params ...args) {
-            if (!checkScript()) {
-                return;
-            }
-            executable(std::forward<Params>(args)...);
+        // sol can't use references to primitives
+        template<NONPRIMITIVE T>
+        void setref(std::string name, T& value) {
+            lua[name] = std::ref(value);
+        }
+
+        template<typename T>
+        void setcopy(std::string name, T& value) {
+            static_assert(!std::is_pointer_v<T> && "Can't use pointer in this function");
+            lua[name] = value;
         }
 
         template<typename ...Params>
-        void callf(std::string func, Params ...args) {
+        void callf(std::string func, Params&& ...args) {
             if (!checkScript()) {
                 return;
             }
             lua[func](std::forward<Params>(args)...);
         }
 
+        // API for RTE::Layer
+        virtual void OnAttach();
+        virtual void OnDetach();
+        virtual void OnUpdate();
+        virtual void OnEvent(Event& event);
+        virtual void OnImGuiRender();
+        virtual void OnRender();
+
     protected:
         ScriptComponent();
         virtual bool checkScript();
-        virtual void onAttachEnd(const std::string& script, bool isFile = true);
-        virtual void onAttachStart(const std::string& script, bool isFile = true);
+        virtual void onScriptAttachStart(const std::string& script, bool isFile = true);
+        virtual void onScriptAttachEnd(const std::string& script, bool isFile = true);
 
     private:
         sol::state lua;

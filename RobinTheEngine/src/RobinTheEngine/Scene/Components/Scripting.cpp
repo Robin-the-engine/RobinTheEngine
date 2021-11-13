@@ -1,27 +1,17 @@
 #include "rtepch.h"
 #include "Scripting.h"
-#include "../ScriptingAPI/ScriptingAPIIMpl.h"
+#include "../ScriptingAPI/ScriptingAPI.h"
 
 using namespace RTE;
 
-
-void registerEngineAPI(sol::state& lua) {
-    // we don't need this probably
-    //registerUserType<DirectX::XMMATRIX>(lua);
-
-    registerUserType<DirectX::XMFLOAT3>(lua);
-    registerUserType<Scene>(lua);
-    registerUserType<GameObject>(lua);
-    registerUserType<Transform>(lua);
-    registerUserType<MeshRenderer>(lua);
-    registerUserType<Serializer>(lua);
-    registerUserType<GameTimer>(lua);
-    registerUserType<Camera>(lua);
-}
-
 ScriptComponent::ScriptComponent():
     lua(), script(""), executable(), isFile(false), scriptAttached(false) {
-    lua.open_libraries(sol::lib::base, sol::lib::math);
+    lua.open_libraries(
+        sol::lib::base,
+        sol::lib::math,
+        sol::lib::table,
+        sol::lib::utf8
+    );
     registerEngineAPI(lua);
 }
 
@@ -29,13 +19,39 @@ bool ScriptComponent::checkScript() {
     return scriptAttached;
 }
 
-void ScriptComponent::onAttachEnd(const std::string& script, bool isFile) {
+void ScriptComponent::onScriptAttachEnd(const std::string& script, bool isFile) {
     this->isFile = isFile;
     this->script = script;
     scriptAttached = true;
 }
 
-void ScriptComponent::onAttachStart(const std::string& script, bool isFile) {
+void ScriptComponent::OnAttach() {
+    callf("OnAttach");
+}
+
+void ScriptComponent::OnDetach() {
+    callf("OnDetach");
+}
+
+void ScriptComponent::OnUpdate() {
+    callf("OnUpdate");
+}
+
+void ScriptComponent::OnEvent(Event& event) {
+    callf<Event&>("OnEvent", event);
+}
+
+void ScriptComponent::OnImGuiRender() {
+    callf("OnImGuiRender");
+}
+
+void ScriptComponent::OnRender() {
+    callf("OnRender");
+}
+
+
+
+void ScriptComponent::onScriptAttachStart(const std::string& script, bool isFile) {
     if (isFile) {
         executable = lua.load_file(script);
     }
@@ -48,10 +64,10 @@ bool ScriptComponent::attachScript(const std::string& script, bool isFile) {
     // Note: script will be executed once on the load
     // to fill function table inside the sol2 library
     // if you want to execute the script manually use
-    onAttachStart(script, isFile);
+    onScriptAttachStart(script, isFile);
     if (executable.valid()) {
-        onAttachEnd(script, isFile);
-        call();
+        onScriptAttachEnd(script, isFile);
+        executable();
         return true;
     }
     return false;
@@ -61,9 +77,9 @@ bool RTE::ScriptComponent::attachScriptNoExec(const std::string& script, bool is
     // Note: script will be only loaded, but not executed, and,
     // therefore function table inside the sol2 library will not be filled
     // so, you have to execute the script manually before use
-    onAttachStart(script, isFile);
+    onScriptAttachStart(script, isFile);
     if (executable.valid()) {
-        onAttachEnd(script, isFile);
+        onScriptAttachEnd(script, isFile);
         return true;
     }
     return false;

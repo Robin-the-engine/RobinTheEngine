@@ -8,4 +8,5 @@ namespace RTE {
         static_assert("this function must be overriden for use with desired type" && false);
     }
 
+    void registerEngineAPI(sol::state& lua);
 }
