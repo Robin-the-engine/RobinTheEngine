@@ -14,7 +14,7 @@ namespace RTE
 		template<typename T>
 		bool HasComponent()
 		{
-			return !scene->registry.orphan<T>(entity);
+			return scene->registry.all_of<T>(entity);
 		}
 
 		template<typename T>
