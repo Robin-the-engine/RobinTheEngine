@@ -4,6 +4,10 @@
 #include "Platform/DirectX11/DirectX11RenderSystem.h"
 #include "RobinTheEngine/Application.h"
 
+
+#include "assimp/Importer.hpp"
+#include "assimp/postprocess.h"
+
 #include <unordered_map>
 
 using namespace D3DUtils;

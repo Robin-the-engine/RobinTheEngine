@@ -1,8 +1,8 @@
 #pragma once
 #include "d3d11.h"
 #include <wrl.h>
-#include "Platform/DirectX11/DirectX11RenderSystem.h"
-#include "RobinTheEngine/Application.h"
+//#include "Platform/DirectX11/DirectX11RenderSystem.h"
+//#include "RobinTheEngine/Application.h"
 #include "RobinTheEngine/ComsManager.h"
 
 
@@ -10,6 +10,9 @@ namespace RTE {
 
 	class Aplication;
 	class ComsManager;
+
+	Microsoft::WRL::ComPtr<ID3D11Device> GetDevice();
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext();
 
 	template<class T>
 	class vertexBuffer {
@@ -19,7 +22,8 @@ namespace RTE {
 		vertexBuffer(T* data, int numOfElements, std::string bufferName) {
 			using namespace D3DUtils;
 			//TODO: reuse init function for construction
-			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+			auto device = GetDevice();
+			//DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 			this->bufferSize = numOfElements * sizeof(T);
 			stride = sizeof(T);
@@ -45,14 +49,14 @@ namespace RTE {
 			ZeroMemory(&bufferData, sizeof(bufferData));
 			bufferData.pSysMem = data;
 
-			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf()));
+			ThrowIfFailed(device->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf()));
 
 			ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\VertexBuffer");
 		}
 		HRESULT Init(T* data, int numOfElements, std::string bufferName) {
 			//TODO: check is buffer initialized 
-			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
-
+			//DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+			auto device = GetDevice();
 			this->bufferSize = numOfElements * sizeof(T);
 			stride = sizeof(T);
 			name = bufferName;
@@ -76,9 +80,9 @@ namespace RTE {
 			ZeroMemory(&bufferData, sizeof(bufferData));
 			bufferData.pSysMem = data;
 
-			auto result =  rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
-			if(SUCCEEDED(result))
-			ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\VertexBuffer");
+			auto result = device->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
+			if (SUCCEEDED(result))
+				ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\VertexBuffer");
 
 			return result;
 		}
@@ -89,7 +93,7 @@ namespace RTE {
 			this->stride = rhs.stride;
 			this->name = rhs.name;
 		}
-		vertexBuffer<T> & operator=(const vertexBuffer<T>& a)
+		vertexBuffer<T>& operator=(const vertexBuffer<T>& a)
 		{
 			this->buffer = a.buffer;
 			this->bufferSize = a.bufferSize;
@@ -112,7 +116,7 @@ namespace RTE {
 		ID3D11Buffer* Get() { return buffer.Get(); }
 		ID3D11Buffer* const* GetAddressOf() { return buffer.GetAddressOf(); }
 		UINT BufferSize() { return bufferSize; }
-		UINT * StridePtr() { return &stride; }
+		UINT* StridePtr() { return &stride; }
 		UINT Stride() { return stride; }
 		std::string name;
 

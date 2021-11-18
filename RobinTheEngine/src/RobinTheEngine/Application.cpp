@@ -142,3 +142,18 @@ namespace RTE {
 		return true;
 	}
 }
+
+
+
+
+Microsoft::WRL::ComPtr<ID3D11Device> RTE::GetDevice() {
+	auto rs = (RTE::DirectX11RenderSystem*)RTE::Application::Get().GetRenderSystem();
+	return rs->GetDevice();
+
+}
+
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> RTE::GetContext()  {
+	auto rs = (RTE::DirectX11RenderSystem*)RTE::Application::Get().GetRenderSystem();
+	return rs->GetContext();
+
+}

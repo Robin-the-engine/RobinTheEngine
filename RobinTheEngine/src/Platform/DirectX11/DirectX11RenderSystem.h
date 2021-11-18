@@ -3,16 +3,23 @@
 #include <wrl.h>
 #include <d3d11.h>
 
-#include "RobinTheEngine/RenderSystem.h"
+#include <D3Dcompiler.h>
+#include <DirectXPackedVector.h>
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
+#include <dxgi1_4.h>
 
+#include "RobinTheEngine/RenderSystem.h"
+#include "RobinTheEngine/Scene/GameObject.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 
 using Microsoft::WRL::ComPtr;
-
+//using namespace D3DUtils;
 namespace RTE {
+
 
 	class DirectX11RenderSystem : public RTE::RenderSystem
 	{
@@ -29,6 +36,10 @@ namespace RTE {
 
 		Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() { return m_d3dDevice; }
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() { return m_DeviceContext; }
+
+
+		void SetCamera(Camera* camera) override;
+		void Draw(GameObject go);
 
 	protected:
 
@@ -70,6 +81,8 @@ namespace RTE {
 
 		std::vector<IDXGIAdapter*> adapterList;
 		DirectX::XMFLOAT4 clearColor;
+
+		Camera* mainCamera;
 
 	};
 }

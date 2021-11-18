@@ -4,6 +4,9 @@
 #include <memory>
 #include "RobinTheEngine/Scene/BaseResource.h"
 
+
+#include "assimp/scene.h"
+
 using namespace DirectX;
 
 namespace RTE {

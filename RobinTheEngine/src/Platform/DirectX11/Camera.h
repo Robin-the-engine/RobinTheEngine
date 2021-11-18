@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include "RobinTheEngine/Core.h"
+#include "Platform/DirectX11/ConstantBuffer.h"
 using namespace DirectX;
 
 
@@ -10,11 +11,15 @@ namespace RTE {
 	class RTE_API Camera {
 
 	public:
+
 		Camera();
+		Camera& operator=(const Camera& c) = default;
 		void SetProjectionProperties(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
 		const XMMATRIX& GetViewMatrix();
 		const XMMATRIX& GetProjectionMatrix();
+		const XMMATRIX& GetViewProjectionMatrix();
+		void UpdateBuffer();
 
 		const XMVECTOR& GetPositionVec();
 		const XMVECTOR& GetRotationVec();
@@ -34,6 +39,8 @@ namespace RTE {
 		const XMVECTOR & GetBackwardVector();
 		const XMVECTOR & GetRightVector();
 		const XMVECTOR & GetLeftVector();
+		ConstantBuffer<CB_VS_CAMERA> constBuffer;
+
 
 	private:
 		void UpdateViewMatrix();
@@ -56,6 +63,7 @@ namespace RTE {
 		XMVECTOR vec_right;
 		XMVECTOR vec_forward;
 		XMVECTOR vec_backward;
+		
 		
 
 	};

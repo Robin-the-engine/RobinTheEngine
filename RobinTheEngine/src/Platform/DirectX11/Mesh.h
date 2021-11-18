@@ -2,12 +2,11 @@
 
 #include "Platform/DirectX11/Vertex.h"
 #include "Platform/DirectX11/Buffer.h"
-#include "Platform/DirectX11/ConstantBuffer.h"
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
-#include "Platform/DirectX11/Texture.h"
-#include "RobinTheEngine/Scene/BaseResource.h"
+//#include "Platform/DirectX11/ConstantBuffer.h"
+
+//#include "Platform/DirectX11/Texture.h"
+
+//#include "RobinTheEngine/Scene/BaseResource.h"
 
 
 namespace RTE {
@@ -46,6 +45,7 @@ namespace RTE {
 	{
 	public:
 		Mesh(std::vector<T>& vertices, std::vector<DWORD>& indices) {
+			using namespace D3DUtils;
 
 			ThrowIfFailed(vert.Init(vertices.data(), vertices.size(), "name"));
 			ThrowIfFailed(indexBuffer.Init(indices.data(), indices.size(), "name"));

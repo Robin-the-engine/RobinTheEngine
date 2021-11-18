@@ -1,4 +1,5 @@
 #pragma once
+#include "Platform/DirectX11/Camera.h"
 
 namespace RTE {
 
@@ -11,6 +12,8 @@ namespace RTE {
 		virtual void OnRenderBegin() = 0;
 		virtual void OnRenderEnd() = 0;
 		virtual ~RenderSystem() {};
+
+		virtual void SetCamera(Camera* camera) = 0;
 
 
 	};
