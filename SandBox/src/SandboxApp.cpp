@@ -56,24 +56,18 @@ public:
 	RTE::MaterialTwo mat;
 	RTE::MaterialTwo textured;
 	*/
-	RTE::GameObject go;
-	RTE::GameObject go2;
+
 	void OnAttach() {
 
 		scene.name = "Test Scene";
-		go = scene.CreateGameObject();
-		go2 = scene.CreateGameObject();
 		RTE::MeshRenderer mr;
+		mr = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>();
 		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
 		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-		go.AddComponent<RTE::MeshRenderer>(mr);
+		
+		mr = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>();
 		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("litMaterial"));
 		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-		go2.AddComponent<RTE::MeshRenderer>(mr);
-
-
-		auto scale = go.GetComponent<RTE::Transform>();
-
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		camera.SetPosition(XMFLOAT3(0, 0, -10));
@@ -186,38 +180,13 @@ public:
 		lightCbuffer.WriteBuffer();
 
 		RTE::CB_VS_MATRIX4x4 cbvs;
-
-
-
 		rs->SetCamera(&camera);
-		/*
-		textured.matPtr->ApplyMaterial();
-		mmodel.meshes[0]->BindMesh(rs->GetContext().Get());
-		rs->GetContext()->DrawIndexed(this->mmodel.meshes[0]->elementCount, 0, 0);*/
-		/*
-		auto mr = go.GetComponent<RTE::MeshRenderer>();
-		mr.GetMaterial().matPtr->ApplyMaterial();
-		mr.GetMesh().meshes[0]->BindMesh(rs->GetContext().Get());
-		auto trans = go.GetComponent<RTE::Transform>();
-		DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
-		DirectX::XMStoreFloat4x4(&cbvs.worldMatrix, trans.GetMatrix());
-		cbuffer.WirteBuffer(cbvs);
-		rs->GetContext()->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
-*//*
-		mr = go2.GetComponent<RTE::MeshRenderer>();
-		mr.GetMaterial().matPtr->ApplyMaterial();
-		mr.GetMesh().meshes[0]->BindMesh(rs->GetContext().Get());
-		trans = go2.GetComponent<RTE::Transform>();
-		trans.SetPosition(sin(angle) * 5, 1.1, 0.1);
 
-		DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
-		DirectX::XMStoreFloat4x4(&cbvs.worldMatrix, trans.GetMatrix());
-		cbuffer.WirteBuffer(cbvs);
-
-		rs->GetContext()->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);*/
-		rs->Draw(go);
-		//rs->Draw(go2);
-
+		//auto MeshesToRender = scene.registry.view<RTE::Transform, RTE::MeshRenderer>();
+		//for (auto go : MeshesToRender)
+		//{
+		//	rs->DoRender(MeshesToRender.get<RTE::Transform, RTE::MeshRenderer>(go));
+		//}
 	}
 
 	void UpdateCamera() {

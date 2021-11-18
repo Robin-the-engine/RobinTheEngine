@@ -10,7 +10,7 @@
 #include <dxgi1_4.h>
 
 #include "RobinTheEngine/RenderSystem.h"
-#include "RobinTheEngine/Scene/GameObject.h"
+//#include "RobinTheEngine/Scene/GameObject.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -39,7 +39,10 @@ namespace RTE {
 
 
 		void SetCamera(Camera* camera) override;
-		void Draw(GameObject go);
+		//void Draw(GameObject go);
+
+		//virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes) override;
+		//virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps) override;
 
 	protected:
 
@@ -83,6 +86,7 @@ namespace RTE {
 		DirectX::XMFLOAT4 clearColor;
 
 		Camera* mainCamera;
+
 
 	};
 }

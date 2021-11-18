@@ -223,7 +223,7 @@ void RTE::DirectX11RenderSystem::SetCamera(Camera* camera)
 }
 
 
-
+/*
 void RTE::DirectX11RenderSystem::Draw(GameObject go)
 {
 	static ConstantBuffer<CB_VS_WORLD_MAT> world;
@@ -250,6 +250,7 @@ void RTE::DirectX11RenderSystem::Draw(GameObject go)
 	m_DeviceContext->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
 
 }
+*/
 
 void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 {
@@ -274,6 +275,41 @@ void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI
 		RTE_CORE_INFO(text);
 	}
 }
+/*
+void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> mesh)
+{
+	static ConstantBuffer<CB_VS_WORLD_MAT> world;
+	static bool flag = true;
+	if (flag) {
+		world.InitializeSharedBuffer("worldMat");
+		flag = false;
+	}
+	
 
+	//get meshRenderer
+	auto mr = std::get<1>(mesh);
+	mr.GetMaterial().matPtr->ApplyMaterial();
+	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
+	
+	//get Transform
+	auto trans = std::get<0>(mesh);
+	XMStoreFloat4x4(&world.data.worldMatrix, trans.GetMatrix());
+	auto mvp = trans.GetMatrix() * mainCamera->GetViewMatrix() * mainCamera->GetProjectionMatrix();
+	XMFLOAT4X4 mvpStored; XMStoreFloat4x4(&mvpStored, mvp);
+	world.WriteBuffer();
+	mainCamera->UpdateBuffer();
+	//set camera
+	m_DeviceContext->VSSetConstantBuffers(0, 1, mainCamera->constBuffer.GetAddressOf());
+	//set world
+	m_DeviceContext->VSSetConstantBuffers(1, 1, world.GetAddressOf());
 
+	m_DeviceContext->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
+}
+
+void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps)
+{
+	RTE::DirectX11RenderSystem::DoRender(meshes);
+}
+
+*/
 

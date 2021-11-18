@@ -16,8 +16,9 @@ namespace RTE
 
 		std::string name = "Untitled";
 
-	private:
+		// TODO: Make private again
 		entt::registry registry;
+	private:
 
 		friend class GameObject;
 		friend class Serializer;
