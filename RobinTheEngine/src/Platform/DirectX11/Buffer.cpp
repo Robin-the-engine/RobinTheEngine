@@ -1,8 +1,6 @@
 #pragma once
 #include "rtepch.h"
 #include "Buffer.h"
-#include "DirectX11RenderSystem.h"
-#include "RobinTheEngine/Application.h"
 #include "RobinTheEngine/ComsManager.h"
 #include <d3d11.h>
 #include "RobinTheEngine/ResourceFactory.h"
@@ -12,7 +10,6 @@ RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize, std::string bufferName
 {
 	using namespace D3DUtils;
 
-	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 	elementCount = arraySize;
 
@@ -36,7 +33,7 @@ RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize, std::string bufferName
 	ZeroMemory(&bufferData, sizeof(bufferData));
 	bufferData.pSysMem = data;
 
-	ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf()));
+	ThrowIfFailed(GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf()));
 	ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\IndexBuffer");
 
 }
@@ -47,8 +44,6 @@ RTE::IndexBuffer::~IndexBuffer()
 
 HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize, std::string bufferName)
 {
-	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
-
 	elementCount = arraySize;
 	name = bufferName;
 
@@ -73,7 +68,7 @@ HRESULT RTE::IndexBuffer::Init(DWORD * data, int arraySize, std::string bufferNa
 	ZeroMemory(&bufferData, sizeof(bufferData));
 	bufferData.pSysMem = data;
 
-	auto res = rs->GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
+	auto res = GetDevice()->CreateBuffer(&desk, &bufferData, buffer.GetAddressOf());
 	if(SUCCEEDED(res))
 	ComsManager::Get().RegisterComPtrResource<ID3D11Buffer>(buffer, name + "\\IndexBuffer");
 	return res;

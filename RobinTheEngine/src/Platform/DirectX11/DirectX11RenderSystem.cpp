@@ -275,7 +275,7 @@ void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI
 		RTE_CORE_INFO(text);
 	}
 }
-/*
+
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> mesh)
 {
 	static ConstantBuffer<CB_VS_WORLD_MAT> world;
@@ -311,5 +311,5 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	RTE::DirectX11RenderSystem::DoRender(meshes);
 }
 
-*/
+
 
