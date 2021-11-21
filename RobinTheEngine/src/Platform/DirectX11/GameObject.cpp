@@ -1,9 +1,8 @@
 #include "rtepch.h"
 #include "GameObject.h"
 
-namespace RTE::Deprecated
-{
-	/*
+namespace RTE::Deprecated {
+    /*
 	bool GameObject::Initialize(const std::string& path, ConstantBuffer<CB_VS_MATRIX4x4>& cb_vs_vertexshader)
 	{
 		if (!model.Initialize(path, cb_vs_vertexshader))
@@ -206,5 +205,4 @@ namespace RTE::Deprecated
 		model.meshes[meshIndex].textures[textureIndex] = Texture(path, aiTextureType_DIFFUSE);
 	}
 	*/
-
 }

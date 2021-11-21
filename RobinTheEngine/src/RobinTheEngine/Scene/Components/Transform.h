@@ -1,6 +1,5 @@
 #pragma once
 #include "RobinTheEngine/Scene/Component.h"
-#include "RobinTheEngine/Scene/GameObject.h"
 #include "RobinTheEngine/Log.h"
 #include <DirectXMath.h>
 

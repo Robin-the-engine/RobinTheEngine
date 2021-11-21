@@ -27,7 +27,7 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	RTE::JobSystem jobSystem;
+	RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
@@ -44,7 +44,7 @@ public:
 	RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
 	RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
 	ExampleLayer()
-		: Layer("Example"), cbuffer(), lightCbuffer(), jobSystem()
+		: Layer("Example"), cbuffer(), lightCbuffer()
 	{
 		cbuffer.InitializeSharedBuffer("MVPMatrix");
 		lightCbuffer.InitializeSharedBuffer("LightProps");
@@ -203,13 +203,13 @@ public:
 		cbuffer.WirteBuffer(cbvs);
 		rs->GetContext()->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
 
-		 mr = go2.GetComponent<RTE::MeshRenderer>();
+		mr = go2.GetComponent<RTE::MeshRenderer>();
 		mr.GetMaterial().matPtr->ApplyMaterial();
 		mr.GetMesh().meshes[0]->BindMesh(rs->GetContext().Get());
 		trans = go2.GetComponent<RTE::Transform>();
-		trans.SetPosition(sin(angle) * 5 ,1.1,0.1);
-		
-				DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
+		trans.SetPosition(sin(angle) * 5, 1.1, 0.1);
+
+		DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
 		DirectX::XMStoreFloat4x4(&cbvs.worldMatrix, trans.GetMatrix());
 		cbuffer.WirteBuffer(cbvs);
 
