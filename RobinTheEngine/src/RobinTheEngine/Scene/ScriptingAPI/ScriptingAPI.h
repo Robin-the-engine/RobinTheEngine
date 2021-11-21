@@ -25,7 +25,7 @@ namespace RTE {
     void registerUserResource(sol::state& lua, const char* const ResourceName) {
         auto GameObjectTable = lua["GameObject"];
         assert(GameObjectTable.valid() && "GameObject doesn't registered in current lua state, can't attach Component to it");
-        lua["GetResource" + std::string(ResourceName)] = &ResourceFactory::template GetResource<Resource>;
+        lua["GetResource_" + std::string(ResourceName)] = &ResourceFactory::template GetResource<Resource>;
     }
 
     void registerEngineAPI(sol::state& lua);
