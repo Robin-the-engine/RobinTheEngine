@@ -12,7 +12,7 @@ namespace RTE
 	GameObject Scene::CreateGameObject(entt::entity id)
 	{
 		auto entity = registry.create(id);
-		Transform transform = registry.emplace<Transform>(entity);
+		Transform& transform = registry.emplace<Transform>(entity);
 		transform.scene = this;
 		transform.owner = entity;
 		return GameObject(entity, this);

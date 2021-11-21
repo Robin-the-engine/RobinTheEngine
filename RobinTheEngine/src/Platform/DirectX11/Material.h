@@ -134,7 +134,6 @@ namespace RTE {
 				RTE_CORE_ASSERT(false, "Bad material type with value:{0}", desc.MaterialType);
 				break;
 			}
-
 		}
 		std::shared_ptr<MaterialBase> matPtr;
 
