@@ -13,7 +13,12 @@ namespace RTE {
     class ScriptComponent: public Component {
     public:
         ScriptComponent();
+        ScriptComponent(const ScriptComponent&) = delete;
+        ScriptComponent(ScriptComponent&&) noexcept = default;
+        ScriptComponent& operator=(const ScriptComponent& other) = delete;
+        ScriptComponent& operator=(ScriptComponent&& other) noexcept = default;
         virtual ~ScriptComponent() = default;
+
         virtual bool attachScript(const std::string& script, bool isFile = true);
         virtual bool attachScriptNoExec(const std::string& script, bool isFile = true);
         virtual bool reloadScript();

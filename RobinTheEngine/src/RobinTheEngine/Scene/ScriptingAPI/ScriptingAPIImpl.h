@@ -84,8 +84,8 @@ namespace RTE {
         ut["GetTransform"] = &GameObject::GetTransform;
 
         registerUserComponent<Transform>(lua, "Transform");
-        //registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
-        //registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
+        registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
+        registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
     }
 
     template<>
