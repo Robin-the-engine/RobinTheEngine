@@ -7,8 +7,7 @@
 #include "../Scene.h"
 #include "../GameObject.h"
 #include "../Serializer.h"
-#include "../Components/Transform.h"
-#include "../Components/MeshRenderer.h"
+#include "../Components.h"
 #include "RobinTheEngine/GameTimer.h"
 #include "Platform/DirectX11/Camera.h"
 #include "../../Log.h"
@@ -82,46 +81,9 @@ namespace RTE {
         ut["GetID"] = &GameObject::GetID;
         ut["GetTransform"] = &GameObject::GetTransform;
 
-        /*
-         template<typename T>
-         bool HasComponent()
-         {
-             return !scene->registry.orphan<T>(entity);
-         }
-
-         template<typename T>
-         T& GetComponent() const
-         {
-             return scene->registry.get<T>(entity);
-         }
-
-         template<typename T, typename... Args>
-         T& AddComponent(Args&&... args)
-         {
-             T& comp = scene->registry.emplace<T>(entity, std::forward<Args>(args)...);
-             comp.scene = scene;
-             comp.owner = entity;
-             return comp;
-         }
-
-         template<typename T>
-         void RemoveComponent()
-         {
-             scene->registry.remove<T>(entity);
-         }
-
-         // Template specialization for Transform, because it's default
-         template<>
-         Transform& AddComponent<Transform>()
-         {
-             return GetTransform();
-         }
-         template<>
-         void RemoveComponent<Transform>()
-         {
-             RTE_CORE_ERROR("You can't remove Transform component");
-         }
-        */
+        registerUserComponent<Transform>(lua, "Transform");
+        //registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
+        //registerNewComponent<ScriptComponent>(lua, "ScriptComponent");
     }
 
     template<>
@@ -140,13 +102,6 @@ namespace RTE {
         ut["y"] = &XMFLOAT3::y;
         ut["z"] = &XMFLOAT3::z;
     }
-
-    //TODO: finish (NO need probably)
-    //template<>
-    //void registerUserType<DirectX::XMMATRIX>(sol::state& lua) {
-    //    using XMMATRIX = DirectX::XMMATRIX;
-    //    sol::usertype<XMMATRIX> t = lua.new_usertype<XMMATRIX>("XMMATRIX");
-    //}
 
     template<>
     void registerUserType<Component>(sol::state& lua) {

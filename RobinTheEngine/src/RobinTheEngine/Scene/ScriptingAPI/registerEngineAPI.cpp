@@ -27,8 +27,6 @@ void RTE::registerUserType<RTE::Deprecated::GameObject>(sol::state& lua) {
     ut["GetPositionFloat3"] = &GameObject::GetPositionFloat3;
 }
 
-
-
 void RTE::registerEngineAPI(sol::state& lua) {
     // we don't need this probably
     //registerUserType<DirectX::XMMATRIX>(lua);
