@@ -13,19 +13,13 @@
 #include "RobinTheEngine/GameTimer.h"
 #include "Platform/DirectX11/Camera.h"
 #include "../../Log.h"
+#include "../../ResourceFactory.h"
 
 namespace RTE {
 
-    template<>
-    void registerUserType<Scene>(sol::state& lua) {
-        sol::usertype<Scene> ut = lua.new_usertype<Scene>("Scene", sol::constructors<Scene()>());
-        ut["GetGameObject"] = &Scene::GetGameObject;
-        ut["CreateGameObject"] = sol::overload(
-            [](Scene& scene) {scene.CreateGameObject(); },
-            [](Scene& scene, entt::entity id) {scene.CreateGameObject(id); }
-        );
-        ut["name"] = &Scene::name;
-    }
+    ///
+    /// ---------- Main engine classes
+    ///
 
     template<>
     void registerUserType<Camera>(sol::state& lua) {
@@ -70,22 +64,21 @@ namespace RTE {
         ut["Tick"] = &GameTimer::Tick;
     }
 
-    //TODO: finish
     template<>
-    void registerUserType<GameObject>(sol::state& lua) {
-        sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject",
-            sol::constructors<
-                GameObject(),
-                GameObject(const GameObject&),
-                GameObject(entt::entity, Scene*)
-            >()
-        );
-        ut["GetID"] = &GameObject::GetID;
-        ut["GetTransform"] = &GameObject::GetTransform;
+    void registerUserType<Serializer>(sol::state& lua) {
+        sol::usertype<Serializer> ut = lua.new_usertype<Serializer>("Serializer", sol::constructors<Serializer(Scene&)>());
+        ut["Serialize"] = &Serializer::Serialize;
+        ut["Deserialize"] = &Serializer::Deserialize;
+    }
 
-        registerUserComponent<Transform>(lua, "Transform");
-        registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
-        registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
+    template<>
+    void registerUserType<Log>(sol::state& lua) {
+        sol::usertype<Log> ut = lua.new_usertype<Log>("Log");
+        ut["trace"] = [](std::string msg) {Log::GetClientLogger()->trace(msg); };
+        ut["info"] = [](std::string msg) {Log::GetClientLogger()->info(msg); };
+        ut["warn"] = [](std::string msg) {Log::GetClientLogger()->warn(msg); };
+        ut["error"] = [](std::string msg) {Log::GetClientLogger()->error(msg); };
+        ut["fatal"] = [](std::string msg) {Log::GetClientLogger()->critical(msg); };
     }
 
     template<>
@@ -103,6 +96,78 @@ namespace RTE {
         ut["x"] = &XMFLOAT3::x;
         ut["y"] = &XMFLOAT3::y;
         ut["z"] = &XMFLOAT3::z;
+    }
+
+    ///
+    /// ---------- Main engine classes finished
+    ///
+
+    ///
+    /// ---------- JobSystem related stuff
+    ///
+
+    template<>
+    void registerUserType<JobPriority>(sol::state& lua) {
+        lua.new_enum("JobPriority",
+            "LOWEST", JobPriority::LOWEST,
+            "LOW", JobPriority::LOW,
+            "MEDIUM", JobPriority::MEDIUM,
+            "HIGH", JobPriority::HIGH,
+            "HIGHEST", JobPriority::HIGHEST
+        );
+    }
+
+    template<>
+    void registerUserType<JobSystem>(sol::state& lua) {
+        sol::usertype<JobSystem> ut = lua.new_usertype<JobSystem>("JobSystem");
+        ut["GetJobSystem"] = &JobSystem::GetJobSystem;
+        ut["getThreadCount"] = &JobSystem::getThreadCount;
+        ut["isJobDone"] = &JobSystem::isJobDone;
+        ut["waitForJob"] = &JobSystem::waitForJob;
+        ut["kickJob"] = sol::overload(
+            [](JobSystem& js, sol::function function)
+            { return js.kickJob(function, JobPriority::HIGH, -1); },
+            [](JobSystem& js, sol::function function, JobPriority priority)
+            { Log::GetCoreLogger()->trace("running overload 2"); return js.kickJob(function, priority, -1); },
+            [](JobSystem& js, sol::function function, JobPriority priority, size_t threadNumber)
+            { Log::GetCoreLogger()->trace("running overload 3"); return js.kickJob(function, priority, threadNumber); }
+        );
+    }
+
+    ///
+    /// ---------- JobSystem related stuff finished
+    ///
+
+    ///
+    /// ---------- Component related stuff
+    ///
+
+    template<>
+    void registerUserType<Scene>(sol::state& lua) {
+        sol::usertype<Scene> ut = lua.new_usertype<Scene>("Scene", sol::constructors<Scene()>());
+        ut["GetGameObject"] = &Scene::GetGameObject;
+        ut["CreateGameObject"] = sol::overload(
+            [](Scene& scene) {scene.CreateGameObject(); },
+            [](Scene& scene, entt::entity id) {scene.CreateGameObject(id); }
+        );
+        ut["name"] = &Scene::name;
+    }
+
+    template<>
+    void registerUserType<GameObject>(sol::state& lua) {
+        sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject",
+            sol::constructors<
+            GameObject(),
+            GameObject(const GameObject&),
+            GameObject(entt::entity, Scene*)
+            >()
+            );
+        ut["GetID"] = &GameObject::GetID;
+        ut["GetTransform"] = &GameObject::GetTransform;
+
+        registerUserComponent<Transform>(lua, "Transform");
+        registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
+        registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
     }
 
     template<>
@@ -165,50 +230,122 @@ namespace RTE {
         ut["SetMaterial"] = &MeshRenderer::SetMaterial;
     }
 
+    ///
+    /// ---------- Component related stuff finished
+    ///
+
+    ///
+    /// ---------- Resources related stuff
+    ///
+
     template<>
-    void registerUserType<Serializer>(sol::state& lua) {
-        sol::usertype<Serializer> ut = lua.new_usertype<Serializer>("Serializer", sol::constructors<Serializer(Scene&)>());
-        ut["Serialize"] = &Serializer::Serialize;
-        ut["Deserialize"] = &Serializer::Deserialize;
+    void registerUserType<BaseResource>(sol::state& lua) {
+        using ResourceID = BaseResource::ResourceID;
+        sol::usertype<BaseResource> ut = lua.new_usertype<BaseResource>("BaseResource",
+            sol::constructors<
+                BaseResource(const BaseResource&),
+                BaseResource(ResourceID id)
+            >()
+        );
+        ut["GetResourceID"] = &BaseResource::GetResourceID;
     }
 
     template<>
-    void registerUserType<Log>(sol::state& lua) {
-        sol::usertype<Log> ut = lua.new_usertype<Log>("Log");
-        ut["trace"] = [](std::string msg) {Log::GetClientLogger()->trace(msg); };
-        ut["info"] = [](std::string msg) {Log::GetClientLogger()->info(msg); };
-        ut["warn"] = [](std::string msg) {Log::GetClientLogger()->warn(msg); };
-        ut["error"] = [](std::string msg) {Log::GetClientLogger()->error(msg); };
-        ut["fatal"] = [](std::string msg) {Log::GetClientLogger()->critical(msg); };
+    void registerUserType<Model>(sol::state& lua) {
+        sol::usertype<Model> ut = lua.new_usertype<Model>("Model",
+            sol::constructors<Model()>(),
+            sol::base_classes, sol::bases<BaseResource>()
+        );
+        ut["Initialize"] = &Model::Initialize;
+        ut["meshes"] = &Model::meshes;
     }
 
     template<>
-    void registerUserType<JobPriority>(sol::state& lua) {
-        lua.new_enum("JobPriority",
-            "LOWEST", 0,
-            "LOW", 100,
-            "MEDIUM", 500,
-            "HIGH", 900,
-            "HIGHEST", 1000
+    void registerUserType<Material>(sol::state& lua) {
+        sol::usertype<Material> ut = lua.new_usertype<Material>("Material",
+            sol::constructors<
+                Material(),
+                Material(std::string id),
+                Material(MaterialDescriptor desc)
+            >(),
+            sol::base_classes, sol::bases<BaseResource>()
+            );
+        ut["matPtr"] = &Material::matPtr;
+    }
+
+    template<>
+    void registerUserType<MaterialType>(sol::state& lua) {
+        lua.new_enum("MaterialType",
+            "None", MaterialType::None,
+            "ColoredMaterial", MaterialType::ColoredMaterial,
+            "TexturedMaterial", MaterialType::TexturedMaterial
         );
     }
 
     template<>
-    void registerUserType<JobSystem>(sol::state& lua) {
-        sol::usertype<JobSystem> ut = lua.new_usertype<JobSystem>("JobSystem");
-        ut["GetJobSystem"] = &JobSystem::GetJobSystem;
-        ut["getThreadCount"] = &JobSystem::getThreadCount;
-        ut["isJobDone"] = &JobSystem::isJobDone;
-        ut["waitForJob"] = &JobSystem::waitForJob;
-        ut["kickJob"] = sol::overload(
-            [](JobSystem& js, sol::function function)
-                { return js.kickJob(function, JobPriority::HIGH, -1); },
-            [](JobSystem& js, sol::function function, JobPriority priority)
-                { Log::GetCoreLogger()->trace("running overload 2"); return js.kickJob(function, priority, -1); },
-            [](JobSystem& js, sol::function function, JobPriority priority, size_t threadNumber)
-                { Log::GetCoreLogger()->trace("running overload 3"); return js.kickJob(function, priority, threadNumber); }
-        );
+    void registerUserType<MaterialDescriptor>(sol::state& lua) {
+        sol::usertype<MaterialDescriptor> ut = lua.new_usertype<MaterialDescriptor>("MaterialDescriptor");
+        ut["key"] = &MaterialDescriptor::key;
+        ut["MaterialType"] = &MaterialDescriptor::MaterialType;
+        ut["color"] = &MaterialDescriptor::color;
+        ut["vsKey"] = &MaterialDescriptor::vsKey;
+        ut["psKey"] = &MaterialDescriptor::psKey;
+        ut["vsPath"] = &MaterialDescriptor::vsPath;
+        ut["psPath"] = &MaterialDescriptor::psPath;
+        ut["textureKey"] = &MaterialDescriptor::textureKey;
     }
+
+    template<>
+    void registerUserType<MaterialBase>(sol::state& lua) {
+        sol::usertype<MaterialBase> ut = lua.new_usertype<MaterialBase>("MaterialBase");
+        ut["ApplyMaterial"] = &MaterialBase::ApplyMaterial;
+        ut["GetMaterialType"] = &MaterialBase::GetMaterialType;
+    }
+
+    template<>
+    void registerUserType<ColoredMaterialBase>(sol::state& lua) {
+        sol::usertype<ColoredMaterialBase> ut = lua.new_usertype<ColoredMaterialBase>("ColoredMaterialBase",
+            sol::constructors<ColoredMaterialBase(MaterialDescriptor)>(),
+            sol::base_classes, sol::bases<MaterialBase>()
+        );
+        ut["SetColor"] = &ColoredMaterialBase::SetColor;
+    }
+
+    template<>
+    void registerUserType<TexturedMaterialBase>(sol::state& lua) {
+        sol::usertype<TexturedMaterialBase> ut = lua.new_usertype<TexturedMaterialBase>("TexturedMaterialBase",
+            sol::constructors<TexturedMaterialBase(MaterialDescriptor)>(),
+            sol::base_classes, sol::bases<MaterialBase>()
+        );
+        ut["SetTexture"] = &TexturedMaterialBase::SetTexture;
+    }
+
+    template<>
+    void registerUserType<MeshDesc>(sol::state& lua) {
+        sol::usertype<MeshDesc> ut = lua.new_usertype<MeshDesc>("MeshDesc",
+            sol::constructors<MeshDesc()>()
+        );
+        ut["key"] = &MeshDesc::key;
+        ut["layout"] = &MeshDesc::layout;
+        ut["path"] = &MeshDesc::path;
+    }
+
+    template<>
+    void registerUserType<ResourceFactory>(sol::state& lua) {
+        sol::usertype<ResourceFactory> ut = lua.new_usertype<ResourceFactory>("ResourceFactory");
+        ut["Get"] = &ResourceFactory::Get;
+        ut["GetHashValue"] = &ResourceFactory::GetHashValue;
+        registerUserResource<Material>(lua, "Material");
+        registerUserResource<Texture>(lua, "Texture");
+        registerUserResource<pixelShader>(lua, "pixelShader");
+        registerUserResource<vertexShader>(lua, "vertexShader");
+        registerUserResource<Model>(lua, "Model");
+    }
+
+    ///
+    /// ---------- Resources related stuff finished
+    ///
+
 }
 
 // TODO: (or not TODO ??)

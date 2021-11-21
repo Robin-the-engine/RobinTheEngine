@@ -2,6 +2,7 @@
 #include <sol/sol.hpp>
 #include <string>
 #include "../GameObject.h"
+#include "../../ResourceFactory.h"
 
 namespace RTE {
 
@@ -18,6 +19,13 @@ namespace RTE {
         lua["HasComponent_" + std::string(ComponentName)] = &GameObject::template HasComponent<Component>;
         lua["AddComponent_" + std::string(ComponentName)] = &GameObject::template AddComponent<Component>;
         lua["RemoveComponent_" + std::string(ComponentName)] = &GameObject::template RemoveComponent<Component>;
+    }
+
+    template<typename Resource>
+    void registerUserResource(sol::state& lua, const char* const ResourceName) {
+        auto GameObjectTable = lua["GameObject"];
+        assert(GameObjectTable.valid() && "GameObject doesn't registered in current lua state, can't attach Component to it");
+        lua["GetResource" + std::string(ResourceName)] = &ResourceFactory::template GetResource<Resource>;
     }
 
     void registerEngineAPI(sol::state& lua);
