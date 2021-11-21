@@ -12,6 +12,7 @@ namespace RTE {
 
     class ScriptComponent {
     public:
+        ScriptComponent();
         virtual ~ScriptComponent() = default;
         virtual bool attachScript(const std::string& script, bool isFile = true);
         virtual bool attachScriptNoExec(const std::string& script, bool isFile = true);
@@ -47,7 +48,6 @@ namespace RTE {
         virtual void OnRender();
 
     protected:
-        ScriptComponent();
         virtual bool checkScript();
         virtual void onScriptAttachStart(const std::string& script, bool isFile = true);
         virtual void onScriptAttachEnd(const std::string& script, bool isFile = true);

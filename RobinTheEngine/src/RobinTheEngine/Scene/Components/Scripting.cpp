@@ -7,6 +7,7 @@ using namespace RTE;
 ScriptComponent::ScriptComponent():
     lua(), script(""), executable(), isFile(false), scriptAttached(false) {
     lua.open_libraries(
+        sol::lib::os,
         sol::lib::base,
         sol::lib::math,
         sol::lib::table,
