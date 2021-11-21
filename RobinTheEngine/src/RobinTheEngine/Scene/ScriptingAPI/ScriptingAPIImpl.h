@@ -84,7 +84,7 @@ namespace RTE {
         ut["GetTransform"] = &GameObject::GetTransform;
 
         registerUserComponent<Transform>(lua, "Transform");
-        registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
+        //registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
         //registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
     }
 
@@ -155,7 +155,7 @@ namespace RTE {
         sol::usertype<MeshRenderer> ut = lua.new_usertype<MeshRenderer>("MeshRenderer",
             sol::constructors<
                 MeshRenderer(const MeshRenderer&),
-                MeshRenderer(const IMesh& mesh, const IMaterial& material)
+                MeshRenderer(const Model&, const Material&)
             >(),
             sol::base_classes, sol::bases<Component>()
             );

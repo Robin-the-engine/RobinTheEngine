@@ -27,7 +27,7 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	RTE::JobSystem jobSystem;
+	RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
@@ -44,7 +44,7 @@ public:
 	RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
 	RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
 	ExampleLayer()
-		: Layer("Example"), cbuffer(), lightCbuffer(), jobSystem()
+		: Layer("Example"), cbuffer(), lightCbuffer()
 	{
 		cbuffer.InitializeSharedBuffer("MVPMatrix");
 		lightCbuffer.InitializeSharedBuffer("LightProps");

@@ -10,7 +10,7 @@ namespace RTE {
     template<typename T>
     concept NONPRIMITIVE = !std::is_fundamental_v<std::remove_pointer_t<std::decay_t<T>>>;
 
-    class ScriptComponent {
+    class ScriptComponent: public Component {
     public:
         ScriptComponent();
         virtual ~ScriptComponent() = default;
