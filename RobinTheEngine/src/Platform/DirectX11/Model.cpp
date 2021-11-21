@@ -95,7 +95,6 @@ bool RTE::Model::Initialize(const std::string& path, int layout)
 	DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*> (Application::Get().GetRenderSystem());
 
 	if (meshesCache.find(path) != meshesCache.end()) {
-
 		this->meshes = meshesCache[path];
 		return true;
 	}
@@ -107,6 +106,16 @@ bool RTE::Model::Initialize(const std::string& path, int layout)
 	meshesCache[path] = meshes;
 	return true;
 
+}
+
+RTE::Model* RTE::Model::CreateModel(const std::string& path, int layout)
+{
+	Model* m = new Model();
+	if (!m->LoadModel(path, layout)) {
+		std::string warn = "Cant load model with path: " + path;
+		RTE_CORE_WARN(warn);
+	}
+	return m;
 }
 
 bool RTE::Model::LoadModel(const std::string& filePath, int layout)

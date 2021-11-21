@@ -18,6 +18,8 @@ namespace RTE {
 		bool Initialize(const std::string& path, int layout);
 		std::vector<std::shared_ptr<IMesh>> meshes;
 
+		static Model* CreateModel(const std::string& path, int layout);
+
 
 	private:
 		bool LoadModel(const std::string& filePath, int lauout);

@@ -33,63 +33,65 @@ namespace RTE {
 		}
 
 		template<class T>
-		T GetResource(std::string key) {
+		T& GetResource(std::string key) {
 			//We dont use that method. Its FALSE alwayse 	
-			STATIC_ASSERT(false);
-			return T();
+			throw new std::exception("We dont use that method. Its FALSE alwayse");
+			//STATIC_ASSERT(false);
+			//return T();
 		}
 
-
 		template<>
-		Material GetResource<Material>(std::string key) {
+		Material& GetResource<Material>(std::string key) {
 
 			RTE_CORE_ASSERT(materialDescriptors.find(key) != materialDescriptors.end(), "Dont have that key in material file!");
 			auto desc = materialDescriptors[key];
-
-			Material mat(desc);
-			return mat;
+			if (loadedResources.find(key) == loadedResources.end())
+			{
+				loadedResources[key] = new Material(desc);
+			}
+			return *((Material*)(loadedResources[key]));
 		}
 
+
 		template<>
-		Texture GetResource<Texture>(std::string key) {
+		Texture& GetResource<Texture>(std::string key) {
 
 			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in material file!");
 			auto path = yamlKeys[key];
-
-			Texture tex(path, aiTextureType::aiTextureType_DIFFUSE);
-			
-			return tex;
+			Texture* t = new Texture(path, aiTextureType::aiTextureType_DIFFUSE);
+			return *t;
 		}
 
-		template<>
-		pixelShader GetResource<pixelShader>(std::string key) {
+		//template<>
+		//pixelShader& GetResource<pixelShader>(std::string key) {
 
-			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
-			auto path = yamlKeys[key];
+		//	RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+		//	auto path = yamlKeys[key];
 
-			std::wstring convertedString(path.begin(), path.end());
-			return pixelShader(convertedString);
+		//	std::wstring convertedString(path.begin(), path.end());
+		//	return pixelShader(convertedString);
 
-		}
+		//	return (Texture&)loadedResources[key];
+		//}
 
-		template<>
-		vertexShader GetResource<vertexShader>(std::string key) {
+		//template<>
+		//vertexShader& GetResource<vertexShader>(std::string key) {
 
-			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
-			auto path = yamlKeys[key];
+		//	RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in resource file!");
+		//	auto path = yamlKeys[key];
 
 
-			const D3D11_INPUT_ELEMENT_DESC layout[] =
-			{
-				D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-				D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-			};
-			UINT numElements = ARRAYSIZE(layout);
+		//	const D3D11_INPUT_ELEMENT_DESC layout[] =
+		//	{
+		//		D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		//		D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+		//		D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+		//	};
+		//	UINT numElements = ARRAYSIZE(layout);
 
-			std::wstring convertedString(path.begin(), path.end());
-			return vertexShader(convertedString, layout, numElements);
-		}
+		//	std::wstring convertedString(path.begin(), path.end());
+		//	return vertexShader(convertedString, layout, numElements);
+		//}
 
 		/*
 		template<>
@@ -108,15 +110,21 @@ namespace RTE {
 		}*/
 
 		template<>
-		Model GetResource<Model>(std::string key) {
+		Model& GetResource<Model>(std::string key) {
 
-			Model model;
+			//Model model;
 
 			RTE_CORE_ASSERT(meshDescriptors.find(key) != meshDescriptors.end(), "Dont have that key in resource file!");
 			auto desc = meshDescriptors[key];
 
-			RTE_CORE_ASSERT(model.Initialize(desc.path, desc.layout), "Cannot initialize model with that key");
-			return model;
+			if (loadedResources.find(key) == loadedResources.end())
+			{
+				loadedResources[key] = Model::CreateModel(desc.path, desc.layout);
+			}
+			return *((Model*)(loadedResources[key]));
+
+			//RTE_CORE_ASSERT(model.Initialize(desc.path, desc.layout), "Cannot initialize model with that key");
+			//return model;
 		}
 
 		int GetHashValue(std::string name);
@@ -135,6 +143,7 @@ namespace RTE {
 		std::unordered_map<std::string, MeshDesc> meshDescriptors;
 		std::unordered_map<std::string, MaterialDescriptor> materialDescriptors;
 
+		std::unordered_map<std::string, RTE::BaseResource*> loadedResources;
 	};
 
 
