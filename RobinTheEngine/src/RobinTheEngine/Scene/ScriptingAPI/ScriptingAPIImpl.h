@@ -8,6 +8,8 @@
 #include "../GameObject.h"
 #include "../Serializer.h"
 #include "../Components.h"
+#include "../../JobSystem/JobSystem.h"
+#include "../../JobSystem/JobPriority.h"
 #include "RobinTheEngine/GameTimer.h"
 #include "Platform/DirectX11/Camera.h"
 #include "../../Log.h"
@@ -82,8 +84,8 @@ namespace RTE {
         ut["GetTransform"] = &GameObject::GetTransform;
 
         registerUserComponent<Transform>(lua, "Transform");
+        registerUserComponent<ScriptComponent>(lua, "ScriptComponent");
         //registerUserComponent<MeshRenderer>(lua, "MeshRenderer");
-        //registerNewComponent<ScriptComponent>(lua, "ScriptComponent");
     }
 
     template<>
@@ -179,8 +181,35 @@ namespace RTE {
         ut["error"] = [](std::string msg) {Log::GetClientLogger()->error(msg); };
         ut["fatal"] = [](std::string msg) {Log::GetClientLogger()->critical(msg); };
     }
+
+    template<>
+    void registerUserType<JobPriority>(sol::state& lua) {
+        lua.new_enum("JobPriority",
+            "LOWEST", 0,
+            "LOW", 100,
+            "MEDIUM", 500,
+            "HIGH", 900,
+            "HIGHEST", 1000
+        );
+    }
+
+    template<>
+    void registerUserType<JobSystem>(sol::state& lua) {
+        sol::usertype<JobSystem> ut = lua.new_usertype<JobSystem>("JobSystem");
+        ut["GetJobSystem"] = &JobSystem::GetJobSystem;
+        ut["getThreadCount"] = &JobSystem::getThreadCount;
+        ut["isJobDone"] = &JobSystem::isJobDone;
+        ut["waitForJob"] = &JobSystem::waitForJob;
+        ut["kickJob"] = sol::overload(
+            [](JobSystem& js, sol::function function)
+                { return js.kickJob(function, JobPriority::HIGH, -1); },
+            [](JobSystem& js, sol::function function, JobPriority priority)
+                { Log::GetCoreLogger()->trace("running overload 2"); return js.kickJob(function, priority, -1); },
+            [](JobSystem& js, sol::function function, JobPriority priority, size_t threadNumber)
+                { Log::GetCoreLogger()->trace("running overload 3"); return js.kickJob(function, priority, threadNumber); }
+        );
+    }
 }
 
-// TODO:
+// TODO: (or not TODO ??)
 // Move all api to a namespace (lua table)
-// Add JobSystem and ResourceManager API

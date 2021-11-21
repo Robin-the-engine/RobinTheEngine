@@ -40,6 +40,8 @@ void RTE::registerEngineAPI(sol::state& lua) {
     registerUserType<GameTimer>(lua);
     registerUserType<Camera>(lua);
     registerUserType<Log>(lua);
+    registerUserType<JobPriority>(lua);
+    registerUserType<JobSystem>(lua);
 
     // TODO: remove
     registerUserType<RTE::Deprecated::GameObject>(lua);
