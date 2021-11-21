@@ -22,4 +22,14 @@ namespace RTE
 	{
 		return GameObject(id, this);
 	}
+
+	void Scene::RenderScene(RenderSystem& rs)
+	{
+		auto MeshesToRender = registry.view<RTE::Transform, RTE::MeshRenderer>();
+		for (auto go : MeshesToRender)
+		{
+			auto toRen = MeshesToRender.get<RTE::Transform, RTE::MeshRenderer>(go);
+			rs.DoRender(toRen);
+		}
+	}
 }

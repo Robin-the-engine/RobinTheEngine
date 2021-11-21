@@ -183,20 +183,7 @@ public:
 		RTE::CB_VS_MATRIX4x4 cbvs;
 		rs->SetCamera(&camera);
 
-		
-
-		auto meshestorender = scene.registry.view<RTE::MeshRenderer>();
-		for (auto i: meshestorender) {
-			auto& meshes = meshestorender.get<RTE::MeshRenderer>(i);
-			int a = 1;
-		}
-
-		auto MeshesToRender = scene.registry.view<RTE::Transform, RTE::MeshRenderer>();
-		for (auto go : MeshesToRender)
-		{
-			auto toRen = MeshesToRender.get<RTE::Transform, RTE::MeshRenderer>(go);
-			rs->DoRender(toRen);
-		}
+		scene.RenderScene(*rs);
 	}
 
 	void UpdateCamera() {
