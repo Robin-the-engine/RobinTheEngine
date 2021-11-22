@@ -7,20 +7,8 @@
 #include <windows.h>
 
 #ifndef RTE_BUILD_ENGINE
-
 extern RTE::Application* RTE::CreateApplication();
-
-int main(int argc, char** argv)
-{
-    RTE::Log::Init();
-
-    auto app = RTE::CreateApplication();
-    app->Run();
-    delete app;
-    return 0;
-}
-#else
-#include <iostream>
+#endif // RTE_BUILD_ENGINE
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -28,9 +16,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
     _In_ int nShowCmd)
 {
     RTE::Log::Init();
-
-    //std::cout << "Hello world\n";
+#ifndef RTE_BUILD_ENGINE
+    auto app = RTE::CreateApplication();
+    app->Run();
+    delete app;
+#else
+    OutputDebugStringA("Hello world\n");
+#endif // RTE_BUILD_ENGINE
     return 0;
 }
-#endif // RTE_BUILD_ENGINE
+
 #endif // RTE_PLATFORM_WINDOWS

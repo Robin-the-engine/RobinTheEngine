@@ -12,7 +12,6 @@ namespace RTE
 		
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 		s_CoreLogger->set_level(spdlog::level::trace);
-
 		s_ClientLogger->set_level(spdlog::level::trace);
 		
 	}
