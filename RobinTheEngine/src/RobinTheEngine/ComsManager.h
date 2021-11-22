@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <d3d11.h>
+#include <wrl/client.h>
 #include "d3dUtils.h"
 
 //#include "Platform/DirectX11/Shaders.h"

@@ -54,6 +54,8 @@
          "%{prj.name}/src/**.h",
          "%{prj.name}/src/**.cpp"
       }
+      excludes "%{prj.name}/src/main.cpp"
+
 	  defines
 	  {
 	     "_CRT_SECURE_NO_WARNINGS",
@@ -91,8 +93,6 @@
          "liblua54",
       }
 	  
-
-
       filter "system:windows"
          systemversion "latest"
 
@@ -143,7 +143,7 @@
          "%{prj.name}/src/**.h",
          "%{prj.name}/src/**.cpp"
       }
-
+      excludes "%{prj.name}/src/main.cpp"
       includedirs
       {
          "RobinTheEngine/vendor/spdlog/include",
