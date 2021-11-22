@@ -114,12 +114,12 @@ namespace RTE {
         }
 
         static JobSystem& GetJobSystem() {
+            static JobSystem js;
             return js;
         }
 
     private:
         vgjs::JobSystem jobSystem;
-        static JobSystem js;
         JobSystem() : jobSystem(vgjs::thread_count_t(std::thread::hardware_concurrency()), vgjs::thread_index_t(1)) {
             SetThreadAffinityMask(GetCurrentThread(), 0);
         };
