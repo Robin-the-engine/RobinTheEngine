@@ -1,5 +1,5 @@
 #pragma once
-#include "Core.h"
+#include "Core/RTECorePlatformDefines.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -10,6 +10,8 @@ namespace RTE
 	class RTE_API Log
 	{
 	public:
+		using loggerT = spdlog::logger;
+		using SPloggerT = std::shared_ptr<loggerT>;
 		static void Init();
 		static std::shared_ptr<spdlog::logger> GetLogger(std::string name);
 		static std::shared_ptr<spdlog::logger> GetCoreLogger();

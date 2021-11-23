@@ -6,7 +6,7 @@ namespace RTE
     std::shared_ptr<spdlog::sinks::basic_file_sink_mt> Log::shared_file_sink =
         std::make_shared<spdlog::sinks::basic_file_sink_mt>("Engine.log");
     std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> Log::shared_console_sink =
-        std::make_shared<spdlog::sinks::stdout_color_sink_mt>("console.log");
+        std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
     void Log::Init()
     {
