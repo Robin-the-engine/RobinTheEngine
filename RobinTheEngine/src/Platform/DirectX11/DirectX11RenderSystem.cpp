@@ -287,15 +287,17 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	
 
 	//get meshRenderer
-	auto mr = std::get<1>(mesh);
+	auto& mr = std::get<1>(mesh);
 	mr.GetMaterial().matPtr->ApplyMaterial();
 	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
 	
 	//get Transform
-	auto trans = std::get<0>(mesh);
-	XMStoreFloat4x4(&world.data.worldMatrix, trans.GetMatrix());
+	auto& trans = std::get<0>(mesh);
+	XMStoreFloat4x4(&world.data.worldMatrix, XMMatrixTranspose(trans.GetMatrix()));
+	
 	auto mvp = trans.GetMatrix() * mainCamera->GetViewMatrix() * mainCamera->GetProjectionMatrix();
 	XMFLOAT4X4 mvpStored; XMStoreFloat4x4(&mvpStored, mvp);
+
 	world.WriteBuffer();
 	mainCamera->UpdateBuffer();
 	//set camera

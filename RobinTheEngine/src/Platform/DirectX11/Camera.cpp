@@ -41,8 +41,8 @@ const DirectX::XMMATRIX& RTE::Camera::GetViewProjectionMatrix()
 void RTE::Camera::UpdateBuffer()
 {
 	UpdateViewMatrix();
-	DirectX::XMStoreFloat4x4(&constBuffer.data.viewMatrix, GetViewMatrix());
-	DirectX::XMStoreFloat4x4(&constBuffer.data.projectionMatrix, GetProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&constBuffer.data.viewMatrix, DirectX::XMMatrixTranspose(GetViewMatrix()));
+	DirectX::XMStoreFloat4x4(&constBuffer.data.projectionMatrix, DirectX::XMMatrixTranspose(GetProjectionMatrix()) );
 	constBuffer.WriteBuffer();
 
 }

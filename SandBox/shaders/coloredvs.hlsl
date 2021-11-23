@@ -30,8 +30,7 @@ VS_OUTPUT main(VS_INPUT input)
 {
     float3 LightPoint = float3(0.0f, 0.f, 3.0f);
     float4 BasicCollor = float4(0.f, 0.8f, 0.5f, 1.0f);
-    //float4x4 mvp = mul(world, mul(view, projection));
-    float4x4 mvp = world;
+    float4x4 mvp = mul(world, mul( view, projection));
 
     VS_OUTPUT output;
     output.outPos = mul(float4(input.inPos, 1), mvp);

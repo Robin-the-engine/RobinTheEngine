@@ -56,17 +56,20 @@ public:
 	RTE::MaterialTwo mat;
 	RTE::MaterialTwo textured;
 	*/
-
+	RTE::GameObject go2;
 	void OnAttach() {
 
 		scene.name = "Test Scene";
-		RTE::Material mat = RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial");
-		RTE::Model mod = RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre");
-		RTE::MeshRenderer& mr1 = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>(mod, mat);
-		mr1.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		mr1.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-	
-		RTE::MeshRenderer& mr2 = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>();
+
+		auto go = scene.CreateGameObject();
+		auto& mr = go.AddComponent<RTE::MeshRenderer>();
+
+		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+
+		go2 = scene.CreateGameObject();
+
+		auto& mr2 = go2.AddComponent<RTE::MeshRenderer>();
 		mr2.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("litMaterial"));
 		mr2.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 
@@ -93,6 +96,8 @@ public:
 
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 
+		auto& transform = go2.GetComponent<RTE::Transform>();
+		transform.SetPosition(sin(angle), 0, 0);
 
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
