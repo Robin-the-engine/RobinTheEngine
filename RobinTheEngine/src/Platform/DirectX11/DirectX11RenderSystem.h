@@ -19,6 +19,11 @@ using Microsoft::WRL::ComPtr;
 //using namespace D3DUtils;
 namespace RTE {
 
+	//struct FrameStats;
+	struct FrameStats
+	{
+		int ObjectsWasDrawed;
+	};
 
 	class DirectX11RenderSystem : public RTE::RenderSystem
 	{
@@ -42,6 +47,7 @@ namespace RTE {
 
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes) override;
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps) override;
+		FrameStats& GetFrameStats() { return frameStats; }
 
 	protected:
 
@@ -55,6 +61,7 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_RasterizerState;
 		
+
 		static const int SwapChainBufferCount = 1;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetView;
@@ -69,7 +76,7 @@ namespace RTE {
 		DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-			// Set true to use 4X MSAA (§4.1.8).  The default is false.
+		// Set true to use 4X MSAA (§4.1.8).  The default is false.
 		bool      m_4xMsaaState = true; // 4X MSAA enabled
 		UINT      m_4xMsaaQuality = 0;      // quality level of 4X MSAA
 
@@ -84,9 +91,15 @@ namespace RTE {
 		std::vector<IDXGIAdapter*> adapterList;
 		DirectX::XMFLOAT4 clearColor;
 
-		Camera* mainCamera;
+		Camera* mainCamera = nullptr;
+		DirectX::BoundingFrustum frameFrustrum;
 
+		bool frustrumCullingEnabled = true;
+		FrameStats frameStats;
 
 	};
+
+
+
 }
 

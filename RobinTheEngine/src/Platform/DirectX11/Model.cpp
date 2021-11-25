@@ -122,6 +122,12 @@ bool RTE::Model::LoadModel(const std::string& filePath, int layout)
 
 
 	this->ProcessNode(pScene->mRootNode, pScene, layout);
+
+	DirectX::XMVECTOR min = DirectX::XMLoadFloat3(&minCoords);
+	DirectX::XMVECTOR max = DirectX::XMLoadFloat3(&maxCoords);
+	DirectX::XMStoreFloat3(&box.Center, 0.5f * (min + max));
+	DirectX::XMStoreFloat3(&box.Extents, 0.5f * (max - min));
+
 	return true;
 }
 
@@ -146,10 +152,14 @@ std::shared_ptr<RTE::IMesh> RTE::Model::ProcessMesh(aiMesh* mesh, int layout)
 	switch (layout)
 	{
 	case (1):
-		 return processDefaultMesh(mesh);
+		GetBoundingCoords(mesh);
+		return processDefaultMesh(mesh);
+
 		break;
 	case (2):
+		GetBoundingCoords(mesh);
 		return processTexturedMesh(mesh);
+
 		break;
 	default:
 		RTE_CORE_ASSERT(false, "Bad layout index");
@@ -333,7 +343,7 @@ std::vector<RTE::Texture> RTE::Model::LoadMaterialTextures(aiMaterial* pMaterial
 			return materialTextures;
 		}
 	}
-	else //If there are textures, 
+	else //If there are textures,
 	{
 		for (UINT i = 0; i < textureCount; i++)
 		{
@@ -355,4 +365,29 @@ std::vector<RTE::Texture> RTE::Model::LoadMaterialTextures(aiMaterial* pMaterial
 }
 
 */
+
 }
+
+void RTE::Model::GetBoundingCoords(aiMesh* mesh)
+{
+	//Get vertices
+	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	{
+
+		DirectX::XMFLOAT3 vec(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		auto p = DirectX::XMLoadFloat3(&vec);
+
+		DirectX::XMVECTOR min = DirectX::XMLoadFloat3(&minCoords);
+		DirectX::XMVECTOR max = DirectX::XMLoadFloat3(&maxCoords);
+
+		min = DirectX::XMVectorMin(min, p);
+		max = DirectX::XMVectorMax(max, p);
+
+		DirectX::XMStoreFloat3(&minCoords, min);
+		DirectX::XMStoreFloat3(&maxCoords, max);
+
+	}
+
+}
+
+

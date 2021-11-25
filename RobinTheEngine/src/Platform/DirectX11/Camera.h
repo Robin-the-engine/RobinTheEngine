@@ -35,16 +35,16 @@ namespace RTE {
 		void AdjustRotation(const XMVECTOR& vec);
 		void AdjustRotation(const XMFLOAT3& vec);
 
-		const XMVECTOR & GetForwardVector();
-		const XMVECTOR & GetBackwardVector();
-		const XMVECTOR & GetRightVector();
-		const XMVECTOR & GetLeftVector();
+		const XMVECTOR GetForwardVector();
+		const XMVECTOR GetBackwardVector();
+		const XMVECTOR GetRightVector();
+		const XMVECTOR GetLeftVector();
 		ConstantBuffer<CB_VS_CAMERA> constBuffer;
 
 
 	private:
 		void UpdateViewMatrix();
-		XMVECTOR m_posVec;
+		//XMVECTOR m_posVec;
 		XMVECTOR m_rotVec;
 		XMFLOAT3 m_pos;
 		XMFLOAT3 m_rot;
@@ -59,10 +59,10 @@ namespace RTE {
 		const XMVECTOR DEFAULT_RIGHT_VECTOR = XMVectorSet(1, 0, 1, 0);
 		const XMVECTOR DEFAULT_DOWN_VECTOR = XMVectorSet(0, 1, 0, 0);
 		
-		XMVECTOR vec_left;
-		XMVECTOR vec_right;
-		XMVECTOR vec_forward;
-		XMVECTOR vec_backward;
+		XMFLOAT4 vec_left;
+		XMFLOAT4 vec_right;
+		XMFLOAT4 vec_forward;
+		XMFLOAT4 vec_backward;
 		
 		
 

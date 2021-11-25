@@ -4,6 +4,7 @@
 #include "RobinTheEngine/Core.h"
 #include "dxgi1_2.h"
 #include "Platform/DirectX11/Camera.h"
+#include "PrimitivesBatcher.h"
 
 using namespace D3DUtils;
 
@@ -83,7 +84,7 @@ void RTE::DirectX11RenderSystem::Init()
 	depthStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	ThrowIfFailed(m_d3dDevice->CreateDepthStencilState(&depthStateDesc, m_DepthStencilState.GetAddressOf()));
-
+	PrimitivesBatcher::Init(m_d3dDevice.Get(), m_DeviceContext.Get(), XMFLOAT4X4(), XMFLOAT4X4());
 }
 
 void RTE::DirectX11RenderSystem::OnResize(int width, int height)
@@ -149,6 +150,9 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 	m_ScissorRect = { 0, 0, m_ClientWidth, m_ClientHeight };
 	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
 
+	if (mainCamera != nullptr)
+		mainCamera->SetProjectionProperties(90, width / height, 1, 100);
+
 }
 
 void RTE::DirectX11RenderSystem::OnRenderBegin()
@@ -159,6 +163,8 @@ void RTE::DirectX11RenderSystem::OnRenderBegin()
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 
 	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+
+	frameStats.ObjectsWasDrawed = 0;
 }
 
 void RTE::DirectX11RenderSystem::OnRenderEnd()
@@ -232,7 +238,7 @@ void RTE::DirectX11RenderSystem::Draw(GameObject go)
 		world.InitializeSharedBuffer("worldMat");
 		flag = false;
 	}
-		
+
 	auto mr = go.GetComponent<RTE::MeshRenderer>();
 	mr.GetMaterial().matPtr->ApplyMaterial();
 	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
@@ -278,25 +284,40 @@ void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> mesh)
 {
+	using namespace DirectX;
 	static ConstantBuffer<CB_VS_WORLD_MAT> world;
 	static bool flag = true;
+
 	if (flag) {
 		world.InitializeSharedBuffer("worldMat");
 		flag = false;
-	}
-	
+		BoundingFrustum::CreateFromMatrix(frameFrustrum, mainCamera->GetProjectionMatrix());
 
-	//get meshRenderer
+	}
+
 	auto& mr = std::get<1>(mesh);
 	mr.GetMaterial().matPtr->ApplyMaterial();
 	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
-	
+
+
+
+
 	//get Transform
-	auto& trans = std::get<0>(mesh);
-	XMStoreFloat4x4(&world.data.worldMatrix, XMMatrixTranspose(trans.GetMatrix()));
-	
-	auto mvp = trans.GetMatrix() * mainCamera->GetViewMatrix() * mainCamera->GetProjectionMatrix();
-	XMFLOAT4X4 mvpStored; XMStoreFloat4x4(&mvpStored, mvp);
+	auto& transform = std::get<0>(mesh);
+	auto worldMatrix = transform.GetMatrix();
+	XMStoreFloat4x4(&world.data.worldMatrix, XMMatrixTranspose(worldMatrix));
+
+	auto tmpVec = XMMatrixDeterminant(worldMatrix);
+	XMMATRIX invWorld = XMMatrixInverse(&tmpVec, worldMatrix);
+	tmpVec = XMMatrixDeterminant(mainCamera->GetViewMatrix());
+	XMMATRIX invView = XMMatrixInverse(&tmpVec, mainCamera->GetViewMatrix());
+	XMMATRIX viewToLocal = XMMatrixMultiply(invView, invWorld);
+	DirectX::BoundingFrustum localSpaceFrustrum;
+	frameFrustrum.Transform(localSpaceFrustrum, viewToLocal);
+
+	if (localSpaceFrustrum.Contains(mr.GetMesh().box) == DirectX::DISJOINT || (frustrumCullingEnabled == false))
+		return;
+
 
 	world.WriteBuffer();
 	mainCamera->UpdateBuffer();
@@ -306,6 +327,15 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	m_DeviceContext->VSSetConstantBuffers(1, 1, world.GetAddressOf());
 
 	m_DeviceContext->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
+
+	XMFLOAT4X4 tmpView; XMStoreFloat4x4(&tmpView, mainCamera->GetViewMatrix());
+	XMFLOAT4X4 tmpProjection; XMStoreFloat4x4(&tmpProjection, mainCamera->GetProjectionMatrix());
+	PrimitivesBatcher::SetViewProjection(tmpView, tmpProjection);
+	BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
+	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
+	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
+
+	frameStats.ObjectsWasDrawed++;
 }
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps)

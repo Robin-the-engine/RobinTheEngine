@@ -137,8 +137,6 @@ namespace RTE {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e) {
 		m_RenderSystem->OnResize(e.GetWidth(), e.GetHeight());
-		m_RenderSystem->OnResize(800, 800);
-
 		return true;
 	}
 }

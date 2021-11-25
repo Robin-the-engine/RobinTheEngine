@@ -61,21 +61,33 @@ public:
 
 		scene.name = "Test Scene";
 
-		auto go = scene.CreateGameObject();
-		auto& mr = go.AddComponent<RTE::MeshRenderer>();
 
-		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+
+				auto go = scene.CreateGameObject();
+				auto& mr = go.AddComponent<RTE::MeshRenderer>();
+				auto& transform = go.AddComponent<RTE::Transform>();
+				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+				int baseX = -10;
+				int basey = -10;
+				transform.SetPosition(baseX + (i * 4), basey + (j * 4),0);
+			}
+
+		}
+
+/*
 		go2 = scene.CreateGameObject();
 
 		auto& mr2 = go2.AddComponent<RTE::MeshRenderer>();
 		mr2.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("litMaterial"));
-		mr2.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		mr2.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));*/
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		camera.SetPosition(XMFLOAT3(0, 0, -10));
-		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()), 0.05, 1000);
+		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 0.05, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
@@ -96,8 +108,8 @@ public:
 
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 
-		auto& transform = go2.GetComponent<RTE::Transform>();
-		transform.SetPosition(sin(angle), 0, 0);
+		//auto& transform = go2.GetComponent<RTE::Transform>();
+		//transform.SetPosition(sin(angle) + 10, 0, 0);
 
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
@@ -166,8 +178,10 @@ public:
 		}
 		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
+		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
+
 		ImGui::End();
 	}
 
@@ -187,7 +201,8 @@ public:
 
 		RTE::CB_VS_MATRIX4x4 cbvs;
 		rs->SetCamera(&camera);
-
+		//auto& mr = go2.GetComponent<RTE::MeshRenderer>();
+		//auto mode = mr.GetMesh();
 		scene.RenderScene(*rs);
 	}
 

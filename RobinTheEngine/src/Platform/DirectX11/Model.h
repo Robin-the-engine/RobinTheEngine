@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include "RobinTheEngine/Scene/BaseResource.h"
+#include <DirectXCollision.h>
 
 
 #include "assimp/scene.h"
@@ -17,13 +18,18 @@ namespace RTE {
 		Model():BaseResource("invalid"){}
 		bool Initialize(const std::string& path, int layout);
 		std::vector<std::shared_ptr<IMesh>> meshes;
+		DirectX::BoundingBox box;
 
 
 	private:
 		bool LoadModel(const std::string& filePath, int lauout);
 		void ProcessNode(aiNode* node, const aiScene* scene, int layout);
 		std::shared_ptr<IMesh> ProcessMesh(aiMesh* mesh, int layout);
+		void GetBoundingCoords(aiMesh* mesh);
 
+		DirectX::XMFLOAT3 minCoords = XMFLOAT3(0, 0, 0);
+		DirectX::XMFLOAT3 maxCoords = XMFLOAT3(0, 0, 0);
+		
 	};
 
 

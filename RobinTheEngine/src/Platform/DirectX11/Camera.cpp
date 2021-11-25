@@ -4,7 +4,6 @@
 RTE::Camera::Camera()
 {
 	m_pos = XMFLOAT3(0.f, 0.f, 0.f);
-	m_posVec = XMLoadFloat3(&m_pos);
 	m_rot = XMFLOAT3(0.f, 0.f, 0.f);
 	m_rotVec = XMLoadFloat3(&m_rot);
 	UpdateViewMatrix();
@@ -49,7 +48,7 @@ void RTE::Camera::UpdateBuffer()
 
 const XMVECTOR& RTE::Camera::GetPositionVec()
 {
-	return this->m_posVec;
+	return XMLoadFloat3(&m_pos);
 }
 
 const XMVECTOR& RTE::Camera::GetRotationVec()
@@ -70,28 +69,26 @@ const XMFLOAT3& RTE::Camera::GetRotationFloat3()
 void RTE::Camera::SetPosition(const XMVECTOR& vec)
 {
 	XMStoreFloat3(&m_pos, vec);
-	m_posVec = vec;
 	UpdateViewMatrix();
 }
 
 void RTE::Camera::SetPosition(const XMFLOAT3& vec)
 {
 	m_pos = vec;
-	m_posVec = XMLoadFloat3(&m_pos);
 	UpdateViewMatrix();
 }
 
 void RTE::Camera::AdjustPosition(const XMVECTOR& vec)
 {
-	m_posVec += vec;
-	XMStoreFloat3(&m_pos, m_posVec);
+	XMVECTOR tmp = XMLoadFloat3(&m_pos); tmp += vec;
+	XMStoreFloat3(&m_pos, tmp);
 	UpdateViewMatrix();
 }
 
 void RTE::Camera::AdjustPosition(const XMFLOAT3& vec)
 {
-	m_posVec += XMLoadFloat3(&vec);
-	XMStoreFloat3(&m_pos, m_posVec);
+	XMVECTOR tmp = XMLoadFloat3(&m_pos); tmp += XMLoadFloat3(&vec);
+	XMStoreFloat3(&m_pos, tmp);
 	UpdateViewMatrix();
 }
 
@@ -123,40 +120,41 @@ void RTE::Camera::AdjustRotation(const XMFLOAT3& vec)
 	UpdateViewMatrix();
 }
 
-const XMVECTOR& RTE::Camera::GetForwardVector()
+const XMVECTOR RTE::Camera::GetForwardVector()
 {
-	return vec_forward;
+	return XMLoadFloat4(& vec_forward);
 }
 
-const XMVECTOR& RTE::Camera::GetBackwardVector()
+const XMVECTOR RTE::Camera::GetBackwardVector()
 {
-	return vec_backward;
+	return XMLoadFloat4(&vec_backward);
 }
 
-const XMVECTOR& RTE::Camera::GetRightVector()
+const XMVECTOR RTE::Camera::GetRightVector()
 {
-	return vec_right;
+	return XMLoadFloat4(&vec_right);
 }
 
-const XMVECTOR& RTE::Camera::GetLeftVector()
+const XMVECTOR RTE::Camera::GetLeftVector()
 {
-	return vec_left;
+	return XMLoadFloat4(&vec_left);
 }
 
 void RTE::Camera::UpdateViewMatrix()
 {
 	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector(m_rotVec);
 	XMVECTOR target = XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, rotation);
-	target += m_posVec;
+	XMVECTOR position = XMLoadFloat3(&m_pos); 
+	target += position;
 	XMVECTOR upDir = XMVector3TransformCoord(DEFAULT_UP_VECTOR, rotation);
 
-	m_viewMatrix = XMMatrixLookAtLH(m_posVec, target, upDir);
+	m_viewMatrix = XMMatrixLookAtLH(position, target, upDir);
 
 	XMMATRIX vecRotationMat = XMMatrixRotationRollPitchYaw(0.f, m_rot.y, 0.f);
 
-	vec_forward = XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMat);
-	vec_backward = XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMat);
-	vec_left = XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMat);
-	vec_right = XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMat);
+	XMStoreFloat4(&vec_forward, XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMat));
+	XMStoreFloat4(&vec_backward, XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMat));
+	XMStoreFloat4(&vec_left, XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMat));
+	XMStoreFloat4(&vec_right, XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMat));
 
 }
