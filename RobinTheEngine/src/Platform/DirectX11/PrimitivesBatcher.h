@@ -12,7 +12,6 @@ namespace RTE {
 	class PrimitivesBatcher {
 	public:
 		static void Init(ID3D11Device* device, ID3D11DeviceContext* context, DirectX::XMFLOAT4X4 view, DirectX::XMFLOAT4X4 projection);
-		static void DrawSome(ID3D11DeviceContext* context, BoundingBox box);
 		static void SetViewProjection(DirectX::XMFLOAT4X4 view, DirectX::XMFLOAT4X4 projection);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingFrustum frustum);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingOrientedBox orientedBox);

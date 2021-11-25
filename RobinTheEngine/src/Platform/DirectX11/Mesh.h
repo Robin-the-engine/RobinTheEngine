@@ -36,6 +36,8 @@ namespace RTE {
 			RTE_CORE_ASSERT(false, "we dont use that implementation");
 		}
 		int elementCount;
+		DirectX::XMFLOAT3 min = DirectX::XMFLOAT3(0, 0, 0);
+		DirectX::XMFLOAT3 max = DirectX::XMFLOAT3(0, 0, 0);
 
 	};
 

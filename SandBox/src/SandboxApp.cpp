@@ -64,7 +64,7 @@ public:
 
 
 		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
+			for (int j = 0; j < 50; j++) {
 
 				auto go = scene.CreateGameObject();
 				auto& mr = go.AddComponent<RTE::MeshRenderer>();
@@ -73,7 +73,7 @@ public:
 				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 				int baseX = -10;
 				int basey = -10;
-				transform.SetPosition(baseX + (i * 4), basey + (j * 4),0);
+				transform.SetPosition(baseX + (i * 2), basey + (j * 2),0);
 			}
 
 		}

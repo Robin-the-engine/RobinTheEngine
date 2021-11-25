@@ -39,9 +39,11 @@ void RTE::PrimitivesBatcher::Init(ID3D11Device* device, ID3D11DeviceContext* con
 
 void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingSphere sphere)
 {
+	/*
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullNone());
+	*/
 	m_effect->Apply(context);
 	context->IASetInputLayout(m_inputLayout.Get());
 	m_batch->Begin();
@@ -80,9 +82,11 @@ void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, Boundin
 
 void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingOrientedBox orientedBox)
 {
+	/*
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullNone());
+	*/
 	m_effect->Apply(context);
 	context->IASetInputLayout(m_inputLayout.Get());
 	m_batch->Begin();
@@ -92,9 +96,11 @@ void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, Boundin
 
 void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingFrustum frustum)
 {
+	/*
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullNone());
+	*/
 	m_effect->Apply(context);
 	context->IASetInputLayout(m_inputLayout.Get());
 	m_batch->Begin();

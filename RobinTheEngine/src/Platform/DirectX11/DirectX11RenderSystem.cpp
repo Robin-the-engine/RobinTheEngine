@@ -331,6 +331,7 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	XMFLOAT4X4 tmpView; XMStoreFloat4x4(&tmpView, mainCamera->GetViewMatrix());
 	XMFLOAT4X4 tmpProjection; XMStoreFloat4x4(&tmpProjection, mainCamera->GetProjectionMatrix());
 	PrimitivesBatcher::SetViewProjection(tmpView, tmpProjection);
+	BoundingBox proverka = mr.GetMesh().box;
 	BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
 	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
 	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());

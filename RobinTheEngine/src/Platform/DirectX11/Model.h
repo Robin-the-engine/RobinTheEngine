@@ -25,7 +25,7 @@ namespace RTE {
 		bool LoadModel(const std::string& filePath, int lauout);
 		void ProcessNode(aiNode* node, const aiScene* scene, int layout);
 		std::shared_ptr<IMesh> ProcessMesh(aiMesh* mesh, int layout);
-		void GetBoundingCoords(aiMesh* mesh);
+		void GetBoundingCoords();
 
 		DirectX::XMFLOAT3 minCoords = XMFLOAT3(0, 0, 0);
 		DirectX::XMFLOAT3 maxCoords = XMFLOAT3(0, 0, 0);
