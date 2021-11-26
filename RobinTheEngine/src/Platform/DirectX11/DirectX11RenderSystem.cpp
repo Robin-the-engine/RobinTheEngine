@@ -151,7 +151,7 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
 
 	if (mainCamera != nullptr)
-		mainCamera->SetProjectionProperties(90, width / height, 1, 100);
+		mainCamera->SetProjectionProperties(90, width / height, 0.05, 1000);
 
 }
 

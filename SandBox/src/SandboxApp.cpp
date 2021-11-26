@@ -30,8 +30,8 @@ public:
 	RTE::JobSystem jobSystem;
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
+	RTE::Scene* scenePTR;
 
-	RTE::Scene scene;
 
 	float ambientStrength = 1;
 	DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1, 1, 1);
@@ -48,7 +48,7 @@ public:
 	{
 		cbuffer.InitializeSharedBuffer("MVPMatrix");
 		lightCbuffer.InitializeSharedBuffer("LightProps");
-
+		scenePTR = &RTE::Application::Get().scene;
 	}
 
 	/*
@@ -58,15 +58,12 @@ public:
 	*/
 	RTE::GameObject go2;
 	void OnAttach() {
-
-		scene.name = "Test Scene";
-
-
+		scenePTR->name = "Test Scene";
 
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 50; j++) {
 
-				auto go = scene.CreateGameObject();
+				auto go = scenePTR->CreateGameObject();
 				auto& mr = go.AddComponent<RTE::MeshRenderer>();
 				auto& transform = go.AddComponent<RTE::Transform>();
 				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
@@ -108,9 +105,8 @@ public:
 
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 
-		//auto& transform = go2.GetComponent<RTE::Transform>();
-		//transform.SetPosition(sin(angle) + 10, 0, 0);
-
+		lightCbuffer.WriteBuffer();
+		rs->SetCamera(&camera);
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
 	}
@@ -128,7 +124,7 @@ public:
 			ImGui::InputText("Save file name", saveFileName, nameSize);
 			if (ImGui::Button("Save Scene"))
 			{
-				RTE::Serializer sr(scene);
+				RTE::Serializer sr(*scenePTR);
 				sr.Serialize(std::string(saveloadFolder) + saveFileName + ".scene");
 			}
 			ImGui::Separator();
@@ -136,7 +132,7 @@ public:
 			if (ImGui::Button("Load Scene"))
 			{
 
-				RTE::Serializer sr(scene);
+				RTE::Serializer sr(*scenePTR);
 				sr.Deserialize(std::string(saveloadFolder) + loadFileName + ".scene");
 			}
 		}
@@ -197,13 +193,7 @@ public:
 
 	void OnRender() override
 	{
-		lightCbuffer.WriteBuffer();
-
-		RTE::CB_VS_MATRIX4x4 cbvs;
-		rs->SetCamera(&camera);
-		//auto& mr = go2.GetComponent<RTE::MeshRenderer>();
-		//auto mode = mr.GetMesh();
-		scene.RenderScene(*rs);
+		//that method will removed. We not render things in layers.
 	}
 
 	void UpdateCamera() {

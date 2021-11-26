@@ -6,6 +6,7 @@
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
+#include "RobinTheEngine/Scene/Scene.h"
 
 #include "Platform/DirectX11/DirectX11RenderSystem.h"
 
@@ -33,6 +34,7 @@ namespace RTE {
 		inline RenderSystem* GetRenderSystem() { return m_RenderSystem.get(); }
 		inline static Application& Get() { return *s_Instance; }
 
+			RTE::Scene scene;
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
@@ -42,6 +44,7 @@ namespace RTE {
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 		static Application* s_Instance;
+		float m_LastFrameTime = 0.0f;
 
 
 	};
