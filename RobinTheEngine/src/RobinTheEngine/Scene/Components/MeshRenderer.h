@@ -2,7 +2,6 @@
 #include "RobinTheEngine/Scene/Component.h"
 #include <DirectXMath.h>
 #include "RobinTheEngine/Scene/BaseResource.h"
-#include "RobinTheEngine/Scene/Components/IDrawable.h"
 
 #include "Platform/DirectX11/Model.h"
 #include "Platform/DirectX11/Material.h"

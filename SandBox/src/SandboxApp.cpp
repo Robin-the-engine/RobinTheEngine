@@ -27,11 +27,12 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
+	//TODO: its throw error
+	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
+	RTE::Scene* scenePTR;
 
-	RTE::Scene scene;
 
 	float ambientStrength = 1;
 	DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1, 1, 1);
@@ -48,7 +49,7 @@ public:
 	{
 		cbuffer.InitializeSharedBuffer("MVPMatrix");
 		lightCbuffer.InitializeSharedBuffer("LightProps");
-
+		scenePTR = &RTE::Application::Get().scene;
 	}
 
 	/*
@@ -56,28 +57,30 @@ public:
 	RTE::MaterialTwo mat;
 	RTE::MaterialTwo textured;
 	*/
-	RTE::GameObject go;
 	RTE::GameObject go2;
 	void OnAttach() {
+		scenePTR->name = "Test Scene";
 
-		scene.name = "Test Scene";
-		go = scene.CreateGameObject();
-		go2 = scene.CreateGameObject();
-		RTE::MeshRenderer mr;
-		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-		go.AddComponent<RTE::MeshRenderer>(mr);
-		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("litMaterial"));
-		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-		go2.AddComponent<RTE::MeshRenderer>(mr);
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 50; j++) {
 
+				auto go = scenePTR->CreateGameObject();
+				auto& mr = go.AddComponent<RTE::MeshRenderer>();
+				auto& transform = go.AddComponent<RTE::Transform>();
+				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+				int baseX = -10;
+				int basey = -10;
+				transform.SetPosition(baseX + (i * 2), basey + (j * 2),0);
+			}
 
-		auto scale = go.GetComponent<RTE::Transform>();
+		}
+
 
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		camera.SetPosition(XMFLOAT3(0, 0, -10));
-		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()), 0.05, 1000);
+		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 0.05, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
@@ -98,7 +101,8 @@ public:
 
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 
-
+		lightCbuffer.WriteBuffer();
+		rs->SetCamera(&camera);
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
 	}
@@ -116,7 +120,7 @@ public:
 			ImGui::InputText("Save file name", saveFileName, nameSize);
 			if (ImGui::Button("Save Scene"))
 			{
-				RTE::Serializer sr(scene);
+				RTE::Serializer sr(*scenePTR);
 				sr.Serialize(std::string(saveloadFolder) + saveFileName + ".scene");
 			}
 			ImGui::Separator();
@@ -124,7 +128,7 @@ public:
 			if (ImGui::Button("Load Scene"))
 			{
 
-				RTE::Serializer sr(scene);
+				RTE::Serializer sr(*scenePTR);
 				sr.Deserialize(std::string(saveloadFolder) + loadFileName + ".scene");
 			}
 		}
@@ -166,8 +170,10 @@ public:
 		}
 		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
+		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
+
 		ImGui::End();
 	}
 
@@ -183,37 +189,7 @@ public:
 
 	void OnRender() override
 	{
-		lightCbuffer.WriteBuffer();
-
-		RTE::CB_VS_MATRIX4x4 cbvs;
-
-
-		rs->GetContext()->VSSetConstantBuffers(0, 1, cbuffer.GetAddressOf());
-		/*
-		textured.matPtr->ApplyMaterial();
-		mmodel.meshes[0]->BindMesh(rs->GetContext().Get());
-		rs->GetContext()->DrawIndexed(this->mmodel.meshes[0]->elementCount, 0, 0);*/
-
-		auto mr = go.GetComponent<RTE::MeshRenderer>();
-		mr.GetMaterial().matPtr->ApplyMaterial();
-		mr.GetMesh().meshes[0]->BindMesh(rs->GetContext().Get());
-		auto trans = go.GetComponent<RTE::Transform>();
-		DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
-		DirectX::XMStoreFloat4x4(&cbvs.worldMatrix, trans.GetMatrix());
-		cbuffer.WirteBuffer(cbvs);
-		rs->GetContext()->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
-
-		mr = go2.GetComponent<RTE::MeshRenderer>();
-		mr.GetMaterial().matPtr->ApplyMaterial();
-		mr.GetMesh().meshes[0]->BindMesh(rs->GetContext().Get());
-		trans = go2.GetComponent<RTE::Transform>();
-		trans.SetPosition(sin(angle) * 5, 1.1, 0.1);
-
-		DirectX::XMStoreFloat4x4(&cbvs.mvpMatrix, DirectX::XMMatrixTranspose(trans.GetMatrix() * camera.GetViewMatrix() * camera.GetProjectionMatrix()));
-		DirectX::XMStoreFloat4x4(&cbvs.worldMatrix, trans.GetMatrix());
-		cbuffer.WirteBuffer(cbvs);
-
-		rs->GetContext()->DrawIndexed(mr.GetMesh().meshes[0]->elementCount, 0, 0);
+		//that method will removed. We not render things in layers.
 	}
 
 	void UpdateCamera() {

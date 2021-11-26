@@ -15,6 +15,7 @@
 #include "Platform/DirectX11/Model.h"
 #include "Platform/DirectX11/GameObject.h"
 #include "ResourceFactory.h"
+#include "Timestep.h"
 
 
 namespace RTE {
@@ -79,20 +80,37 @@ namespace RTE {
 		context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 		context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
 
-		float i = 5;
+
+		const int TICKS_PER_SECOND = 50;
+		const int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
+		const int MAX_FRAMESKIP = 10;
+		DWORD next_game_tick = 0; //GetTickCount64();
+		int loops;
+
 		while (m_Running) {
+
+			loops = 0;
 			m_Window->OnUpdate();
+
+			while (GetTickCount64() > next_game_tick && loops < MAX_FRAMESKIP) {
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate();
+
+				next_game_tick += SKIP_TICKS;
+				loops++;
+			}
+
+
 			m_RenderSystem->OnRenderBegin();
-
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
-
-			for (Layer* layer : m_LayerStack)
-				layer->OnRender();
+			scene.RenderScene(*m_RenderSystem);
+			//for (Layer* layer : m_LayerStack)
+				//layer->OnRender();
 
 			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
+			{
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+			}
 			m_ImGuiLayer->End();
 
 			m_RenderSystem->OnRenderEnd();
@@ -137,8 +155,21 @@ namespace RTE {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e) {
 		m_RenderSystem->OnResize(e.GetWidth(), e.GetHeight());
-		m_RenderSystem->OnResize(800, 800);
-
 		return true;
 	}
+}
+
+
+
+
+Microsoft::WRL::ComPtr<ID3D11Device> RTE::GetDevice() {
+	auto rs = (RTE::DirectX11RenderSystem*)RTE::Application::Get().GetRenderSystem();
+	return rs->GetDevice();
+
+}
+
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> RTE::GetContext() {
+	auto rs = (RTE::DirectX11RenderSystem*)RTE::Application::Get().GetRenderSystem();
+	return rs->GetContext();
+
 }

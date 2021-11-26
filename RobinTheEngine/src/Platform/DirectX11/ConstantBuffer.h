@@ -3,13 +3,12 @@
 #include <wrl.h>
 #include <DirectXMath.h> 
 #include "RobinTheEngine/d3dUtils.h"
-#include "RobinTheEngine/Application.h"
 #include "RobinTheEngine/ComsManager.h"
-#include "Platform/DirectX11/DirectX11RenderSystem.h"
-#include "RobinTheEngine/d3dUtils.h"
 
 namespace RTE {
 
+	Microsoft::WRL::ComPtr<ID3D11Device> GetDevice();
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext();
 	class Application;
 
 	template<class T>
@@ -20,9 +19,10 @@ namespace RTE {
 
 		void InitializeUniqueBuffer() {
 			using namespace D3DUtils;
-			
 
-			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+			auto device = GetDevice();
+
+			//DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 
 			D3D11_BUFFER_DESC desk;
 			ZeroMemory(&desk, sizeof(desk));
@@ -33,7 +33,7 @@ namespace RTE {
 			desk.MiscFlags = 0;
 			desk.StructureByteStride = 0; //?
 
-			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
+			ThrowIfFailed(device->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
 			isInitialized = true;
 
 		}
@@ -46,8 +46,8 @@ namespace RTE {
 				buffer = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\ConstBuffer");
 				return;
 			}
-
-			DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+			auto device = GetDevice();
+			//DirectX11RenderSystem* rs = static_cast<DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 
 			D3D11_BUFFER_DESC desk;
 			ZeroMemory(&desk, sizeof(desk));
@@ -59,13 +59,13 @@ namespace RTE {
 			desk.MiscFlags = 0;
 			desk.StructureByteStride = 0; //?
 
-			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
+			ThrowIfFailed(device->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
 
 			ComsManager::Get().RegisterComPtrResource(buffer, name + "\\ConstBuffer");
 
 		}
 
-		ConstantBuffer(): isInitialized(false)
+		ConstantBuffer() : isInitialized(false)
 		{
 		}
 
@@ -88,11 +88,12 @@ namespace RTE {
 		void WriteBuffer() {
 			using namespace D3DUtils;
 			RTE_CORE_ASSERT(isInitialized, "That buffer is not initialized!");
-			RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
+			auto context = GetContext();
+			//RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(Application::Get().GetRenderSystem());
 			D3D11_MAPPED_SUBRESOURCE subres;
-			ThrowIfFailed(rs->GetContext()->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subres));
+			ThrowIfFailed(context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subres));
 			CopyMemory(subres.pData, &data, sizeof(T));
-			rs->GetContext()->Unmap(buffer.Get(), 0);
+			context->Unmap(buffer.Get(), 0);
 		}
 		void WirteBuffer(T data) {
 
@@ -104,9 +105,20 @@ namespace RTE {
 
 
 
+	struct CB_VS_CAMERA
+	{
+		DirectX::XMFLOAT4X4 viewMatrix;
+		DirectX::XMFLOAT4X4 projectionMatrix;
+
+	};
+
+	struct CB_VS_WORLD_MAT
+	{
+		DirectX::XMFLOAT4X4 worldMatrix;
+	};
 
 
-		//Constant buffer types
+	//Constant buffer types
 	struct CB_VS_MATRIX4x4
 	{
 		DirectX::XMFLOAT4X4 mvpMatrix;

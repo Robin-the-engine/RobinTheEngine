@@ -22,7 +22,7 @@ RTE::ConstantBuffer<CB_VS_MATRIX4x4>::ConstantBuffer(std::string bufferName) : n
 			desk.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desk.MiscFlags = 0;
 			desk.StructureByteStride = 0; //?
- 
+
 			ThrowIfFailed(rs->GetDevice()->CreateBuffer(&desk, 0, buffer.GetAddressOf()));
 
 			ResourceManager::Get().RegisterComPtrResource(buffer, name + "\\ConstBuffer");

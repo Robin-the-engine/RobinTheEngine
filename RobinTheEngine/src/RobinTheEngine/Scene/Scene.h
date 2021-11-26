@@ -1,5 +1,6 @@
 #pragma once
 #include "entt.hpp"
+#include <RobinTheEngine/RenderSystem.h>
 
 namespace RTE
 {
@@ -13,6 +14,8 @@ namespace RTE
 		GameObject CreateGameObject();
 		GameObject CreateGameObject(entt::entity id);
 		GameObject GetGameObject(entt::entity entity);
+
+		void RenderScene(RenderSystem& rs);
 
 		std::string name = "Untitled";
 
