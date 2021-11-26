@@ -154,6 +154,7 @@ RTE::Model* RTE::Model::CreateModel(const std::string& path, int layout)
 		std::string warn = "Cant load model with path: " + path;
 		RTE_CORE_WARN(warn);
 	}
+	m->GetBoundingCoords();
 	return m;
 }
 
