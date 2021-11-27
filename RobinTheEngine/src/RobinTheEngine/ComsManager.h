@@ -3,6 +3,7 @@
 #include <string>
 #include <d3d11.h>
 #include "d3dUtils.h"
+#include "Core.h"
 
 //#include "Platform/DirectX11/Shaders.h"
 //#include "Platform/DirectX11/Texture.h"
@@ -58,11 +59,8 @@ namespace RTE
 		template <class T>
 		void RegisterComPtrResource(Microsoft::WRL::ComPtr<T> resPtr, std::string name)
 		{
-#ifdef _DEBUG
 			RTE_ASSERT(!IsHaveComPtrResource(name), "Resource with that name already exist!")
-#endif //debug
-				resourceMap[name] = resPtr;
-
+			resourceMap[name] = resPtr;
 		}
 
 

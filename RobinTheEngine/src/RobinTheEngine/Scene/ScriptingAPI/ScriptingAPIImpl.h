@@ -74,11 +74,12 @@ namespace RTE {
     template<>
     void registerUserType<Log>(sol::state& lua) {
         sol::usertype<Log> ut = lua.new_usertype<Log>("Log");
-        ut["trace"] = [](std::string msg) {Log::GetClientLogger()->trace(msg); };
-        ut["info"] = [](std::string msg) {Log::GetClientLogger()->info(msg); };
-        ut["warn"] = [](std::string msg) {Log::GetClientLogger()->warn(msg); };
-        ut["error"] = [](std::string msg) {Log::GetClientLogger()->error(msg); };
-        ut["fatal"] = [](std::string msg) {Log::GetClientLogger()->critical(msg); };
+        auto logger = Log::GetLogger("lua");
+        ut["trace"] = [logger = logger](std::string msg) {logger->trace(msg); };
+        ut["info"]  = [logger = logger](std::string msg) {logger->info(msg); };
+        ut["warn"]  = [logger = logger](std::string msg) {logger->warn(msg); };
+        ut["error"] = [logger = logger](std::string msg) {logger->error(msg); };
+        ut["fatal"] = [logger = logger](std::string msg) {logger->critical(msg); };
     }
 
     template<>
@@ -128,9 +129,9 @@ namespace RTE {
             [](JobSystem& js, sol::function function)
             { return js.kickJob(function, JobPriority::HIGH, -1); },
             [](JobSystem& js, sol::function function, JobPriority priority)
-            { Log::GetCoreLogger()->trace("running overload 2"); return js.kickJob(function, priority, -1); },
+            { return js.kickJob(function, priority, -1); },
             [](JobSystem& js, sol::function function, JobPriority priority, size_t threadNumber)
-            { Log::GetCoreLogger()->trace("running overload 3"); return js.kickJob(function, priority, threadNumber); }
+            { return js.kickJob(function, priority, threadNumber); }
         );
     }
 
