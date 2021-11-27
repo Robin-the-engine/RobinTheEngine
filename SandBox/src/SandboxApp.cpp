@@ -27,8 +27,7 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	//TODO: its throw error
-	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
+	RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
