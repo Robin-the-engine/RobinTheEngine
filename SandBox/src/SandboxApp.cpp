@@ -270,11 +270,39 @@ public:
 	}
 };
 
+# if 0
+class EngineGUILayer final: public RTE::Layer {
+
+    void OnImGuiRender() override {
+		
+		static ImGuiID dockspaceID = ImGui::GetID("HUB_DockSpace");
+//		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+		if (ImGui::Begin("Master Window"/*, nullptr, ImGuiWindowFlags_MenuBar*/))
+		{
+			ImGui::TextUnformatted("DockSpace below");
+
+			ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode/*|ImGuiDockNodeFlags_NoResize*/);
+		}
+		ImGui::End();
+
+		ImGui::SetNextWindowDockID(dockspaceID, ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("Dockable Window"))
+		{
+			ImGui::TextUnformatted("Test");
+		}
+		ImGui::End();
+    }
+};
+#endif
+
 class Sandbox : public RTE::Application
 {
 public:
 	Sandbox()
 	{
+		// TODO: this should be moved out of sandbox to the engine
+		// but we do not have engine/app division now
+		//PushLayer(new EngineGUILayer());
 		PushLayer(new ExampleLayer());
 	}
 
