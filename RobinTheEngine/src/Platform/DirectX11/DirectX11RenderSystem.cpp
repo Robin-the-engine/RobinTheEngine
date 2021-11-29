@@ -153,16 +153,23 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 	if (mainCamera != nullptr)
 		mainCamera->SetProjectionProperties(90, width / height, 0.05, 1000);
 
+	framebufferForTexture.Resize(m_d3dDevice, m_ClientWidth, m_ClientHeight);
 }
 
 void RTE::DirectX11RenderSystem::OnRenderBegin()
 {
-
+	
 	//	// Clear the back buffer and depth buffer.
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 
-	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+	framebufferForTexture.SetRenderTarget(m_DeviceContext, m_DepthStencilView);
+	framebufferForTexture.ClearRenderTarget(m_DeviceContext, m_DepthStencilView, clearColor);
+
+	//m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+	//m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
+	//m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+	//m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 
 	frameStats.ObjectsWasDrawed = 0;
 }
@@ -284,6 +291,9 @@ void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> mesh)
 {
+	//framebufferForTexture.SetRenderTarget(m_DeviceContext, m_DepthStencilView);
+
+
 	using namespace DirectX;
 	static ConstantBuffer<CB_VS_WORLD_MAT> world;
 	static bool flag = true;
@@ -336,7 +346,14 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
 	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
 
+
 	frameStats.ObjectsWasDrawed++;
+}
+
+
+void RTE::DirectX11RenderSystem::SetDefaultRenderTarget()
+{
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps)

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <RTE.h>
+#include "RobinTheEngine/EntryPoint.h"
 #include "imgui/imgui.h"
 #include "RobinTheEngine/Scene/Serializer.h"
 #include "RobinTheEngine/Scene/GameObject.h"
@@ -19,7 +20,7 @@ class ExampleLayer : public RTE::Layer
 public:
 
 	RTE::Camera camera;
-	using JobHandle = RTE::JobHandle;
+	//using JobHandle = RTE::JobHandle;
 
 	RTE::Window* window;
 	GameTimer timer;
@@ -27,7 +28,7 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	//TODO: its throw error
+	
 	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
@@ -85,7 +86,7 @@ public:
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
 
-		std::vector<JobHandle> handles;
+		//std::vector<JobHandle> handles;
 
 	}
 
@@ -173,6 +174,8 @@ public:
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
+		ImVec2 vec = ImVec2(800, 600);
+		ImGui::Image((ImTextureID) rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
 
 		ImGui::End();
 	}

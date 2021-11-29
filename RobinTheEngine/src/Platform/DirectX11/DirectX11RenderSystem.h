@@ -10,6 +10,8 @@
 #include <dxgi1_4.h>
 
 #include "RobinTheEngine/RenderSystem.h"
+#include "Platform/DirectX11/FrameBuffer.h"
+
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -48,6 +50,8 @@ namespace RTE {
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes) override;
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps) override;
 		FrameStats& GetFrameStats() { return frameStats; }
+		FrameBuffer* GetFrameBufferPtr() { return &framebufferForTexture; }
+		void SetDefaultRenderTarget();
 
 	protected:
 
@@ -77,7 +81,7 @@ namespace RTE {
 		DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 		// Set true to use 4X MSAA (§4.1.8).  The default is false.
-		bool      m_4xMsaaState = true; // 4X MSAA enabled
+		bool      m_4xMsaaState = false; // 4X MSAA enabled
 		UINT      m_4xMsaaQuality = 0;      // quality level of 4X MSAA
 
 		int mCurrBackBuffer = 0;
@@ -96,6 +100,7 @@ namespace RTE {
 
 		bool frustrumCullingEnabled = true;
 		FrameStats frameStats;
+		FrameBuffer framebufferForTexture;
 
 	};
 

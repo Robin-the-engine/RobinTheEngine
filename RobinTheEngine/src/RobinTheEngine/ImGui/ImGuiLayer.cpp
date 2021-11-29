@@ -15,6 +15,7 @@
 namespace RTE {
 
 	ImGuiIO* io;
+	RTE::DirectX11RenderSystem* ren;
 
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -46,11 +47,11 @@ namespace RTE {
 		}
 
 		RTE::WindowsWindow* win = static_cast<WindowsWindow*>(&Application::Get().GetWindow());
-		RTE::DirectX11RenderSystem* ren = static_cast<DirectX11RenderSystem*> (Application::Get().GetRenderSystem());
+		 ren = static_cast<DirectX11RenderSystem*> (Application::Get().GetRenderSystem());
 
 		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)win->GetNativeWindow(), true);
 		ImGui_ImplDX11_Init(ren->GetDevice().Get(), ren->GetContext().Get());
-	
+
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -63,6 +64,7 @@ namespace RTE {
 
 	void ImGuiLayer::Begin()
 	{
+		ren->SetDefaultRenderTarget();
 		// Start the Dear ImGui frame
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
