@@ -224,7 +224,6 @@ void RTE::DirectX11RenderSystem::LogAdapters()
 #endif // DEBUG
 }
 
-
 void RTE::DirectX11RenderSystem::SetCustomFrameBuffer()
 {
 

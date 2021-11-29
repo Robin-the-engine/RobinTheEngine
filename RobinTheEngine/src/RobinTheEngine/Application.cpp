@@ -130,7 +130,11 @@ namespace RTE {
 		layer->OnAttach();
 	}
 
-	void Application::OnEvent(Event& e)
+    HWND Application::GetNativeWindowHandle() const {
+        return dynamic_cast<WindowsWindow*>(m_Window.get())->GetHwnd();;
+    }
+
+    void Application::OnEvent(Event& e)
 	{
 
 		EventDispatcher dispatcher(e);

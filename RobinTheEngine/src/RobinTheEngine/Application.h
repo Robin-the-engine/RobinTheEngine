@@ -31,6 +31,7 @@ namespace RTE {
 		void PushOverlay(Layer* layer);
 
 		inline Window& GetWindow() { return *m_Window; }
+		HWND GetNativeWindowHandle() const;
 		inline RenderSystem* GetRenderSystem() { return m_RenderSystem.get(); }
 		inline static Application& Get() { return *s_Instance; }
 
