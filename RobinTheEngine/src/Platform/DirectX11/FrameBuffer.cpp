@@ -38,19 +38,40 @@ void RTE::FrameBuffer::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, i
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
 	// Create the shader resource view.
-	ThrowIfFailed( device->CreateShaderResourceView(m_renderTargetTexture.Get() , &shaderResourceViewDesc, m_shaderResourceView.GetAddressOf()));
+	ThrowIfFailed(device->CreateShaderResourceView(m_renderTargetTexture.Get(), &shaderResourceViewDesc, m_shaderResourceView.GetAddressOf()));
+
+	// Create the depth/stencil buffer and view.
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = textureWidth;
+	depthStencilDesc.Height = textureHeight;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality =  0;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	
+	ThrowIfFailed(device->CreateTexture2D(&depthStencilDesc, 0, DepthStencilBuffer.GetAddressOf()));
+	ThrowIfFailed(device->CreateDepthStencilView(DepthStencilBuffer.Get(), 0, m_DepthStencilView.GetAddressOf()));
+
+
+
 	initializedFlag = true;
 }
 
-void RTE::FrameBuffer::SetRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencil)
+void RTE::FrameBuffer::SetRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
-	context->OMSetRenderTargets(1, this->m_renderTargetView.GetAddressOf(), depthStencil.Get());
+	context->OMSetRenderTargets(1, this->m_renderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 
-void RTE::FrameBuffer::ClearRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencil, DirectX::XMFLOAT4 color)
+void RTE::FrameBuffer::ClearRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,  DirectX::XMFLOAT4 color)
 {
 	context->ClearRenderTargetView(m_renderTargetView.Get(), &color.x);
-	context->ClearDepthStencilView(depthStencil.Get(), D3D11_CLEAR_DEPTH, 1, 0);
+	context->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1, 0);
 }
 
 void RTE::FrameBuffer::Resize(Microsoft::WRL::ComPtr<ID3D11Device> device, int textureWidth, int textureHeight)
@@ -58,6 +79,8 @@ void RTE::FrameBuffer::Resize(Microsoft::WRL::ComPtr<ID3D11Device> device, int t
 	m_renderTargetTexture.Reset();
 	m_renderTargetView.Reset();
 	m_shaderResourceView.Reset();
+	m_DepthStencilView.Reset();
+	DepthStencilBuffer.Reset();
 	initializedFlag = false;
 	Initialize(device, textureWidth, textureHeight);
 }

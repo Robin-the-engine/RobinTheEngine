@@ -12,8 +12,8 @@ namespace RTE {
 	public:
 
 		void Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, int textureWidth, int textureHeight);
-		void SetRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencil);
-		void ClearRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencil, DirectX::XMFLOAT4 color);
+		void SetRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void ClearRenderTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,  DirectX::XMFLOAT4 color);
 		void Resize(Microsoft::WRL::ComPtr<ID3D11Device> device, int textureWidth, int textureHeight);
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShaderResourceView();
 
@@ -21,6 +21,8 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_renderTargetTexture;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthStencilBuffer;
 		bool initializedFlag = false;
 	};
 

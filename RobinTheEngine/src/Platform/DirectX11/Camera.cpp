@@ -17,6 +17,10 @@ void RTE::Camera::SetProjectionProperties(float fovDegrees, float aspectRatio, f
 {
 	//Convert degrees to radians
 	float fov = (fovDegrees / 360) * XM_PI;
+	m_fovDegrees = fovDegrees;
+	m_aspectRatio = aspectRatio;
+	m_nearZ = nearZ;
+	m_farZ = farZ;
 
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
 
@@ -111,6 +115,12 @@ void RTE::Camera::AdjustRotation(const XMVECTOR& vec)
 	m_rotVec += vec;
 	XMStoreFloat3(&m_rot, m_rotVec);
 	UpdateViewMatrix();
+}
+
+void RTE::Camera::ResizeCamera(float width, float height)
+{
+	float aspectRatio = width / height;
+	SetProjectionProperties(m_fovDegrees, aspectRatio, m_nearZ, m_farZ);
 }
 
 void RTE::Camera::AdjustRotation(const XMFLOAT3& vec)

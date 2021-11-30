@@ -85,6 +85,7 @@ void RTE::DirectX11RenderSystem::Init()
 
 	ThrowIfFailed(m_d3dDevice->CreateDepthStencilState(&depthStateDesc, m_DepthStencilState.GetAddressOf()));
 	PrimitivesBatcher::Init(m_d3dDevice.Get(), m_DeviceContext.Get(), XMFLOAT4X4(), XMFLOAT4X4());
+	framebufferForTexture.Initialize(m_d3dDevice, m_ClientWidth, m_ClientHeight);
 }
 
 void RTE::DirectX11RenderSystem::OnResize(int width, int height)
@@ -150,10 +151,7 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 	m_ScissorRect = { 0, 0, m_ClientWidth, m_ClientHeight };
 	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
 
-	if (mainCamera != nullptr)
-		mainCamera->SetProjectionProperties(90, width / height, 0.05, 1000);
 
-	framebufferForTexture.Resize(m_d3dDevice, m_ClientWidth, m_ClientHeight);
 }
 
 void RTE::DirectX11RenderSystem::OnRenderBegin()
@@ -163,8 +161,8 @@ void RTE::DirectX11RenderSystem::OnRenderBegin()
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 
-	framebufferForTexture.SetRenderTarget(m_DeviceContext, m_DepthStencilView);
-	framebufferForTexture.ClearRenderTarget(m_DeviceContext, m_DepthStencilView, clearColor);
+	framebufferForTexture.SetRenderTarget(m_DeviceContext);
+	framebufferForTexture.ClearRenderTarget(m_DeviceContext, clearColor);
 
 	//m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	//m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
@@ -291,9 +289,6 @@ void RTE::DirectX11RenderSystem::LogOutputDisplayModes(IDXGIOutput* output, DXGI
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> mesh)
 {
-	//framebufferForTexture.SetRenderTarget(m_DeviceContext, m_DepthStencilView);
-
-
 	using namespace DirectX;
 	static ConstantBuffer<CB_VS_WORLD_MAT> world;
 	static bool flag = true;
@@ -308,9 +303,6 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	auto& mr = std::get<1>(mesh);
 	mr.GetMaterial().matPtr->ApplyMaterial();
 	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
-
-
-
 
 	//get Transform
 	auto& transform = std::get<0>(mesh);
