@@ -53,13 +53,13 @@ RTE::TexturedMaterialBase::TexturedMaterialBase(MaterialDescriptor desc)
 	std::wstring wstr(desc.psPath.begin(), desc.psPath.end());
 	ps.init(wstr);
 
-	diffuseTexture = ResourceFactory::Get().GetResource<Texture>(desc.textureKey);
+	diffuseTexture = ResourceFactory::GetResource<Texture>(desc.textureKey);
 
 }
 
 void RTE::TexturedMaterialBase::SetTexture(std::string textureKey)
 {
-	diffuseTexture = ResourceFactory::Get().GetResource<Texture>(textureKey);
+	diffuseTexture = ResourceFactory::GetResource<Texture>(textureKey);
 }
 
 void RTE::TexturedMaterialBase::ApplyMaterial()

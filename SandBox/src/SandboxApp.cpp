@@ -59,16 +59,17 @@ public:
 
 	void OnAttach() {
 
+		RTE::ResourceFactory::Init();
 		scene.name = "Test Scene";
-		RTE::Material mat = RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial");
-		RTE::Model mod = RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre");
+		RTE::Material mat = RTE::ResourceFactory::GetResource<RTE::Material>("texturedMaterial");
+		RTE::Model mod = RTE::ResourceFactory::GetResource<RTE::Model>("ogre");
 		RTE::MeshRenderer& mr1 = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>(mod, mat);
-		mr1.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		mr1.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		mr1.SetMaterial(RTE::ResourceFactory::GetResource<RTE::Material>("texturedMaterial"));
+		mr1.SetMesh(RTE::ResourceFactory::GetResource<RTE::Model>("ogre"));
 	
 		RTE::MeshRenderer& mr2 = scene.CreateGameObject().AddComponent<RTE::MeshRenderer>();
-		mr2.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("litMaterial"));
-		mr2.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		mr2.SetMaterial(RTE::ResourceFactory::GetResource<RTE::Material>("litMaterial"));
+		mr2.SetMesh(RTE::ResourceFactory::GetResource<RTE::Model>("ogre"));
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		camera.SetPosition(XMFLOAT3(0, 0, -10));

@@ -88,8 +88,8 @@ namespace RTE
 				// MeshRenderer
 				if (auto componentData = data["MeshRenderer"])
 				{
-					Model mesh = RTE::ResourceFactory::Get().GetResource<Model>(data["Mesh"].as<std::string>());
-					Material material = RTE::ResourceFactory::Get().GetResource<Material>(data["Material"].as<std::string>());
+					Model mesh = RTE::ResourceFactory::GetResource<Model>(data["Mesh"].as<std::string>());
+					Material material = RTE::ResourceFactory::GetResource<Material>(data["Material"].as<std::string>());
 					gameObject.AddComponent<MeshRenderer>(mesh, material);
 				} // MeshRenderer
 			}

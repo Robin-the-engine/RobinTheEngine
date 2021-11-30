@@ -5,7 +5,16 @@
 #include "yaml-cpp/yaml.h"
 #include <cassert>
 
+// Init unordered map's
+using PathMap = std::unordered_map<std::string, std::string>;
+using LoadedMap = std::unordered_map<std::string, RTE::BaseResource*>;
+using MeshMap = std::unordered_map<std::string, RTE::MeshDesc>;
+using MatMap = std::unordered_map<std::string, RTE::MaterialDescriptor>;
 
+PathMap RTE::ResourceFactory::yamlKeys = PathMap();
+LoadedMap RTE::ResourceFactory::loadedResources = LoadedMap();
+MeshMap RTE::ResourceFactory::meshDescriptors = MeshMap();
+MatMap RTE::ResourceFactory::materialDescriptors = MatMap();
 
 void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>& meshes) {
 
@@ -46,11 +55,16 @@ void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>
 
 int RTE::ResourceFactory::GetHashValue(std::string name)
 {
-	return 	std::hash<std::string> {}(name);
-
+	return std::hash<std::string> {}(name);
 }
 
-void RTE::ResourceFactory::ReadYamlKeys()
+void RTE::ResourceFactory::Init()
+{
+	LoadResourcesList();
+	ReadMaterialDescriptors();
+};
+
+void RTE::ResourceFactory::LoadResourcesList()
 {
 
 	YAML::Node node = YAML::LoadFile("utils\\Resources.yaml");
@@ -117,13 +131,13 @@ void RTE::ResourceFactory::ReadMaterialDescriptors()
 			else if (param == "vsshader") {
 				descriptor.vsKey = j->second.as<std::string>();
 				RTE_CORE_ASSERT(yamlKeys.find(descriptor.vsKey) != yamlKeys.end(), "Cannot find {0} with name {1}", param, descriptor.key);
-				descriptor.vsPath = this->yamlKeys[descriptor.vsKey];
+				descriptor.vsPath = yamlKeys[descriptor.vsKey];
 
 			}
 			else if (param == "psshader") {
 				descriptor.psKey = j->second.as<std::string>();
 				RTE_CORE_ASSERT(yamlKeys.find(descriptor.psKey) != yamlKeys.end(), "Cannot find {0} with name {1}", param, descriptor.key);
-				descriptor.psPath = this->yamlKeys[descriptor.psKey];
+				descriptor.psPath = yamlKeys[descriptor.psKey];
 			}
 			else if (param == "textureKey") {
 				descriptor.textureKey = j->second.as<std::string>();
