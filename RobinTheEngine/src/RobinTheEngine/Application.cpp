@@ -59,8 +59,8 @@ namespace RTE {
 		};
 
 		UINT numElements = ARRAYSIZE(layout);
-		vertexShader vs(L"shaders\\VS.hlsl", layout, numElements);
-		pixelShader ps(L"shaders\\PS.hlsl");
+		vertexShader vs(L"Content\\shaders\\VS.hlsl", layout, numElements);
+		pixelShader ps(L"Content\\shaders\\PS.hlsl");
 
 		//Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
