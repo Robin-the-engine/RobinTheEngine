@@ -1,5 +1,7 @@
 #pragma once
 #include <filesystem>
+#include <utility>
+#include "../Log.h"
 
 
 namespace RTE {
@@ -12,15 +14,25 @@ namespace RTE {
         enum ContentType {
             FILE,
             DIRECTORY,
+            MESH,
+            TEXTURE,
+            SHADER,
         };
 
-        ContentBrowser(const std::string& contentDir = DEFAULT_CONTENT_DIR);
-        std::vector<std::pair<ContentType, std::string>> ListWorkingDirectory() const;
+        ContentBrowser();
+        ContentBrowser(const std::string& contentFile);
 
+        void setContentFile(const std::string& contentFile);
+        std::vector<std::pair<ContentType, std::string>>
+        listDirectory(const std::string& directory = "") const;
+        void addFile(const std::string& filepath, const std::string directory, ContentType type) const;
+        std::pair<bool, std::error_code> removeFile(const std::string& path) const;
 
     private:
-        std::filesystem::directory_entry currentWorkingDir;
-        std::string contentDir;
-        static const std::string DEFAULT_CONTENT_DIR;
+        void init();
+        void checkContentFile();
+
+        std::string contentFile;
+        Log::SPloggerT logger;
     };
 }
