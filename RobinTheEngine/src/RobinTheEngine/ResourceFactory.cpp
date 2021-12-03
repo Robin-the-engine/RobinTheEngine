@@ -6,7 +6,6 @@
 #include <cassert>
 
 
-
 void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>& meshes) {
 
 	RTE_CORE_ASSERT(node.Type() == YAML::NodeType::Map, "Bad node");
@@ -42,6 +41,47 @@ void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>
 
 }
 
+std::unordered_map<std::string, std::string> RTE::YamlHelper::readResourceFile(const std::string& resourceFile) {
+	std::unordered_map<std::string, std::string> yamlKeys;
+	YAML::Node node = YAML::LoadFile(resourceFile);
+	auto a = node.Type();
+	for (auto i = node.begin(); i != node.end(); ++i) {
+
+		auto group = i->first.as<std::string>();
+		if (group == "meshes") {
+			ReadMeshes(i->second, meshDescriptors);
+		}
+		else if (group == "textures") {
+			auto textureMap = i->second;
+			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
+			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
+				std::string key = i->first.as<std::string>();
+				std::string path = i->second.as<std::string>();
+
+				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Texture with key:{0} already exist in table!", key); }
+				yamlKeys[key] = path;
+			}
+		}
+		else if (group == "shaders") {
+			auto textureMap = i->second;
+			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
+			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
+				std::string key = i->first.as<std::string>();
+				std::string path = i->second.as<std::string>();
+
+				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Shader with key:{0} already exist in table!", key); }
+				yamlKeys[key] = path;
+			}
+		}
+
+		else {
+			RTE_ERROR("That group dont exist in engine:" + group);
+			RTE_CORE_ASSERT(false, "Bad resource group.");
+		}
+
+	}
+	return yamlKeys;
+}
 
 
 int RTE::ResourceFactory::GetHashValue(std::string name)

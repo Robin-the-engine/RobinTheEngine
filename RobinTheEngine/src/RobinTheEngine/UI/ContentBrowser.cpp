@@ -2,6 +2,8 @@
 #include "ContentBrowser.h"
 #include "yaml-cpp/yaml.h"
 #include <format>
+#include <commdlg.h>
+
 
 using namespace RTE;
 namespace fs = std::filesystem;
@@ -43,8 +45,7 @@ ContentBrowser::listDirectory(const std::string& directory) const {
         case fs::file_type::directory:
             t = DIRECTORY; break;
         default:
-            Log::GetLogger("ContentBrowser")->
-                error(std::format("Unsupported file type: {}", name));
+            logger->error(std::format("Unsupported file type: {}", name));
             assert(false);
         }
         dirContent.emplace_back(t, name);
@@ -54,23 +55,32 @@ ContentBrowser::listDirectory(const std::string& directory) const {
 
 void
 ContentBrowser::addFile(const std::string& filepath, const std::string directory, ContentType type) const {
-    assert(fs::exists(filepath) && "provided path do not exist");
+    if(filepath.empty()) {
+        logger->info("Empty path provided to addFile. No file was selected?");
+        return;
+    }
+    if(!fs::exists(filepath)) {
+        logger->error(std::format("path: {} do not exist!", filepath));
+    }
+    fs::copy_file(filepath, directory);
+    // TODO: Add to yaml
 }
 
 std::pair<bool, std::error_code> ContentBrowser::removeFile(const std::string& path) const {
     fs::path abspath = fs::absolute(path);
-    assert(fs::exists(abspath) && "provided path do not exist");
     std::error_code er;
+    // TODO: remove resource file entry, if exist
     bool removed = fs::remove(abspath, er);
-    if (removed) { // remove resourse file entry, if exist
-        
-    }
-    else {
+    if (!removed) {
         logger->warn(
-            std::format("Can't remove file {}, err: {}", abspath.generic_string(), er.message()
-        ));
+            std::format("Can't remove file {}, err: {}", abspath.generic_string(), er.message())
+        );
     }
     return { removed, er };
+}
+
+std::string ContentBrowser::getNextDir(const std::string& current, const std::string& next) {
+    return fs::path(current).append(next).generic_string();
 }
 
 void ContentBrowser::init() {
@@ -81,3 +91,19 @@ void ContentBrowser::checkContentFile() {
 
 }
 
+const std::string ContentBrowserGUI::openFileDialog() {
+    OPENFILENAMEA ofn;
+    constexpr const size_t max_name_length = 512;
+    char filename[max_name_length] = {'\0'};
+    size_t sz = sizeof(OPENFILENAME);
+    ZeroMemory(&ofn, sz);
+    ofn.lStructSize = sz;
+    ofn.lpstrFile = filename;
+    ofn.Flags = OFN_FILEMUSTEXIST;
+    ofn.nMaxFile = max_name_length;
+    auto cwd = fs::current_path();
+    // changes cwd, so we have to restore it
+    bool success = GetOpenFileNameA(&ofn);
+    fs::current_path(cwd);
+    return ofn.lpstrFile;
+}

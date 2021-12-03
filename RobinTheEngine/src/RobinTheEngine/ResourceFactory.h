@@ -21,6 +21,10 @@ namespace RTE {
 
 	};
 
+	class YamlHelper {
+	    static std::unordered_map<std::string, std::string> readResourceFile(const std::string& resourceFile);
+	};
+
 	class ResourceFactory
 	{
 	public:

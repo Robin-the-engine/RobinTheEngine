@@ -173,9 +173,11 @@ public:
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
 		//ImGui::ShowDemoWindow();
 		ImVec2 vec = ImVec2(800, 600);
 		ImGui::Image((ImTextureID) rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
+
 
 		ImGui::End();
 	}
@@ -272,10 +274,68 @@ public:
 
 class EngineGUILayer final: public RTE::Layer {
 
-	RTE::ContentBrowser cb;
+
+	void ContentBrowserWindow() {
+		enum IMGUI_MOUSE {LEFT= 0, RIGHT = 1};
+		const static std::string defaultContentDir = "Content";
+		static RTE::ContentBrowser cb;
+		static std::string currentDir = defaultContentDir;
+		const static std::vector<std::pair<const std::string, RTE::ContentBrowser::ContentType>> menuMap = {
+			{"file", RTE::ContentBrowser::FILE},
+			{"mesh", RTE::ContentBrowser::MESH},
+			{"texture", RTE::ContentBrowser::TEXTURE},
+			{"shader", RTE::ContentBrowser::SHADER},
+		};
+	    const auto listFiles = cb.listDirectory(currentDir);
+
+		ImGuiWindowFlags cbflags = ImGuiWindowFlags_MenuBar;
+		ImGui::Begin("Content browser", nullptr, cbflags);
+		if (ImGui::BeginMenuBar()) {
+			if (!std::filesystem::equivalent(currentDir, defaultContentDir)) {
+				if (ImGui::Button("back")) {
+					currentDir = cb.getNextDir(currentDir, "..");
+				}
+			}
+
+			if (ImGui::BeginMenu("add")) {
+				for (const auto &menuItem: menuMap) {
+				    if(ImGui::MenuItem(menuItem.first.c_str())) {
+						std::string path = RTE::ContentBrowserGUI::openFileDialog();
+						cb.addFile(path, currentDir, menuItem.second);
+						break;
+				    }
+				}
+			    ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		for (const auto& file : listFiles) {
+			if (ImGui::Button(file.second.c_str(), { 100, 100 })) {
+				// Can't figure out how to check which mouse button clicked
+			    if (file.first == RTE::ContentBrowser::DIRECTORY) {
+					currentDir = cb.getNextDir(currentDir, file.second);
+				}
+				else {
+					const char* fileopname = "file operation";
+					ImGui::OpenPopup(fileopname);
+					if (ImGui::BeginPopup(fileopname)) {
+						if (ImGui::Button("delete")) {
+							cb.removeFile(file.second);
+						}
+						if (ImGui::Button("rename")) {
+							cb.removeFile(file.second);
+						}
+						ImGui::EndPopup();
+					}
+				}
+			}
+			ImGui::SameLine();
+		}
+		ImGui::End();
+	}
 
     void OnImGuiRender() override {
-		auto listFiles = cb.listDirectory();
+		ContentBrowserWindow();
     }
 };
 

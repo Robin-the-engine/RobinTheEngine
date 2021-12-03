@@ -28,6 +28,8 @@ namespace RTE {
         void addFile(const std::string& filepath, const std::string directory, ContentType type) const;
         std::pair<bool, std::error_code> removeFile(const std::string& path) const;
 
+        std::string getNextDir(const std::string& current, const std::string& next);
+
     private:
         void init();
         void checkContentFile();
@@ -35,4 +37,10 @@ namespace RTE {
         std::string contentFile;
         Log::SPloggerT logger;
     };
+
+    class ContentBrowserGUI final {
+    public:
+        static const std::string openFileDialog();
+    };
+
 }
