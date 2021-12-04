@@ -84,15 +84,15 @@ ContentBrowser::addFile(const std::string& filepath, const std::string directory
     updateContentFile(type);
 }
 
-std::pair<bool, std::error_code> ContentBrowser::removeFile(const std::string& path) {
-    fs::path abspath = fs::absolute(path);
+std::pair<bool, std::error_code> ContentBrowser::removeFile(const std::string directory, const std::string& fileName) {
+    fs::path relpath = fs::path(directory).append(fileName);
     std::error_code er;
-    ContentType type = removeAndGetType(path);
+    ContentType type = removeAndGetType(relpath.string());
     updateContentFile(type);
-    bool removed = fs::remove(abspath, er);
+    bool removed = fs::remove(relpath, er);
     if (!removed) {
         logger->warn(
-            std::format("Can't remove file {}, err: {}", abspath.generic_string(), er.message())
+            std::format("Can't remove file {}, err: {}", relpath.generic_string(), er.message())
         );
     }
     return { removed, er };

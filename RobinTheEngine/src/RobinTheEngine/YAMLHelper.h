@@ -1,7 +1,6 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 #include "MeshDescription.h"
-#include "Log.h"
 
 namespace RTE {
     class YamlHelper {

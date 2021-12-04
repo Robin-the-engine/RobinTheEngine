@@ -27,7 +27,7 @@ namespace RTE {
         std::vector<std::pair<ContentType, std::string>>
         listDirectory(const std::string& directory = "") const;
         void addFile(const std::string& filepath, const std::string directory, ContentType type);
-        std::pair<bool, std::error_code> removeFile(const std::string& path);
+        std::pair<bool, std::error_code> removeFile(const std::string directory, const std::string& fileName);
 
         std::string getNextDir(const std::string& current, const std::string& next);
 
