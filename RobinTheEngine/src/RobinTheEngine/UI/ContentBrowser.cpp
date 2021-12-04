@@ -21,9 +21,9 @@ void ContentBrowser::setContentFile(const std::string& contentFile) {
     assert(fs::is_regular_file(contentFile) && "Provided path do not exists or not a file!");
     this->contentFile = contentFile;
     logger->trace(
-        std::format("Set content file to: {}"), fs::absolute(contentFile).generic_string()
+        std::format("Set content file to: {}", fs::absolute(contentFile).string())
     );
-    checkContentFile();
+    scanContentFile();
 }
 
 std::vector<std::pair<ContentBrowser::ContentType, std::string>>
@@ -54,22 +54,41 @@ ContentBrowser::listDirectory(const std::string& directory) const {
 }
 
 void
-ContentBrowser::addFile(const std::string& filepath, const std::string directory, ContentType type) const {
+ContentBrowser::addFile(const std::string& filepath, const std::string directory, ContentType type) {
     if(filepath.empty()) {
         logger->info("Empty path provided to addFile. No file was selected?");
         return;
     }
     if(!fs::exists(filepath)) {
         logger->error(std::format("path: {} do not exist!", filepath));
+        return;
     }
-    fs::copy_file(filepath, directory);
-    // TODO: Add to yaml
+    fs::path filename = fs::path(filepath).filename();
+    fs::path copyDst = fs::path(directory).append(filename.string());
+    fs::copy_file(filepath, copyDst, fs::copy_options::update_existing);
+    const std::string& key = filename.replace_extension().string();
+    const std::string value = copyDst.string();
+    if(type == ContentType::TEXTURE) {
+        textures[key] = value;
+    }
+    else if (type == ContentType::SHADER) {
+        shaders[key] = value;
+    }
+    else if (type == ContentType::MESH) {
+        MeshDesc d;
+        d.layout = -1;
+        d.path = value;
+        d.key = key;
+        meshes[key] = d;
+    }
+    updateContentFile(type);
 }
 
-std::pair<bool, std::error_code> ContentBrowser::removeFile(const std::string& path) const {
+std::pair<bool, std::error_code> ContentBrowser::removeFile(const std::string& path) {
     fs::path abspath = fs::absolute(path);
     std::error_code er;
-    // TODO: remove resource file entry, if exist
+    ContentType type = removeAndGetType(path);
+    updateContentFile(type);
     bool removed = fs::remove(abspath, er);
     if (!removed) {
         logger->warn(
@@ -87,13 +106,89 @@ void ContentBrowser::init() {
     logger = Log::GetLogger("ContentBrowser");
 }
 
-void ContentBrowser::checkContentFile() {
-    std::unordered_map<std::string, std::string> content;
-    std::unordered_map<std::string, MeshDesc> meshContent;
-    YamlHelper::ReadResourceFile(contentFile, content, meshContent);
-    for(const auto &e: content) {
-        
+void ContentBrowser::scanContentFile() {
+    scanContentGroup(YamlHelper::TEXTURE_GROUP, textures);
+    scanContentGroup(YamlHelper::SHADER_GROUP, shaders);
+    scanMeshGroup(YamlHelper::MESH_GROUP, meshes);
+}
+
+void ContentBrowser::scanContentGroup(
+    const std::string& groupName,
+    std::unordered_map<std::string, std::string>& group
+) {
+    std::unordered_map<std::string, std::string> tmpContent;
+    YamlHelper::ReadGroup(contentFile, groupName, tmpContent);
+    for (const auto& e : tmpContent) {
+        if (!fs::exists(e.second)) {
+            logger->warn(std::format("Key: {}, file: {} do not exist!", e.first, e.second));
+        }
+        else {
+            group.insert(e);
+        }
     }
+
+}
+
+void ContentBrowser::scanMeshGroup(
+    const std::string& groupName,
+    std::unordered_map<std::string, MeshDesc>& group
+) {
+    std::unordered_map<std::string, MeshDesc> tmpMeshContent;
+    YamlHelper::ReadMeshes(contentFile, groupName, tmpMeshContent);
+    for (const auto& e : tmpMeshContent) {
+        if (!fs::exists(e.second.path)) {
+            logger->warn(std::format("Key: {}, file: {} do not exist!", e.first, e.second.path));
+        }
+        else {
+            meshes.insert(e);
+        }
+    }
+}
+
+void ContentBrowser::updateContentFile(ContentType type) const {
+    if (type == ContentType::MESH || type == ContentType::SHADER || type == ContentType::TEXTURE) {
+        YamlHelper::UpdateResourceFile(contentFile, shaders, textures, meshes);
+    }
+}
+
+
+ContentBrowser::ContentType ContentBrowser::removeAndGetType(const std::string filepath) {
+
+    auto removeKey = [&filepath = filepath](std::unordered_map<std::string, std::string>& group) {
+        std::string keyToRemove;
+        for (const auto& e : group) {
+            if (fs::equivalent(e.second, filepath)) {
+                keyToRemove = e.first;
+                break;
+            }
+        }
+        if(!keyToRemove.empty()) {
+            group.erase(keyToRemove);
+            return true;
+        }
+        return false;
+    };
+
+    if(removeKey(shaders)) {
+        return SHADER;
+    }
+    if(removeKey(textures)) {
+        return TEXTURE;
+    }
+
+    std::string keyToRemove;
+    for (const auto& e : meshes) {
+        if (fs::equivalent(e.second.path, filepath)) {
+            keyToRemove = e.first;
+            break;
+        }
+    }
+    if (!keyToRemove.empty()) {
+        meshes.erase(keyToRemove);
+        return MESH;
+    }
+
+    return UNKNOWNN;
 }
 
 const std::string ContentBrowserGUI::openFileDialog() {
