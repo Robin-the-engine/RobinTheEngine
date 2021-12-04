@@ -13,32 +13,7 @@ int RTE::ResourceFactory::GetHashValue(std::string name)
 
 void RTE::ResourceFactory::ReadYamlKeys()
 {
-
-	YAML::Node node = YAML::LoadFile("utils\\Resources.yaml");
-	auto a = node.Type();
-	for (auto i = node.begin(); i != node.end(); ++i) {
-
-		auto group = i->first.as<std::string>();
-		if (group == "meshes") {
-			YamlHelper::ReadMeshes(i->second, meshDescriptors);
-		}
-		else if (group == "textures") {
-			auto textureMap = i->second;
-			YamlHelper::ReadGroup(textureMap, yamlKeys);
-		}
-		else if (group == "shaders") {
-			auto textureMap = i->second;
-			YamlHelper::ReadGroup(textureMap, yamlKeys);
-		}
-		else {
-			RTE_ERROR("That group dont exist in engine:" + group);
-			RTE_CORE_ASSERT(false, "Bad resource group.");
-		}
-
-		//yamlKeys[i->first.as<std::string>()] = i->second.as<std::string>();
-
-	}
-
+	YamlHelper::ReadResourceFile("utils\\Resources.yaml", yamlKeys, meshDescriptors);
 }
 
 void RTE::ResourceFactory::ReadMaterialDescriptors()

@@ -48,7 +48,11 @@ void YamlHelper::ReadGroup(YAML::Node& groupMap, std::unordered_map<std::string,
 	}
 }
 
-void YamlHelper::ReadGroup(const std::string& fileName, const std::string& groupName, std::unordered_map<std::string, std::string>& group) {
+void YamlHelper::ReadGroup(
+	const std::string& fileName,
+	const std::string& groupName,
+	std::unordered_map<std::string, std::string>& group
+) {
 	YAML::Node node = YAML::LoadFile(fileName);
 	auto a = node.Type();
 	for (auto i = node.begin(); i != node.end(); ++i) {
@@ -58,5 +62,33 @@ void YamlHelper::ReadGroup(const std::string& fileName, const std::string& group
 			ReadGroup(textureMap, group);
 		}
 	}
+}
+
+void YamlHelper::ReadResourceFile(
+	const std::string& fileName,
+    std::unordered_map<std::string, std::string>& fileContent,
+    std::unordered_map<std::string, MeshDesc>& meshContent
+) {
+    YAML::Node node = YAML::LoadFile(fileName);
+	for (auto i = node.begin(); i != node.end(); ++i) {
+
+		auto group = i->first.as<std::string>();
+		if (group == "meshes") {
+			YamlHelper::ReadMeshes(i->second, meshContent);
+		}
+		else if (group == "textures") {
+			auto textureMap = i->second;
+			YamlHelper::ReadGroup(textureMap, fileContent);
+		}
+		else if (group == "shaders") {
+			auto textureMap = i->second;
+			YamlHelper::ReadGroup(textureMap, fileContent);
+		}
+		else {
+			RTE_ERROR("That group dont exist in engine:" + group);
+			RTE_CORE_ASSERT(false, "Bad resource group.");
+		}
+	}
+
 }
 

@@ -88,7 +88,12 @@ void ContentBrowser::init() {
 }
 
 void ContentBrowser::checkContentFile() {
-
+    std::unordered_map<std::string, std::string> content;
+    std::unordered_map<std::string, MeshDesc> meshContent;
+    YamlHelper::ReadResourceFile(contentFile, content, meshContent);
+    for(const auto &e: content) {
+        
+    }
 }
 
 const std::string ContentBrowserGUI::openFileDialog() {

@@ -7,6 +7,15 @@ namespace RTE {
 	public:
 		static void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>& meshes);
 		static void ReadGroup(YAML::Node& node, std::unordered_map<std::string, std::string>& group);
-		static void ReadGroup(const std::string& fileName, const std::string& groupName, std::unordered_map<std::string, std::string>& group);
+		static void ReadGroup(
+			const std::string& fileName,
+			const std::string& groupName,
+			std::unordered_map<std::string, std::string>& group
+		);
+		static void ReadResourceFile(
+			const std::string& fileName,
+			std::unordered_map<std::string, std::string>& fileContent,
+            std::unordered_map<std::string, MeshDesc>& meshContent
+		);
 	};
 }
