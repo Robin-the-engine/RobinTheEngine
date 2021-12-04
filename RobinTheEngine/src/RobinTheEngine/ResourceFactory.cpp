@@ -2,87 +2,8 @@
 #include "ResourceFactory.h"
 #include <fstream>
 #include <functional>
-#include "yaml-cpp/yaml.h"
 #include <cassert>
-
-
-void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>& meshes) {
-
-	RTE_CORE_ASSERT(node.Type() == YAML::NodeType::Map, "Bad node");
-
-	for (auto i = node.begin(); i != node.end(); i++) {
-
-		std::string key = i->first.as<std::string>();
-
-		auto body = i->second;
-		RTE::MeshDesc descriptor;
-		descriptor.key = key;
-
-		for (auto j = body.begin(); j != body.end(); j++) {
-
-			std::string param = j->first.as<std::string>();
-
-			if (param == "layout") {
-				descriptor.layout = j->second.as<int>();
-			}
-			else if (param == "path") {
-				descriptor.path = j->second.as<std::string>();
-			}
-			else {
-				RTE_CORE_WARN("Bad param in mesh:{0}, with name {1}", key, param);
-			}
-		}
-
-		if (meshes.find(key) != meshes.end()) { RTE_CORE_WARN("Mesh with key:{0} already exist in table!", key); }
-
-		meshes[key] = descriptor;
-
-	}
-
-}
-
-std::unordered_map<std::string, std::string> RTE::YamlHelper::readResourceFile(const std::string& resourceFile) {
-	std::unordered_map<std::string, std::string> yamlKeys;
-	YAML::Node node = YAML::LoadFile(resourceFile);
-	auto a = node.Type();
-	for (auto i = node.begin(); i != node.end(); ++i) {
-
-		auto group = i->first.as<std::string>();
-		if (group == "meshes") {
-			ReadMeshes(i->second, meshDescriptors);
-		}
-		else if (group == "textures") {
-			auto textureMap = i->second;
-			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
-			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
-				std::string key = i->first.as<std::string>();
-				std::string path = i->second.as<std::string>();
-
-				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Texture with key:{0} already exist in table!", key); }
-				yamlKeys[key] = path;
-			}
-		}
-		else if (group == "shaders") {
-			auto textureMap = i->second;
-			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
-			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
-				std::string key = i->first.as<std::string>();
-				std::string path = i->second.as<std::string>();
-
-				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Shader with key:{0} already exist in table!", key); }
-				yamlKeys[key] = path;
-			}
-		}
-
-		else {
-			RTE_ERROR("That group dont exist in engine:" + group);
-			RTE_CORE_ASSERT(false, "Bad resource group.");
-		}
-
-	}
-	return yamlKeys;
-}
-
+#include "YAMLHelper.h"
 
 int RTE::ResourceFactory::GetHashValue(std::string name)
 {
@@ -99,31 +20,16 @@ void RTE::ResourceFactory::ReadYamlKeys()
 
 		auto group = i->first.as<std::string>();
 		if (group == "meshes") {
-			ReadMeshes(i->second, meshDescriptors);
+			YamlHelper::ReadMeshes(i->second, meshDescriptors);
 		}
 		else if (group == "textures") {
 			auto textureMap = i->second;
-			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
-			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
-				std::string key = i->first.as<std::string>();
-				std::string path = i->second.as<std::string>();
-
-				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Texture with key:{0} already exist in table!", key); }
-				yamlKeys[key] = path;
-			}
+			YamlHelper::ReadGroup(textureMap, yamlKeys);
 		}
 		else if (group == "shaders") {
 			auto textureMap = i->second;
-			RTE_CORE_ASSERT(textureMap.Type() == YAML::NodeType::Map, "Bad node");
-			for (auto i = textureMap.begin(); i != textureMap.end(); i++) {
-				std::string key = i->first.as<std::string>();
-				std::string path = i->second.as<std::string>();
-
-				if (yamlKeys.find(key) != yamlKeys.end()) { RTE_CORE_WARN("Shader with key:{0} already exist in table!", key); }
-				yamlKeys[key] = path;
-			}
+			YamlHelper::ReadGroup(textureMap, yamlKeys);
 		}
-
 		else {
 			RTE_ERROR("That group dont exist in engine:" + group);
 			RTE_CORE_ASSERT(false, "Bad resource group.");
@@ -196,4 +102,3 @@ void RTE::ResourceFactory::ReadMaterialDescriptors()
 
 	}
 }
-

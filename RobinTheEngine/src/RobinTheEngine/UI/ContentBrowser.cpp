@@ -3,7 +3,7 @@
 #include "yaml-cpp/yaml.h"
 #include <format>
 #include <commdlg.h>
-
+#include "../YAMLHelper.h"
 
 using namespace RTE;
 namespace fs = std::filesystem;
