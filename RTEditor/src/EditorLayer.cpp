@@ -58,7 +58,7 @@ namespace RTE {
 		UpdateLight();
 
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
-
+		rs->SetCustomFrameBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
 	}

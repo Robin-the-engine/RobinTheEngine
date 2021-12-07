@@ -161,9 +161,6 @@ void RTE::DirectX11RenderSystem::OnRenderBegin()
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 
-	framebufferForTexture.SetRenderTarget(m_DeviceContext);
-	framebufferForTexture.ClearRenderTarget(m_DeviceContext, clearColor);
-
 	//m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	//m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	//m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
@@ -227,6 +224,14 @@ void RTE::DirectX11RenderSystem::LogAdapters()
 #endif // DEBUG
 }
 
+
+void RTE::DirectX11RenderSystem::SetCustomFrameBuffer()
+{
+
+	framebufferForTexture.SetRenderTarget(m_DeviceContext);
+	framebufferForTexture.ClearRenderTarget(m_DeviceContext, clearColor);
+
+}
 
 void RTE::DirectX11RenderSystem::SetCamera(Camera* camera)
 {
