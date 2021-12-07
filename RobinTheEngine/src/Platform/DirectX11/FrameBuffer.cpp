@@ -1,6 +1,7 @@
 #include "rtepch.h"
 #include "FrameBuffer.h"
 #include "RobinTheEngine/d3dUtils.h"
+#include "RobinTheEngine/Core.h"
 
 void RTE::FrameBuffer::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, int textureWidth, int textureHeight)
 {
