@@ -7,7 +7,7 @@
 #include "RobinTheEngine/Layer.h"
 #include "RobinTheEngine/ImGui/ImGuiLayer.h"
 #include "RobinTheEngine/GameTimer.h"
-#include "RobinTheEngine/JobSystem/JobSystem.h"
+//#include "RobinTheEngine/JobSystem/JobSystem.h"
 #include "RobinTheEngine/Scene/Components.h"
 #include "RobinTheEngine/Scene/ScriptingAPI/ScriptingAPI.h"
 #include "RobinTheEngine/Scene/Serializer.h"
@@ -22,7 +22,7 @@
 #include "RobinTheEngine/MouseButtonCodes.h"
 
 //--------------Entry Point--------------
-#include "RobinTheEngine/EntryPoint.h"
+//#include "RobinTheEngine/EntryPoint.h"
 //---------------------------------------
 
 //temp includes

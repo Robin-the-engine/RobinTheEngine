@@ -34,6 +34,7 @@ namespace RTE {
 		void SetRotation(const XMFLOAT3& vec);
 		void AdjustRotation(const XMVECTOR& vec);
 		void AdjustRotation(const XMFLOAT3& vec);
+		void ResizeCamera(float width, float height);
 
 		const XMVECTOR GetForwardVector();
 		const XMVECTOR GetBackwardVector();
@@ -63,6 +64,11 @@ namespace RTE {
 		XMFLOAT4 vec_right;
 		XMFLOAT4 vec_forward;
 		XMFLOAT4 vec_backward;
+
+		float m_fovDegrees;
+		float m_aspectRatio;
+		float m_nearZ;
+		float m_farZ;
 		
 		
 

@@ -85,6 +85,7 @@ void RTE::DirectX11RenderSystem::Init()
 
 	ThrowIfFailed(m_d3dDevice->CreateDepthStencilState(&depthStateDesc, m_DepthStencilState.GetAddressOf()));
 	PrimitivesBatcher::Init(m_d3dDevice.Get(), m_DeviceContext.Get(), XMFLOAT4X4(), XMFLOAT4X4());
+	framebufferForTexture.Initialize(m_d3dDevice, m_ClientWidth, m_ClientHeight);
 }
 
 void RTE::DirectX11RenderSystem::OnResize(int width, int height)
@@ -150,19 +151,20 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 	m_ScissorRect = { 0, 0, m_ClientWidth, m_ClientHeight };
 	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
 
-	if (mainCamera != nullptr)
-		mainCamera->SetProjectionProperties(90, width / height, 0.05, 1000);
 
 }
 
 void RTE::DirectX11RenderSystem::OnRenderBegin()
 {
-
+	
 	//	// Clear the back buffer and depth buffer.
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 
-	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+	//m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+	//m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
+	//m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+	//m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 
 	frameStats.ObjectsWasDrawed = 0;
 }
@@ -222,6 +224,14 @@ void RTE::DirectX11RenderSystem::LogAdapters()
 #endif // DEBUG
 }
 
+
+void RTE::DirectX11RenderSystem::SetCustomFrameBuffer()
+{
+
+	framebufferForTexture.SetRenderTarget(m_DeviceContext);
+	framebufferForTexture.ClearRenderTarget(m_DeviceContext, clearColor);
+
+}
 
 void RTE::DirectX11RenderSystem::SetCamera(Camera* camera)
 {
@@ -299,9 +309,6 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	mr.GetMaterial().matPtr->ApplyMaterial();
 	mr.GetMesh().meshes[0]->BindMesh(m_DeviceContext.Get());
 
-
-
-
 	//get Transform
 	auto& transform = std::get<0>(mesh);
 	auto worldMatrix = transform.GetMatrix();
@@ -336,7 +343,14 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
 	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
 
+
 	frameStats.ObjectsWasDrawed++;
+}
+
+
+void RTE::DirectX11RenderSystem::SetDefaultRenderTarget()
+{
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 
 void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps)

@@ -1,0 +1,28 @@
+#resources
+#mesh layout 1 : position float3, normal float3
+#mesh layout 2 : position float3, normal float3, textureCoords float2
+
+meshes:
+    ogre:
+        layout: 2
+        path: objects\ogre\bs_rest.obj
+
+    pokeball: 
+        layout: 2
+        path: objects\PokemonBall.obj
+
+
+textures:
+    textureErrorChecker: assets\textures\error_checker.png
+    ogreDiffuse: objects\ogre\diffuse.png
+
+
+
+shaders:
+    litColorPS: shaders\coloredps.hlsl
+    litColorVS: shaders\coloredvs.hlsl
+    texturedPS: shaders\PS.hlsl
+    texturedVS: shaders\VS.hlsl
+
+
+

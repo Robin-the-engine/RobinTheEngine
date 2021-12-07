@@ -187,3 +187,70 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
+
+
+
+
+
+   project "RTEditor"
+      location "RTEditor"
+      kind "ConsoleApp"
+      language "C++"
+	  cppdialect "C++20"
+	  staticruntime "on"
+      defines {"NOMINMAX"}
+      
+      td = "bin/" .. outputdir .. "/%{prj.name}"
+      targetdir (td)
+      objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+      postbuildcommands('{COPYFILE} "$(SolutionDir)vendor/lua/lib/lua54.dll" ' .. '"$(SolutionDir)' .. td .. '"')
+
+      files
+      {
+         "%{prj.name}/src/**.h",
+         "%{prj.name}/src/**.cpp"
+      }
+
+      includedirs
+      {
+         "RobinTheEngine/vendor/spdlog/include",
+         "RobinTheEngine/src",
+		 "RobinTheEngine/vendor",
+		 "RobinTheEngine/vendor/assimp/include",
+		 "%{IncludeDir.ViennaGameJobSystem}/include",
+		 "%{IncludeDir.entt}",
+		 "%{IncludeDir.sol2}",
+		 "%{IncludeDir.lua}",
+
+      }
+
+      links
+      {
+         "RobinTheEngine"
+      }
+
+      filter "system:windows"
+
+         systemversion "latest"
+
+         buildoptions { "/await"}
+
+         defines
+         {
+            "RTE_PLATFORM_WINDOWS"
+         }
+
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
+
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
