@@ -45,6 +45,8 @@ namespace RTE {
 		RTE::GameObject go2;
 		float angle = 0;
 		ImVec2 m_ViewportSize = { 0,0 };
+		bool IsViewPortHowered = false;
+		bool IsViewPortPressed = false;
 
 	};
 

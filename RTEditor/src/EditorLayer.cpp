@@ -53,10 +53,10 @@ namespace RTE {
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
-
+		if(IsViewPortPressed)
 		UpdateCamera();
 		UpdateLight();
-
+		//RTE_INFO("POS: {0}, {1}", posX, posY);
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 		rs->SetCustomFrameBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
@@ -128,6 +128,13 @@ namespace RTE {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("ViewPort");
+		IsViewPortHowered = ImGui::IsWindowHovered();
+		if (IsViewPortHowered) {
+			auto vec = ImGui::GetMousePos();
+			//posX = vec.x;
+			//posY = vec.y;
+
+		}
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		if (m_ViewportSize.x != viewportPanelSize.x && m_ViewportSize.y != viewportPanelSize.y)
 		{
@@ -221,8 +228,12 @@ namespace RTE {
 	{
 		RTE_TRACE("{0}", event);
 		RTE::EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<RTE::MouseButtonPressedEvent>(std::bind(&EditorLayer::SetMousePosition, this, std::placeholders::_1));
+		if (IsViewPortHowered) {
+			dispatcher.Dispatch<RTE::MouseButtonPressedEvent>(std::bind(&EditorLayer::SetMousePosition, this, std::placeholders::_1));
+		}
+		if(IsViewPortPressed)
 		dispatcher.Dispatch<RTE::MouseButtonReleasedEvent>(std::bind(&EditorLayer::ShowCursor, this, std::placeholders::_1));
+	
 
 	}
 
@@ -289,6 +300,7 @@ namespace RTE {
 			window->HideCursor();
 			posX = RTE::Input::GetMouseX();
 			posY = RTE::Input::GetMouseY();
+			IsViewPortPressed = true;
 		}
 		return true;
 
@@ -297,6 +309,7 @@ namespace RTE {
 	bool EditorLayer::ShowCursor(RTE::MouseButtonReleasedEvent ev) {
 		if (ev.GetMouseButton() == RTE_MOUSE_BUTTON_2) {
 			window->ShowCursor();
+			IsViewPortPressed = false;
 		}
 		return true;
 
