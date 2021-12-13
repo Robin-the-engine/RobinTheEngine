@@ -1,5 +1,7 @@
 #include "EditorLayer.h"
 
+#include "RobinTheEngine/UI/ContentBrowser.h"
+
 using namespace DirectX;
 
 namespace RTE {
@@ -61,6 +63,64 @@ namespace RTE {
 		rs->SetCustomFrameBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
+	}
+
+	void EditorLayer::attachContentBrowserWindow() {
+		const static std::string defaultContentDir = "Content";
+		static RTE::ContentBrowser cb("Utils\\Resources.yaml");
+		static std::string currentDir = defaultContentDir;
+		const static std::vector<std::pair<const std::string, RTE::ContentBrowser::ContentType>> menuMap = {
+			{"file", RTE::ContentBrowser::FILE},
+			{"mesh", RTE::ContentBrowser::MESH},
+			{"texture", RTE::ContentBrowser::TEXTURE},
+			{"shader", RTE::ContentBrowser::SHADER},
+		};
+		const auto listFiles = cb.listDirectory(currentDir);
+
+		ImGuiWindowFlags cbflags = ImGuiWindowFlags_MenuBar;
+		ImGui::Begin("Content browser", nullptr, cbflags);
+		if (ImGui::BeginMenuBar()) {
+			if (!std::filesystem::equivalent(currentDir, defaultContentDir)) {
+				if (ImGui::Button("back")) {
+					currentDir = cb.getNextDir(currentDir, "..");
+				}
+			}
+
+			if (ImGui::BeginMenu("add")) {
+				for (const auto& menuItem : menuMap) {
+					if (ImGui::MenuItem(menuItem.first.c_str())) {
+						std::string path = RTE::ContentBrowserGUI::openFileDialog();
+						cb.addFile(path, currentDir, menuItem.second);
+						break;
+					}
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		for (const auto& file : listFiles) {
+
+			const std::string& btnName = file.second;
+			const std::string popupname = btnName + "popup";
+			if (ImGui::Button(btnName.c_str(), { 100, 100 })) {
+				// Can't figure out how to check which mouse button clicked
+				if (file.first == RTE::ContentBrowser::DIRECTORY) {
+					currentDir = cb.getNextDir(currentDir, file.second);
+				}
+				else {
+					ImGui::OpenPopup(popupname.c_str());
+				}
+			}
+			if (ImGui::BeginPopup(popupname.c_str())) {
+				if (ImGui::Selectable("delete")) {
+					cb.removeFile(currentDir, file.second);
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::SameLine();
+		}
+		ImGui::End();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -213,7 +273,7 @@ namespace RTE {
 
 		ImGui::End();
 
-
+		attachContentBrowserWindow();
 
 	}
 

@@ -22,7 +22,7 @@ namespace RTE {
 		bool ShowCursor(RTE::MouseButtonReleasedEvent ev);
 	private:
 
-
+	    void attachContentBrowserWindow();
 		RTE::Camera camera;
 		//using JobHandle = RTE::JobHandle;
 
