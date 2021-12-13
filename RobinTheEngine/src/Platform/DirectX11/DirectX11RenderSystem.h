@@ -44,7 +44,6 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() { return m_DeviceContext; }
 		void SetCustomFrameBuffer();
 
-
 		void SetCamera(Camera* camera) override;
 		//void Draw(GameObject go);
 
