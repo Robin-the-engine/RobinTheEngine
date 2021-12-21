@@ -49,8 +49,11 @@ namespace RTE {
 
 			RTE_CORE_ASSERT(yamlKeys.find(key) != yamlKeys.end(), "Dont have that key in material file!");
 			auto path = yamlKeys[key];
-			Texture* t = new Texture(path, aiTextureType::aiTextureType_DIFFUSE);
-			return *t;
+			if (loadedResources.find(key) == loadedResources.end())
+			{
+				loadedResources[key] = new Texture(path, aiTextureType::aiTextureType_DIFFUSE);
+			}
+			return *((Texture*)(loadedResources[key]));
 		}
 
 		template<>
@@ -76,7 +79,6 @@ namespace RTE {
 		static void Init();
 
 	private:
-
 		static void LoadResourcesList();
 		static void ReadMaterialDescriptors();
 

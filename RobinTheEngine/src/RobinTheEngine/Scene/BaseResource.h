@@ -11,8 +11,7 @@ namespace RTE {
 		ResourceID id = "invalid";
 
 	public:
-		//We always should call BaseResource(id)
-		BaseResource() = delete;
+		BaseResource() = default;
 		BaseResource(const BaseResource&) = default;
 
 		BaseResource(ResourceID id) : id(id) { }

@@ -5,6 +5,7 @@
 #include <wrl/client.h>
 #include <string>
 #include <assimp/material.h>
+#include "RobinTheEngine/Scene/BaseResource.h"
 
 using namespace DirectX::PackedVector;
 using namespace DirectX;
@@ -14,7 +15,7 @@ namespace RTE {
 
 	const std::string DEFAULT_PATH_TO_ERROR_TEXTURE = "\\assets\\textures\\error_checker.png";
 
-	class Texture
+	class Texture : public BaseResource
 	{
 		
 	public:
