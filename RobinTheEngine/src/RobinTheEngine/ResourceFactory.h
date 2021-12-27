@@ -6,22 +6,11 @@
 #include "Platform/DirectX11/Model.h"
 #include "Platform/DirectX11/Shaders.h"
 #include "Platform/DirectX11/Texture.h"
-
-
+#include "MeshDescription.h"
 
 namespace RTE {
 
-
-	struct MeshDesc
-	{
-		std::string key;
-		int layout;
-		std::string path;
-		MeshDesc() :layout(-1), path(""), key("") {}
-
-	};
-
-	class ResourceFactory
+    class ResourceFactory
 	{
 	public:
 

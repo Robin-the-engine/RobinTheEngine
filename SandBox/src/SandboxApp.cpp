@@ -5,7 +5,7 @@
 #include "RobinTheEngine/Scene/Serializer.h"
 #include "RobinTheEngine/Scene/GameObject.h"
 #include "RobinTheEngine/ResourceFactory.h"
-
+#include "RobinTheEngine/UI/ContentBrowser.h"
 #include <fstream>
 
 using namespace DirectX;
@@ -173,9 +173,11 @@ public:
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
 		//ImGui::ShowDemoWindow();
 		ImVec2 vec = ImVec2(800, 600);
 		ImGui::Image((ImTextureID) rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
+
 
 		ImGui::End();
 	}

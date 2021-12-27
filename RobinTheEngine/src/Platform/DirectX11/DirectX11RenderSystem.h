@@ -45,7 +45,6 @@ namespace RTE {
 		void SetCustomFrameBuffer();
 		void DrawRay(XMFLOAT4 rayOrign, XMFLOAT4 rayDir);
 
-
 		void SetCamera(Camera* camera) override;
 		//void Draw(GameObject go);
 

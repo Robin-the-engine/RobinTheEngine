@@ -29,6 +29,8 @@ namespace RTE {
 		bool MousePressed(RTE::MouseButtonPressedEvent ev);
 		bool ShowCursor(RTE::MouseButtonReleasedEvent ev);
 	private:
+
+	    void attachContentBrowserWindow();
 		void pickObject();
 		void DrawSelectedObjUi();
 		RTE::Camera camera;

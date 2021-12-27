@@ -1,6 +1,7 @@
 #pragma once
 #include "RobinTheEngine/Scene/Component.h"
 #include "RobinTheEngine/Core.h"
+#include <sstream>
 #include <DirectXMath.h>
 
 namespace RTE
