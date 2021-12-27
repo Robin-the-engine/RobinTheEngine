@@ -17,6 +17,9 @@ namespace RTE {
 		void Resize(Microsoft::WRL::ComPtr<ID3D11Device> device, int textureWidth, int textureHeight);
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShaderResourceView();
 
+		int Width = -1;
+		int Height = -1;
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_renderTargetTexture;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;

@@ -13,7 +13,7 @@ namespace RTE
 
 		WindowProps(const std::string& title = "Robin the Engine",
 			        unsigned int width = 1280,
-			        unsigned int height = 720)
+			        unsigned int height = 1024)
 			: Title(title), Width(width), Height(height)
 		{
 		}

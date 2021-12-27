@@ -66,6 +66,17 @@ void RTE::PrimitivesBatcher::DrawGrid(ID3D11DeviceContext* context)
 
 }
 
+void RTE::PrimitivesBatcher::DrawRay(ID3D11DeviceContext* context,XMFLOAT4 origin, XMFLOAT4 direction)
+{
+	m_effect->Apply(context);
+	context->IASetInputLayout(m_inputLayout.Get());
+	m_batch->Begin();
+	
+	RTE::DrawRay(m_batch.get(), XMLoadFloat4(&origin), XMLoadFloat4(&direction),true,DirectX::Colors::Black);
+	m_batch->End();
+
+}
+
 void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingBox box)
 {
 	/*

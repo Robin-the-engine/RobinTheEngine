@@ -43,6 +43,7 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() { return m_d3dDevice; }
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() { return m_DeviceContext; }
 		void SetCustomFrameBuffer();
+		void DrawRay(XMFLOAT4 rayOrign, XMFLOAT4 rayDir);
 
 
 		void SetCamera(Camera* camera) override;

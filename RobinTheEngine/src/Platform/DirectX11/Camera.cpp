@@ -16,7 +16,7 @@ RTE::Camera::Camera()
 void RTE::Camera::SetProjectionProperties(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
 	//Convert degrees to radians
-	float fov = (fovDegrees / 360) * XM_PI;
+	float fov = (fovDegrees / 180) * XM_PI;
 	m_fovDegrees = fovDegrees;
 	m_aspectRatio = aspectRatio;
 	m_nearZ = nearZ;

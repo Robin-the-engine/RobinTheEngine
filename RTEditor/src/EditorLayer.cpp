@@ -1,8 +1,14 @@
 #include "EditorLayer.h"
+#include <iostream>
 
 using namespace DirectX;
 
 namespace RTE {
+
+	XMFLOAT4 origin;
+	XMFLOAT4 dir;
+	bool isDraw = false;
+
 
 	const char saveloadFolder[] = "assets/scene/";
 	const int nameSize = 30;
@@ -20,6 +26,7 @@ namespace RTE {
 	void EditorLayer::OnAttach() {
 		scenePTR->name = "Test Scene";
 
+		
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 50; j++) {
 
@@ -35,11 +42,20 @@ namespace RTE {
 
 		}
 
+/*
+		auto go = scenePTR->CreateGameObject();
+		auto& mr = go.AddComponent<RTE::MeshRenderer>();
+		auto& transform = go.AddComponent<RTE::Transform>();
+		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		transform.SetPosition(0, 1, 0);*/
+
+
 
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
-		camera.SetPosition(XMFLOAT3(0, 0, -10));
-		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 0.05, 1000);
+		camera.SetPosition(XMFLOAT3(5, 4, -15));
+		camera.SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
@@ -53,14 +69,17 @@ namespace RTE {
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
-
-		UpdateCamera();
+		if (IsViewPortPressed)
+			UpdateCamera();
 		UpdateLight();
-
+		//RTE_INFO("POS: {0}, {1}", posX, posY);
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 		rs->SetCustomFrameBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
+		if (isDraw) {
+			rs->DrawRay(origin, dir);
+		}
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -128,15 +147,21 @@ namespace RTE {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("ViewPort");
+		IsViewPortHowered = ImGui::IsWindowHovered();
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		if (m_ViewportSize.x != viewportPanelSize.x && m_ViewportSize.y != viewportPanelSize.y)
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+		if ( (m_ViewportSize.x != viewportPanelSize.x) || (m_ViewportSize.y != viewportPanelSize.y))
 		{
 			rs->GetFrameBufferPtr()->Resize(rs->GetDevice(), (int)viewportPanelSize.x, (int)viewportPanelSize.y);
 			//m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 			camera.ResizeCamera(viewportPanelSize.x, viewportPanelSize.y);
 		}
-
+		
 
 		ImGui::Image((ImTextureID)rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
 		ImGui::End();
@@ -210,7 +235,8 @@ namespace RTE {
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
-
+		
+		DrawSelectedObjUi();
 		ImGui::End();
 
 
@@ -219,10 +245,13 @@ namespace RTE {
 
 	void EditorLayer::OnEvent(RTE::Event& event)
 	{
-		RTE_TRACE("{0}", event);
+		//RTE_TRACE("{0}", event);
 		RTE::EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<RTE::MouseButtonPressedEvent>(std::bind(&EditorLayer::SetMousePosition, this, std::placeholders::_1));
-		dispatcher.Dispatch<RTE::MouseButtonReleasedEvent>(std::bind(&EditorLayer::ShowCursor, this, std::placeholders::_1));
+		if (IsViewPortHowered) {
+			dispatcher.Dispatch<RTE::MouseButtonPressedEvent>(std::bind(&EditorLayer::MousePressed, this, std::placeholders::_1));
+		}
+		if (IsViewPortPressed)
+			dispatcher.Dispatch<RTE::MouseButtonReleasedEvent>(std::bind(&EditorLayer::ShowCursor, this, std::placeholders::_1));
 
 	}
 
@@ -284,11 +313,119 @@ namespace RTE {
 
 	}
 
-	bool EditorLayer::SetMousePosition(RTE::MouseButtonPressedEvent ev) {
+	void EditorLayer::pickObject() {
+
+		auto [mx, my] = ImGui::GetMousePos();
+		mx = Input::GetMouseX();
+		my = Input::GetMouseY();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		ImVec2 viewportSize(m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+		//my = viewportSize.y - my;
+		int sx = (int)mx;
+		int sy = (int)my;
+
+		//picking code
+		XMFLOAT4X4 P; XMStoreFloat4x4(&P, camera.GetProjectionMatrix());
+		// Compute picking ray in view space.
+		float vx = (+2.0f * sx / viewportSize.x - 1.0f) /P(0, 0);
+		float vy = (-2.0f * sy / viewportSize.y + 1.0f) /P(1, 1);
+		// Ray definition in view space.
+		XMVECTOR rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		XMVECTOR rayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
+
+		XMMATRIX V =  camera.GetViewMatrix();
+		auto d = XMMatrixDeterminant(V);
+		XMMATRIX invView = XMMatrixInverse(nullptr, V);
+
+		// Assume nothing is picked to start, so the picked render-item is invisible.
+		selectedEN.isValid = false;
+
+		auto view = Application::Get().scene.GetRegistryPtr()->view<RTE::Transform, RTE::MeshRenderer>();
+		float tmin; DirectX::XMStoreFloat(&tmin, DirectX::g_XMInfinity);
+		for (auto go : view)
+		{
+			auto obj = view.get<RTE::Transform, RTE::MeshRenderer>(go);
+
+			auto& transform = std::get<0>(obj);
+			auto& mr = std::get<1>(obj);
+			XMMATRIX W = transform.GetMatrix();
+			auto dd = XMMatrixDeterminant(W);
+			XMMATRIX invWorld = XMMatrixInverse(nullptr, W);
+
+			// Tranform ray to vi space of Mesh.
+			XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+			auto tmpOrigin = rayOrigin;
+			auto tmpDir = rayDir;
+
+			tmpOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+			tmpDir = XMVector3TransformNormal(rayDir, toLocal);
+
+
+			// Make the ray direction unit length for the intersection tests.
+			tmpDir = XMVector3Normalize(tmpDir);
+
+			XMStoreFloat4(&origin, tmpOrigin);
+			XMStoreFloat4(&dir, tmpDir);
+			isDraw = true;
+
+			float t = 0;
+
+			if (mr.GetMesh().box.Intersects(tmpOrigin, tmpDir, t))
+			{
+				if (t < tmin) {
+					selectedEN.isValid = true;
+					selectedEN.ent = go;
+				}
+
+			}
+
+		}
+
+	}
+
+	void EditorLayer::DrawSelectedObjUi()
+	{
+		if (selectedEN.isValid) {
+
+			if (ImGui::CollapsingHeader("SelectedItem"))
+			{
+
+				ImGui::Text("Selected entity:{0}", selectedEN.ent);
+
+				auto view = Application::Get().scene.GetRegistryPtr()->view<RTE::Transform>();
+				auto& obj = view.get<RTE::Transform>(selectedEN.ent);
+				XMFLOAT3 pos = obj.GetPosition();
+				ImGui::DragFloat3("Transform", &pos.x, 0.01f);
+				obj.SetPosition(pos);
+
+				XMFLOAT3 rot = obj.GetRotation();
+				ImGui::DragFloat3("Rotation", &rot.x, 0.01f);
+				obj.SetRotation(rot);
+
+
+				XMFLOAT3 scale = obj.GetScale();
+				ImGui::DragFloat3("Scale", &scale.x, 0.01f);
+				obj.SetScale(scale);
+								
+
+			}
+
+
+		}
+	}
+
+	bool EditorLayer::MousePressed(RTE::MouseButtonPressedEvent ev) {
 		if (ev.GetMouseButton() == RTE_MOUSE_BUTTON_2) {
 			window->HideCursor();
 			posX = RTE::Input::GetMouseX();
 			posY = RTE::Input::GetMouseY();
+			IsViewPortPressed = true;
+		}
+		else if (ev.GetMouseButton() == RTE_MOUSE_BUTTON_1) {
+			if (IsViewPortHowered) pickObject();
+
 		}
 		return true;
 
@@ -297,6 +434,7 @@ namespace RTE {
 	bool EditorLayer::ShowCursor(RTE::MouseButtonReleasedEvent ev) {
 		if (ev.GetMouseButton() == RTE_MOUSE_BUTTON_2) {
 			window->ShowCursor();
+			IsViewPortPressed = false;
 		}
 		return true;
 
