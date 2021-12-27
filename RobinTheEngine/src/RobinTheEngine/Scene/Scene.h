@@ -18,6 +18,9 @@ namespace RTE
 		void RenderScene(RenderSystem& rs);
 
 		std::string name = "Untitled";
+		
+		//temp method. we need to create some iterator for scene
+		entt::registry* GetRegistryPtr() { return &registry; }
 
 	private:
 		entt::registry registry;

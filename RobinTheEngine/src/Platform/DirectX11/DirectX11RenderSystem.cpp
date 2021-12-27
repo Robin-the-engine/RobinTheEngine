@@ -92,6 +92,7 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 {
 	m_ClientWidth = width;
 	m_ClientHeight = height;
+	SetDefaultRenderTarget();
 
 	RTE_ASSERT(m_d3dDevice, "Bad device!");
 	RTE_ASSERT(mSwapChain, "Bad swapchain!");
@@ -228,9 +229,27 @@ void RTE::DirectX11RenderSystem::LogAdapters()
 void RTE::DirectX11RenderSystem::SetCustomFrameBuffer()
 {
 
+	// Update the viewport transform to cover the client area.
+	m_ScreenViewport.TopLeftX = 0;
+	m_ScreenViewport.TopLeftY = 0;
+	m_ScreenViewport.Width = static_cast<float>(framebufferForTexture.Width);
+	m_ScreenViewport.Height = static_cast<float>(framebufferForTexture.Height);
+	m_ScreenViewport.MinDepth = 0.0f;
+	m_ScreenViewport.MaxDepth = 1.0f;
+
+	m_DeviceContext->RSSetViewports(1, &m_ScreenViewport);
+
+	m_ScissorRect = { 0, 0, framebufferForTexture.Width, framebufferForTexture.Height };
+	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
+
 	framebufferForTexture.SetRenderTarget(m_DeviceContext);
 	framebufferForTexture.ClearRenderTarget(m_DeviceContext, clearColor);
 
+}
+
+void RTE::DirectX11RenderSystem::DrawRay(XMFLOAT4 rayOrign, XMFLOAT4 rayDir)
+{
+	PrimitivesBatcher::DrawRay(m_DeviceContext.Get(), rayOrign, rayDir);
 }
 
 void RTE::DirectX11RenderSystem::SetCamera(Camera* camera)
@@ -350,6 +369,19 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 
 void RTE::DirectX11RenderSystem::SetDefaultRenderTarget()
 {
+	// Update the viewport transform to cover the client area.
+	m_ScreenViewport.TopLeftX = 0;
+	m_ScreenViewport.TopLeftY = 0;
+	m_ScreenViewport.Width = static_cast<float>(m_ClientWidth);
+	m_ScreenViewport.Height = static_cast<float>(m_ClientHeight);
+	m_ScreenViewport.MinDepth = 0.0f;
+	m_ScreenViewport.MaxDepth = 1.0f;
+
+	m_DeviceContext->RSSetViewports(1, &m_ScreenViewport);
+
+	m_ScissorRect = { 0, 0, m_ClientWidth, m_ClientHeight };
+	m_DeviceContext->RSSetScissorRects(1, &m_ScissorRect);
+
 	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 

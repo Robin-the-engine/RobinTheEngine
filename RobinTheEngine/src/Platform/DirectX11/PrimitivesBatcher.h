@@ -18,6 +18,7 @@ namespace RTE {
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingSphere sphere);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingBox box);
 		static void DrawGrid(ID3D11DeviceContext* context);
+		static void DrawRay(ID3D11DeviceContext*, XMFLOAT4 origin, XMFLOAT4 direction);
 
 	private:
 

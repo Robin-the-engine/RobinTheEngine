@@ -6,7 +6,8 @@ void RTE::FrameBuffer::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, i
 {
 	using namespace D3DUtils;
 	RTE_CORE_ASSERT(!initializedFlag, "That framebuffer already initialized!");
-
+	Width = textureWidth;
+	Height = textureHeight;
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 

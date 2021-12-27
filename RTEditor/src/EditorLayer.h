@@ -7,6 +7,14 @@
 
 
 namespace RTE {
+
+	struct selectedEnt
+	{	
+		entt::entity ent;
+		bool isValid;
+	};
+
+
 	class EditorLayer : public Layer
 	{
 	public:
@@ -18,11 +26,11 @@ namespace RTE {
 		void OnEvent(Event& e) override;
 		void UpdateCamera();
 		void UpdateLight();
-		bool SetMousePosition(RTE::MouseButtonPressedEvent ev);
+		bool MousePressed(RTE::MouseButtonPressedEvent ev);
 		bool ShowCursor(RTE::MouseButtonReleasedEvent ev);
 	private:
-
-
+		void pickObject();
+		void DrawSelectedObjUi();
 		RTE::Camera camera;
 		//using JobHandle = RTE::JobHandle;
 
@@ -45,8 +53,10 @@ namespace RTE {
 		RTE::GameObject go2;
 		float angle = 0;
 		ImVec2 m_ViewportSize = { 0,0 };
+		ImVec2 m_ViewportBounds[2];
 		bool IsViewPortHowered = false;
 		bool IsViewPortPressed = false;
+		selectedEnt selectedEN;
 
 	};
 
