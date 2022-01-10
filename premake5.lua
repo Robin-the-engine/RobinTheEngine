@@ -11,7 +11,7 @@
 
 
    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
- 
+
    -- Include directories relative to root folder (solution directory)
    IncludeDir = {}
    IncludeDir["GLFW"] = "RobinTheEngine/vendor/GLFW/include"
@@ -34,7 +34,6 @@
    include "RobinTheEngine/vendor/yaml-cpp"
    group ""
 
-   
    SDL_DIR = "vendor/SDL"
    RECAST_NAV = "RobinTheEngine/vendor/recastnavigation"
    game_includes = {
@@ -55,18 +54,18 @@
    }
 
    engine_includes = {
-	    table.unpack(game_includes),
         RECAST_NAV .. "/DebugUtils/Include",
         RECAST_NAV .. "/DetourTileCache/Include",
         RECAST_NAV .. "/Recast/Include",
-   } 
+	    table.unpack(game_includes),
+   }
 
    engine_files = {
-	    table.unpack(game_files),
         RECAST_NAV .. "/DebugUtils/Include/*.h",
         RECAST_NAV .. "/DebugUtils/Source/*.cpp",
         RECAST_NAV .. "/Recast/Include/*.h",
         RECAST_NAV .. "/Recast/Source/*.cpp",
+        table.unpack(game_files),
    }
 
    project "RobinTheEngine"
@@ -85,7 +84,6 @@
 
       files
       {
-         
          "%{prj.name}/src/**.h",
          "%{prj.name}/src/**.cpp"
       }
@@ -176,14 +174,13 @@
 
       files
       {
-         table.unpack(game_files),
          "%{prj.name}/src/**.h",
-         "%{prj.name}/src/**.cpp"
+         "%{prj.name}/src/**.cpp",
+         table.unpack(game_files),
       }
 
       includedirs
       {
-         table.unpack(game_includes),
          "RobinTheEngine/vendor/spdlog/include",
          "RobinTheEngine/src",
 		 "RobinTheEngine/vendor",
@@ -192,7 +189,7 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-
+         table.unpack(game_includes),
       }
 
       links
@@ -241,14 +238,13 @@
 
       files
       {
-         table.unpack(engine_files),
          "%{prj.name}/src/**.h",
-         "%{prj.name}/src/**.cpp"
+         "%{prj.name}/src/**.cpp",
+         table.unpack(engine_files),
       }
 
       includedirs
       {
-         table.unpack(engine_includes),
          "RobinTheEngine/vendor/spdlog/include",
          "RobinTheEngine/src",
 		 "RobinTheEngine/vendor",
@@ -257,7 +253,7 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-
+         table.unpack(engine_includes),
       }
 
       links
@@ -292,25 +288,23 @@
 		 runtime "Release"
 
     project "NavBuilder"
-
+        optimize "on"
     	floatingpoint "Fast"
 	    symbols "On"
 	    exceptionhandling "Off"
 	    rtti "Off"
 	    flags { "FatalCompileWarnings" }
 
-
         location "NavBuilder"
         language "C++"
         kind "WindowedApp"
-        cppdialect "C++20"
+        staticruntime "on"
 	    
         td = "bin/" .. outputdir .. "/%{prj.name}"
         targetdir (td)
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-        includedirs { 
-            table.unpack(engine_includes),    
+        includedirs {
             RECAST_NAV .. "/RecastDemo/Include",
             RECAST_NAV .. "/RecastDemo/Contrib",
             RECAST_NAV .. "/RecastDemo/Contrib/fastlz",
@@ -320,16 +314,17 @@
             RECAST_NAV .. "/DetourTileCache/Include",
             RECAST_NAV .. "/Recast/Include",
 		    SDL_DIR .. "/include",
+            table.unpack(engine_includes),
         }
 
-        files	{ 
-            table.unpack(engine_files),
+        files	{
             RECAST_NAV .. "/RecastDemo/Include/*.h",
             RECAST_NAV .. "/RecastDemo/Source/*.cpp",
             RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.h",
-            RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.c"
+            RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.c",
+            table.unpack(engine_files),
         }
-        
+
         libdirs { SDL_DIR .. "/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 
         -- windows library cflags and libs
