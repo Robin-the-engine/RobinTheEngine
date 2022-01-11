@@ -68,6 +68,128 @@
         table.unpack(game_files),
    }
 
+    group "Dependencies"
+
+    project "DebugUtils"
+	    language "C++"
+	    kind "StaticLib"
+        location "RecastDeps"
+	    includedirs { 
+		    RECAST_NAV .. "/DebugUtils/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DebugUtils/Include/*.h",
+		    RECAST_NAV .. "/DebugUtils/Source/*.cpp"
+	    }
+
+    project "Detour"
+	    language "C++"
+	    kind "StaticLib"
+        location "RecastDeps"
+	    includedirs { 
+		    RECAST_NAV .. "/Detour/Include" 
+	    }
+	    files { 
+		    RECAST_NAV .. "/Detour/Include/*.h", 
+		    RECAST_NAV .. "/Detour/Source/*.cpp" 
+	    }
+
+    project "DetourCrowd"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs {
+		    RECAST_NAV .. "/DetourCrowd/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DetourCrowd/Include/*.h",
+		    RECAST_NAV .. "/DetourCrowd/Source/*.cpp"
+	    }
+
+    project "DetourTileCache"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs {
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DetourTileCache/Include/*.h",
+		    RECAST_NAV .. "/DetourTileCache/Source/*.cpp"
+	    }
+
+    project "Recast"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs { 
+		    RECAST_NAV .. "/Recast/Include" 
+	    }
+	    files { 
+		    RECAST_NAV .. "/Recast/Include/*.h",
+		    RECAST_NAV .. "/Recast/Source/*.cpp" 
+	    }
+
+    group ""
+
+    project "NavBuilder"
+	    language "C++"
+	    kind "WindowedApp"
+        location "NavBuilder"
+        cppdialect "C++20"
+	    includedirs {
+		    RECAST_NAV .. "/RecastDemo/Include",
+		    RECAST_NAV .. "/RecastDemo/Contrib",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz",
+		    RECAST_NAV .. "/DebugUtils/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/DetourCrowd/Include",
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Recast/Include",
+            SDL_DIR .. "/include",
+	    }
+	    files	{ 
+		    RECAST_NAV .. "/RecastDemo/Include/*.h",
+		    RECAST_NAV .. "/RecastDemo/Source/*.cpp",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.h",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.c"
+	    }
+        debugdir ("bin/" .. outputdir .. "/%{prj.name}")
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	    -- project dependencies
+	    links { 
+		    "DebugUtils",
+		    "Detour",
+		    "DetourCrowd",
+		    "DetourTileCache",
+		    "Recast"
+	    }
+
+	    -- windows library cflags and libs
+	    configuration { "windows" }
+		    includedirs { RECAST_NAV .. "/RecastDemo/Contrib/SDL/include" }
+		    libdirs { SDL_DIR .. "/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		    links { 
+			    "glu32",
+			    "opengl32",
+			    "SDL2",
+			    "SDL2main",
+		    }
+            defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
+		    postbuildcommands {
+			    -- Copy the SDL2 dll to the Bin folder.
+			    '{COPY} "%{path.getabsolute(SDL_DIR .. "/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"',
+			    '{COPY} "%{path.getabsolute(RECAST_NAV .. "/RecastDemo/bin/")}" "%{cfg.targetdir}"',
+		    }
+
    project "RobinTheEngine"
       location "RobinTheEngine"
       kind "StaticLib"
@@ -157,7 +279,6 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
-
 
    project "Sandbox"
       location "Sandbox"
@@ -287,57 +408,3 @@
          optimize "on"
 		 runtime "Release"
 
-    project "NavBuilder"
-        optimize "on"
-    	floatingpoint "Fast"
-	    symbols "On"
-	    exceptionhandling "Off"
-	    rtti "Off"
-	    flags { "FatalCompileWarnings" }
-
-        location "NavBuilder"
-        language "C++"
-        kind "WindowedApp"
-        staticruntime "on"
-	    
-        td = "bin/" .. outputdir .. "/%{prj.name}"
-        targetdir (td)
-        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-        includedirs {
-            RECAST_NAV .. "/RecastDemo/Include",
-            RECAST_NAV .. "/RecastDemo/Contrib",
-            RECAST_NAV .. "/RecastDemo/Contrib/fastlz",
-		    RECAST_NAV .. "/DebugUtils/Include",
-            RECAST_NAV .. "/Detour/Include",
-            RECAST_NAV .. "/DetourCrowd/Include",
-            RECAST_NAV .. "/DetourTileCache/Include",
-            RECAST_NAV .. "/Recast/Include",
-		    SDL_DIR .. "/include",
-            table.unpack(engine_includes),
-        }
-
-        files	{
-            RECAST_NAV .. "/RecastDemo/Include/*.h",
-            RECAST_NAV .. "/RecastDemo/Source/*.cpp",
-            RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.h",
-            RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.c",
-            table.unpack(engine_files),
-        }
-
-        libdirs { SDL_DIR .. "/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
-
-        -- windows library cflags and libs
-        configuration { "windows" }
-    		defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
-	    	buildoptions { "/W3", "/wd4351" }
-            links {  
-                "glu32",
-                "opengl32",
-                "SDL2",
-                "SDL2main",
-            }
-            postbuildcommands {
-                -- Copy the SDL2 dll to the Bin folder.
-                '{COPY} "%{path.getabsolute(SDL_DIR .. "/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
-            }
