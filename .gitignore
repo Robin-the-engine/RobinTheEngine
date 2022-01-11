@@ -1,7 +1,7 @@
 # Build directories
 bin/
 bin-int/
-
+RecastDeps
 logs/
 
 # Visual Studio clutter
