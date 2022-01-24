@@ -10,6 +10,7 @@ const std::string YamlHelper::SHADER_GROUP = "shaders";
 const std::string YamlHelper::TEXTURE_GROUP = "textures";
 const std::string YamlHelper::MESH_GROUP_KEY_LAYOUT = "layout";
 const std::string YamlHelper::GROUP_KEY_PATH = "path";
+const std::string YamlHelper::BEHAVIOUR_TREE_GROUP = "behaviours";
 
 const std::string YamlHelper::loggerName = "YamlHelper";
 
@@ -101,15 +102,15 @@ void YamlHelper::ReadResourceFile(
 
         auto group = i->first.as<std::string>();
         if (group == MESH_GROUP) {
-            YamlHelper::ReadMeshes(i->second, meshContent);
+            ReadMeshes(i->second, meshContent);
         }
-        else if (group == TEXTURE_GROUP) {
-            auto textureMap = i->second;
-            YamlHelper::ReadGroup(textureMap, fileContent);
-        }
-        else if (group == SHADER_GROUP) {
-            auto textureMap = i->second;
-            YamlHelper::ReadGroup(textureMap, fileContent);
+        else if (
+            group == TEXTURE_GROUP ||
+            group == SHADER_GROUP  ||
+            group == BEHAVIOUR_TREE_GROUP
+        ) {
+            auto mapping = i->second;
+            ReadGroup(mapping, fileContent);
         }
         else {
             Log::GetLogger(loggerName)->warn(std::format("That group don't exist in engine: {}", group));

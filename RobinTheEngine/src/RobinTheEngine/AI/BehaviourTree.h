@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
+#include "../Scene/BaseResource.h"
 
 enum class TickResult {
     FAILURE,
@@ -26,12 +28,13 @@ public:
     Behaviour() = default;
     virtual ~Behaviour() = default;
     virtual TickResult tick(TreeState& treePath) = 0;
+    virtual void addChild(std::shared_ptr<Behaviour>);
     virtual void abort(TreeState& treePath);
     virtual void onInit() {}
     virtual void onFinish() {}
 };
 
-class BehaviourTree {
+class BehaviourTree final: public RTE::BaseResource {
 public:
     BehaviourTree(const std::string& path);
     TickResult tick(TreeState& state);
@@ -40,7 +43,24 @@ private:
     std::shared_ptr<Behaviour> head {nullptr};
 };
 
+class Action final : public Behaviour {
+public:
+    TickResult tick(TreeState& treePath) override;
+    void abort(TreeState& treePath) override;
+};
+
+class Condition final : public Behaviour {
+public:
+    TickResult tick(TreeState& treePath) override;
+    void updateCondition(const std::string& condPart);
+private:
+    enum {COND_SIZE = 3};
+    std::array<std::string, COND_SIZE> condition;
+    size_t cur_el = 0;
+};
+
 class SeqBehaviour: public Behaviour {
+    void addChild(std::shared_ptr<Behaviour>) override;
 protected:
     std::vector<std::shared_ptr<Behaviour>> childs;
 };
@@ -65,20 +85,30 @@ public:
         REQUIRE_ANY,
         REQUIRE_ALL,
     };
-    explicit Parallel(Policy p);
+    Parallel() = default;
     TickResult tick(TreeState& treePath) override;
     void abort(TreeState& treePath) override;
+    void setPolicy(Policy p);
 private:
-    Policy policy;
+    Policy policy = REQUIRE_ANY;
 };
 
-class Action final: public Behaviour {
+class Decorator: public Behaviour {
+    void addChild(std::shared_ptr<Behaviour>) override;
+protected:
+    std::shared_ptr<Behaviour> child;
+};
+
+class Repeat final: public Decorator {
 public:
+    Repeat() = default;
     TickResult tick(TreeState& treePath) override;
-    void abort(TreeState& treePath) override;
+    void setTimes(size_t times);
+private:
+    std::function<bool(size_t)> repeatCondition = [](size_t) {return true;};
 };
 
-class Condition final: public Behaviour {
+class Invert final : public Decorator {
 public:
     TickResult tick(TreeState& treePath) override;
 };

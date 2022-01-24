@@ -1,0 +1,21 @@
+repeat:
+  parallel:
+    - policy: REQUIRE_ANY # if not set this is the default
+    - repeat:
+        - times: 3 # if not set, repeat forever
+        - sequence:
+            - condition:
+                - bar
+                - ">"
+                - 0
+            - action: bark
+    - selector:
+        - invert:
+            - condition:
+                - bar
+                - "<"
+                - 0
+        - condition:
+            - bar
+            - "<"
+            - 0

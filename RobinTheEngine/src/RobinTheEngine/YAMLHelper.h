@@ -12,7 +12,7 @@ namespace RTE {
         static const std::string TEXTURE_GROUP;
         static const std::string SHADER_GROUP;
         static const std::string GROUP_KEY_PATH;
-
+        static const std::string BEHAVIOUR_TREE_GROUP;
 
         static void ReadMeshes(YAML::Node& node, std::unordered_map<std::string, RTE::MeshDesc>& meshes);
         static void ReadMeshes(

@@ -26,6 +26,9 @@ public:
 	float cameraSensitivity;
 	float posX, posY;
 	float cameraSpeed;
+	BehaviourTree bt = RTE::ResourceFactory::Get().GetResource<BehaviourTree>("example");
+	
+	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;

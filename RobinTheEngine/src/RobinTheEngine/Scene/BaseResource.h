@@ -16,7 +16,7 @@ namespace RTE {
 		BaseResource(const BaseResource&) = default;
 
 		BaseResource(ResourceID id) : id(id) { }
-
+		virtual ~BaseResource() {};
 		const ResourceID GetResourceID() const { return id; }
 	};
 
