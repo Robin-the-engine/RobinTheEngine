@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include "../Scene/BaseResource.h"
+#include "BlackBoard.h"
 
 enum class TickResult {
     FAILURE,
@@ -13,14 +14,15 @@ enum class TickResult {
 
 class Behaviour;
 
-struct BehaviourState {
+struct BehaviourState final {
     std::shared_ptr<Behaviour> currentBehaviour = nullptr;
     size_t currentChild = 0;
     bool running = false;
 };
 
-struct TreeState {
+struct TreeState final {
     std::vector<BehaviourState> path;
+    BlackBoardImpl blackBoard;
 };
 
 class Behaviour {

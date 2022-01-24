@@ -30,7 +30,7 @@ namespace {
     };
 
 
-    class TreeBuilder {
+    class TreeBuilder final {
     public:
         TreeBuilder() = default;
         void build(
