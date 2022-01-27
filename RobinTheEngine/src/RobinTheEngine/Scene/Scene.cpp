@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "GameObject.h"
 #include <RobinTheEngine/RenderSystem.h>
+#include "RobinTheEngine/Scene/Components/ColliderComponent.h"
 
 namespace RTE
 {
@@ -27,6 +28,7 @@ namespace RTE
 	void Scene::UpdateScene()
 	{
 		UpdateCameras();
+		UpdateColliders();
 		UpdateLight(*cameraptr);
 		
 	}
@@ -85,6 +87,26 @@ namespace RTE
 			
 		}
 		
+	}
+
+	void Scene::UpdateColliders()
+	{
+		auto colliders = registry.view<RTE::Transform, RTE::Collider>();
+
+		for (auto l : colliders)
+		{
+			auto comps = colliders.get<RTE::Transform, RTE::Collider>(l);
+
+			auto& transform = std::get<0>(comps);
+			auto& coll = std::get<1>(comps);
+
+			coll.origin = transform.GetPosition();
+			auto tmp = transform.GetRotation();
+			coll.direction = XMFLOAT4(tmp.x, tmp.y, tmp.z, 0);
+			XMFLOAT4X4 tm; XMStoreFloat4x4(&tm, transform.GetMatrix());
+			coll.Update(tm);
+		}
+
 	}
 
 	/*void Scene::RenderScene(RenderSystem& rs)

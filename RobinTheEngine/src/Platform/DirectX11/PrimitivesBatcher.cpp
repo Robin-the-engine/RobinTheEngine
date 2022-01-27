@@ -51,6 +51,21 @@ void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, Boundin
 	m_batch->End();
 }
 
+void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingSphere sphere, XMFLOAT4 color)
+{
+	/*
+	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	context->RSSetState(m_states->CullNone());
+	*/
+	m_effect->Apply(context);
+	context->IASetInputLayout(m_inputLayout.Get());
+	m_batch->Begin();
+	XMVECTORF32 col = { color.x, color.y, color.z, color.w };
+	Draw(m_batch.get(), sphere, col); // BoundingSphere
+	m_batch->End();
+}
+
 void RTE::PrimitivesBatcher::DrawGrid(ID3D11DeviceContext* context)
 {
 	/*
@@ -102,6 +117,21 @@ void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, Boundin
 	context->IASetInputLayout(m_inputLayout.Get());
 	m_batch->Begin();
 	Draw(m_batch.get(), orientedBox, Colors::Blue); // BoundingOrientedBox
+	m_batch->End();
+}
+
+void RTE::PrimitivesBatcher::DrawPrimitive(ID3D11DeviceContext* context, BoundingOrientedBox orientedBox, XMFLOAT4 color)
+{
+	/*
+	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	context->RSSetState(m_states->CullNone());
+	*/
+	m_effect->Apply(context);
+	context->IASetInputLayout(m_inputLayout.Get());
+	m_batch->Begin();
+	XMVECTORF32 col = { color.x, color.y, color.z, color.w };
+	Draw(m_batch.get(), orientedBox, col); // BoundingOrientedBox
 	m_batch->End();
 }
 

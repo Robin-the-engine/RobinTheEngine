@@ -358,7 +358,7 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	PrimitivesBatcher::SetViewProjection(tmpView, tmpProjection);
 	BoundingBox proverka = mr.GetMesh().box;
 	BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
-	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
+//	PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
 	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
 
 
@@ -433,8 +433,8 @@ void RTE::DirectX11RenderSystem::DoRender(Scene* scene)
 		DirectX::BoundingFrustum localSpaceFrustrum;
 		frameFrustrum.Transform(localSpaceFrustrum, viewToLocal);
 
-		//if (localSpaceFrustrum.Contains(mr.GetMesh().box) == DirectX::DISJOINT || (frustrumCullingEnabled == false))
-		//	continue;
+		if (localSpaceFrustrum.Contains(mr.GetMesh().box) == DirectX::DISJOINT || (frustrumCullingEnabled == false))
+			continue;
 
 
 		world.WriteBuffer();
@@ -452,9 +452,9 @@ void RTE::DirectX11RenderSystem::DoRender(Scene* scene)
 		}
 
 
-		BoundingBox proverka = mr.GetMesh().box;
-		BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
-		PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
+		//BoundingBox proverka = mr.GetMesh().box;
+		//BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
+		//PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
 
 
 
@@ -462,6 +462,24 @@ void RTE::DirectX11RenderSystem::DoRender(Scene* scene)
 
 
 	}
+
+	auto colliders = scene->GetRegistryPtr()->view<RTE::Transform, RTE::Collider>();
+	for (auto coll : colliders)
+	{
+		auto toRen = colliders.get<RTE::Transform, RTE::Collider>(coll);
+
+		auto& tr = std::get<0>(toRen);
+		auto& cl = std::get<1>(toRen);
+
+		if (cl.type == Collider::ColliderType::BOX) {
+			PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), cl.box, cl.color);
+		}
+		else if (cl.type == Collider::ColliderType::SPHERE) {
+			PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), cl.sphere, cl.color);
+		}
+
+	}
+
 
 	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
 

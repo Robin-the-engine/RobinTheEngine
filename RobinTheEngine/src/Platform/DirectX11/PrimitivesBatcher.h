@@ -15,7 +15,9 @@ namespace RTE {
 		static void SetViewProjection(DirectX::XMFLOAT4X4 view, DirectX::XMFLOAT4X4 projection);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingFrustum frustum);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingOrientedBox orientedBox);
+		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingOrientedBox orientedBox, XMFLOAT4 color);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingSphere sphere);
+		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingSphere sphere, XMFLOAT4 color);
 		static void DrawPrimitive(ID3D11DeviceContext* context, BoundingBox box);
 		static void DrawGrid(ID3D11DeviceContext* context);
 		static void DrawRay(ID3D11DeviceContext*, XMFLOAT4 origin, XMFLOAT4 direction);

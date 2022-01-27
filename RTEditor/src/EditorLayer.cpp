@@ -20,10 +20,8 @@ namespace RTE {
 	char loadFileName[nameSize] = { "Untitled" };
 
 	EditorLayer::EditorLayer()
-		: Layer("Example"), lightCbuffer()
+		: Layer("Example")
 	{
-		//cbuffer.InitializeSharedBuffer("MVPMatrix");
-		lightCbuffer.InitializeSharedBuffer("LightProps");
 		scenePTR = &RTE::Application::Get().scene;
 
 
@@ -65,15 +63,9 @@ namespace RTE {
 
 		}
 
-
-
-		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
-		//rs->SetCamera(&camera);
-
-		//std::vector<JobHandle> handles;
 
 	}
 
@@ -83,15 +75,13 @@ namespace RTE {
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
 		if (IsViewPortPressed)
 			UpdateCamera();
-		UpdateLight();
 		//RTE_INFO("POS: {0}, {1}", posX, posY);
-		angle += timer.DeltaTime() * 200 * simulationSpeed;
 		rs->SetCustomFrameBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
-		if (isDraw) {
-			rs->DrawRay(origin, dir);
-		}
+	    //	if (isDraw) {
+		//	rs->DrawRay(origin, dir);
+		//}
 		camera = scenePTR->cameraptr;
 	}
 
@@ -201,16 +191,16 @@ namespace RTE {
 		}
 
 		if (ImGui::BeginMenuBar())
-		{
+		{/*
 			if (ImGui::BeginMenu("File"))
 			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
+				// Disabling fullscreen would allow the window to be moved to the front of other windows,
 				// which we can't undo at the moment without finer window depth/z control.
 				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 
 				//if (ImGui::MenuItem("Exit")) Hazel::Application::Get().Close();
 				ImGui::EndMenu();
-			}
+			}*/
 
 			ImGui::EndMenuBar();
 		}
@@ -301,13 +291,11 @@ namespace RTE {
 		if (attachLightToCamera) {
 			this->lightPos = camera->GetPositionFloat3();
 		}
-		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
 
-		DrawSelectedObjUi();
 		ImGui::End();
 
 		ImGuiWindowFlags cbflags = ImGuiWindowFlags_MenuBar;
@@ -319,6 +307,7 @@ namespace RTE {
 			bool hasLightComponent = scenePTR->GetRegistryPtr()->any_of<RTE::LightComponent>(selectedEN.ent);
 			bool hasScriptComponent = scenePTR->GetRegistryPtr()->any_of<RTE::ScriptComponent>(selectedEN.ent);
 			bool hasCamera = scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent);
+			bool hasCollider = scenePTR->GetRegistryPtr()->any_of<RTE::Collider>(selectedEN.ent);
 
 			if (ImGui::BeginMenuBar())
 			{
@@ -349,6 +338,11 @@ namespace RTE {
 							scenePTR->GetGameObject(selectedEN.ent).AddComponent<Camera>();
 						}
 					}
+					if (!hasCollider) {
+						if (ImGui::MenuItem("Add collider component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<Collider>();
+						}
+					}
 
 
 					ImGui::EndMenu();
@@ -377,6 +371,12 @@ namespace RTE {
 					if (hasCamera) {
 						if (ImGui::MenuItem("Delete camera component")) {
 							scenePTR->GetRegistryPtr()->remove<Camera>(selectedEN.ent);
+						}
+					}
+
+					if (hasCollider) {
+						if (ImGui::MenuItem("Delete collider component")) {
+							scenePTR->GetRegistryPtr()->remove<Collider>(selectedEN.ent);
 						}
 					}
 
@@ -473,8 +473,11 @@ namespace RTE {
 
 					static const char* items[]{ "POINT_LIGHT",	"SPOT_LIGHT",	"DIRECTIONAL_LIGHT" };
 					static int selectedItem; selectedItem = ar.lightComponent.Type;
-					ImGui::Combo("Light type", &selectedItem, items, IM_ARRAYSIZE(items));
-					ar.lightComponent.Type = (Light::LightType)selectedItem;
+					if (ImGui::Combo("Light type", &selectedItem, items, IM_ARRAYSIZE(items))) {
+						ar.lightComponent.Type = (Light::LightType)selectedItem;
+					}
+					
+
 				}
 			}
 			if (scenePTR->GetRegistryPtr()->any_of<RTE::ScriptComponent>(selectedEN.ent)) {
@@ -490,6 +493,24 @@ namespace RTE {
 
 					auto& sc = scenePTR->GetRegistryPtr()->get<Camera>(selectedEN.ent);
 					ImGui::Checkbox("IsActive", sc.GetActivateFlagPtr());
+
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::Collider>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("Collider")) {
+
+					auto& sc = scenePTR->GetRegistryPtr()->get<Collider>(selectedEN.ent);
+					ImGui::DragFloat3("Box extends", &sc.boxExtends.x, 0.01);
+					ImGui::DragFloat("Sphere radius", &sc.sphereRadius, 0.01);
+
+
+					static const char* items[]{ "Sphere",	"Box" };
+					static int selectedItem; selectedItem = sc.type;
+					if (ImGui::Combo("Collider type", &selectedItem, items, IM_ARRAYSIZE(items))) {
+						sc.type = (Collider::ColliderType)selectedItem;
+					}
+
+					ImGui::ColorPicker4("Collider color", &sc.color.x);
 
 				}
 			}
@@ -625,21 +646,6 @@ namespace RTE {
 			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 	}
-	void EditorLayer::UpdateLight() {
-		lightCbuffer.data.ambientStrength = this->ambientStrength;
-		lightCbuffer.data.ambientLightColor = this->ambientColor;
-
-		lightCbuffer.data.diffuseStrenght = this->diffuseStrength;
-		lightCbuffer.data.diffuseCollor = this->diffuseCollor;
-
-		lightCbuffer.data.lightPosition = this->lightPos;
-
-		lightCbuffer.data.specularStrength = this->specularStrength;
-		lightCbuffer.data.viewPosition = this->camera->GetPositionFloat3();
-
-		lightCbuffer.WriteBuffer();
-
-	}
 
 	void EditorLayer::pickObject() {
 
@@ -711,64 +717,6 @@ namespace RTE {
 
 		}
 
-	}
-
-	void EditorLayer::DrawSelectedObjUi()
-	{
-		if (selectedEN.isValid) {
-
-			if (ImGui::CollapsingHeader("SelectedItem"))
-			{
-
-				ImGui::Text("Selected entity:{0}", selectedEN.ent);
-
-				auto view = Application::Get().scene.GetRegistryPtr()->view<RTE::Transform>();
-				auto& obj = view.get<RTE::Transform>(selectedEN.ent);
-				XMFLOAT3 pos = obj.GetPosition();
-				ImGui::DragFloat3("Transform", &pos.x, 0.01f);
-				obj.SetPosition(pos);
-
-				XMFLOAT3 rot = obj.GetRotation();
-				ImGui::DragFloat3("Rotation", &rot.x, 0.01f);
-				obj.SetRotation(rot);
-
-
-				XMFLOAT3 scale = obj.GetScale();
-				ImGui::DragFloat3("Scale", &scale.x, 0.01f);
-				obj.SetScale(scale);
-
-
-
-				if (Application::Get().scene.GetRegistryPtr()->all_of<MeshRenderer>(selectedEN.ent)) {
-					auto& ar = Application::Get().scene.GetRegistryPtr()->get<MeshRenderer>(selectedEN.ent);
-					ar.GetMaterial().matPtr->DrawImGui();
-				}
-				if (Application::Get().scene.GetRegistryPtr()->all_of<LightComponent, Transform>(selectedEN.ent)) {
-
-					ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen);
-					auto& ar = Application::Get().scene.GetRegistryPtr()->get<LightComponent>(selectedEN.ent);
-
-					ImGui::DragFloat4("Color", &ar.lightComponent.Color.x, 0.1, 0, 1);
-
-					ImGui::DragFloat("SpotlightAngle", &ar.lightComponent.SpotlightAngle, 0.1);
-					ImGui::DragFloat("Range", &ar.lightComponent.Range, 0.1);
-
-					ImGui::DragFloat("Intensity", &ar.lightComponent.Intensity, 0.1);
-					ImGui::Checkbox("Enabled", (bool*)&ar.lightComponent.Enabled);
-
-					static const char* items[]{ "POINT_LIGHT",	"SPOT_LIGHT",	"DIRECTIONAL_LIGHT" };
-					static int selectedItem; selectedItem = ar.lightComponent.Type;
-					ImGui::Combo("Light type", &selectedItem, items, IM_ARRAYSIZE(items));
-					ar.lightComponent.Type = (Light::LightType)selectedItem;
-
-					ImGui::TreePop();
-
-				}
-
-			}
-
-
-		}
 	}
 
 	bool EditorLayer::MousePressed(RTE::MouseButtonPressedEvent ev) {

@@ -20,7 +20,6 @@ class ExampleLayer : public RTE::Layer
 public:
 
 	RTE::Camera* camera;
-	//using JobHandle = RTE::JobHandle;
 
 	RTE::Window* window;
 	GameTimer timer;
@@ -28,35 +27,16 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
 
 
-	float ambientStrength = 1;
-	DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1, 1, 1);
-	float diffuseStrength = 1;
-	DirectX::XMFLOAT3 diffuseCollor = DirectX::XMFLOAT3(1, 1, 1);
-	DirectX::XMFLOAT3 lightPos = DirectX::XMFLOAT3(0, 0, 0);
-	float specularStrength = 1;
-	float simulationSpeed = 1;
-
-	RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
-	RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
 	ExampleLayer()
-		: Layer("Example"), cbuffer(), lightCbuffer()
+		: Layer("Example")
 	{
-		cbuffer.InitializeSharedBuffer("MVPMatrix");
-		lightCbuffer.InitializeSharedBuffer("LightProps");
 		scenePTR = &RTE::Application::Get().scene;
 	}
 
-	/*
-	RTE::MModel mmodel;
-	RTE::MaterialTwo mat;
-	RTE::MaterialTwo textured;
-	*/
-	RTE::GameObject go2;
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
 
@@ -81,14 +61,9 @@ public:
 		}
 
 
-
-		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
-
-		//std::vector<JobHandle> handles;
-
 	}
 
 	float angle = 0;
@@ -99,11 +74,7 @@ public:
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
 
 		UpdateCamera();
-		UpdateLight();
 
-		angle += timer.DeltaTime() * 200 * simulationSpeed;
-
-		lightCbuffer.WriteBuffer();
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
 		camera = scenePTR->cameraptr;
@@ -111,8 +82,10 @@ public:
 
 	virtual void OnImGuiRender() override
 	{
+		//Uncomment for settings window
+		/*
 		static bool attachLightToCamera = false;
-		ImGui::Begin("Test");
+		ImGui::Begin("Settings");
 		if (ImGui::CollapsingHeader("Scene Save/Load"))
 		{
 			ImGui::Text("Current directory: ");
@@ -139,45 +112,13 @@ public:
 			ImGui::SliderFloat("Camera sensitivity", &cameraSensitivity, 0, 10000);
 			ImGui::SliderFloat("Camera speed", &cameraSpeed, 1500, 30000);
 		}
-		if (ImGui::CollapsingHeader("Light settings"))
-		{
-
-			if (ImGui::CollapsingHeader("Ambient"))
-			{
-				ImGui::DragFloat("Ambient strength", &ambientStrength, 0.01f, 0, 1);
-				ImGui::Separator();
-				ImGui::ColorPicker3("Ambient color", &ambientColor.x);
-			}
-			ImGui::Separator();
-			if (ImGui::CollapsingHeader("Diffuse"))
-			{
-				ImGui::DragFloat("Diffuse strength", &diffuseStrength, 0.01f, 0, 1);
-				ImGui::Separator();
-				ImGui::DragFloat("Specular strength", &specularStrength, 0.01f, 0, 1);
-				ImGui::Separator();
-				ImGui::ColorPicker3("Diffuse color", &diffuseCollor.x);
-				ImGui::Separator();
-				ImGui::DragFloat3("Light position", &lightPos.x, 1, -100, 100);
-				ImGui::Separator();
-				ImGui::Text("Set light position on camera");
-				ImGui::SameLine();
-				ImGui::Checkbox("", &attachLightToCamera);
-
-			}
-			ImGui::Separator();
-		}
-
-		if (attachLightToCamera) {
-			this->lightPos = camera->GetPositionFloat3();
-		}
-		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
+*/
 		//ImGui::ShowDemoWindow();
-		ImVec2 vec = ImVec2(800, 600);
-		ImGui::Image((ImTextureID)rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
+		//ImVec2 vec = ImVec2(800, 600);
+		//ImGui::Image((ImTextureID)rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
 
 
 		ImGui::End();
@@ -238,20 +179,6 @@ public:
 		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_CONTROL)) {
 			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
 		}
-	}
-	void UpdateLight() {
-		lightCbuffer.data.ambientStrength = this->ambientStrength;
-		lightCbuffer.data.ambientLightColor = this->ambientColor;
-
-		lightCbuffer.data.diffuseStrenght = this->diffuseStrength;
-		lightCbuffer.data.diffuseCollor = this->diffuseCollor;
-
-		lightCbuffer.data.lightPosition = this->lightPos;
-
-		lightCbuffer.data.specularStrength = this->specularStrength;
-		lightCbuffer.data.viewPosition = this->camera->GetPositionFloat3();
-
-		lightCbuffer.WriteBuffer();
 	}
 
 	bool SetMousePosition(RTE::MouseButtonPressedEvent ev) {

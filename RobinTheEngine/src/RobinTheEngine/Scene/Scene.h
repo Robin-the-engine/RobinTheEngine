@@ -31,6 +31,7 @@ namespace RTE
 		entt::registry registry;
 		void UpdateLight(RTE::Camera cam);
 		void UpdateCameras();
+		void UpdateColliders();
 
 		friend class GameObject;
 		friend class Serializer;

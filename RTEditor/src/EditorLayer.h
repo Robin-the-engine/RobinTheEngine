@@ -26,16 +26,13 @@ namespace RTE {
 		virtual void OnImGuiRender() override;
 		void OnEvent(Event& e) override;
 		void UpdateCamera();
-		void UpdateLight();
 		bool MousePressed(RTE::MouseButtonPressedEvent ev);
 		bool ShowCursor(RTE::MouseButtonReleasedEvent ev);
 	private:
 
 	    void attachContentBrowserWindow();
 		void pickObject();
-		void DrawSelectedObjUi();
 		RTE::Camera* camera;
-		//using JobHandle = RTE::JobHandle;
 
 		RTE::Window* window;
 		GameTimer timer;
@@ -51,9 +48,6 @@ namespace RTE {
 		DirectX::XMFLOAT3 lightPos = DirectX::XMFLOAT3(0, 0, 0);
 		float specularStrength = 1;
 		float simulationSpeed = 1;
-		//RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
-		RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
-		RTE::GameObject go2;
 		float angle = 0;
 		ImVec2 m_ViewportSize = { 0,0 };
 		ImVec2 m_ViewportBounds[2];

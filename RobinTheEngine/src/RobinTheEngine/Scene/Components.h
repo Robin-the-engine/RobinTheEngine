@@ -5,3 +5,4 @@
 #include "Components/NativeScript.h"
 #include "Components/Scripting.h"
 #include "Components/Light.h"
+#include "Components/ColliderComponent.h"
