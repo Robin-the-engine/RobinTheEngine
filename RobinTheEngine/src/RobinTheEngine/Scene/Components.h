@@ -4,3 +4,4 @@
 #include "Components/MeshRenderer.h"
 #include "Components/NativeScript.h"
 #include "Components/Scripting.h"
+#include "Components/Light.h"

@@ -1,7 +1,9 @@
 #include "EditorLayer.h"
 #include <iostream>
+#include <algorithm>
 
 #include "RobinTheEngine/UI/ContentBrowser.h"
+
 
 using namespace DirectX;
 
@@ -18,50 +20,58 @@ namespace RTE {
 	char loadFileName[nameSize] = { "Untitled" };
 
 	EditorLayer::EditorLayer()
-		: Layer("Example"), cbuffer(), lightCbuffer()
+		: Layer("Example"), lightCbuffer()
 	{
-		cbuffer.InitializeSharedBuffer("MVPMatrix");
+		//cbuffer.InitializeSharedBuffer("MVPMatrix");
 		lightCbuffer.InitializeSharedBuffer("LightProps");
 		scenePTR = &RTE::Application::Get().scene;
+
+
+		for (auto mesh = ResourceFactory::Get().GetMeshDescriptorMap().begin(); mesh != ResourceFactory::Get().GetMeshDescriptorMap().end(); mesh++) {
+			meshesIDs.push_back(mesh->first);
+		}
+
+		for (auto material = ResourceFactory::Get().GetMaterialDescriptorMap().begin(); material != ResourceFactory::Get().GetMaterialDescriptorMap().end(); material++) {
+			materialsIDs.push_back(material->first);
+		}
+
 	}
 
 	void EditorLayer::OnAttach() {
 		scenePTR->name = "Test Scene";
+		//scenePTR->cameraptr = &camera;
+		auto cam = scenePTR->CreateGameObject();
+		camera = &cam.AddComponent<RTE::Camera>();
+		camera->SetPosition(XMFLOAT3(5, 4, -15));
+		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
-		
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 50; j++) {
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < 5; j++) {
 
 				auto go = scenePTR->CreateGameObject();
 				auto& mr = go.AddComponent<RTE::MeshRenderer>();
 				auto& transform = go.AddComponent<RTE::Transform>();
-				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("newMaterialTesting"));
 				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 				int baseX = -10;
 				int basey = -10;
 				transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
+				go.AddComponent<RTE::LightComponent>();
+
+				auto& cam = go.AddComponent<RTE::Camera>();
+				//cam.SetPosition(XMFLOAT3(5, 4, -15));
+				cam.SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 			}
 
 		}
 
-/*
-		auto go = scenePTR->CreateGameObject();
-		auto& mr = go.AddComponent<RTE::MeshRenderer>();
-		auto& transform = go.AddComponent<RTE::Transform>();
-		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-		transform.SetPosition(0, 1, 0);*/
-
-
 
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
-		camera.SetPosition(XMFLOAT3(5, 4, -15));
-		camera.SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
-		rs->SetCamera(&camera);
+		//rs->SetCamera(&camera);
 
 		//std::vector<JobHandle> handles;
 
@@ -82,6 +92,7 @@ namespace RTE {
 		if (isDraw) {
 			rs->DrawRay(origin, dir);
 		}
+		camera = scenePTR->cameraptr;
 	}
 
 	void EditorLayer::attachContentBrowserWindow() {
@@ -214,14 +225,14 @@ namespace RTE {
 		auto viewportOffset = ImGui::GetWindowPos();
 		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
 		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-		if ( (m_ViewportSize.x != viewportPanelSize.x) || (m_ViewportSize.y != viewportPanelSize.y))
+		if ((m_ViewportSize.x != viewportPanelSize.x) || (m_ViewportSize.y != viewportPanelSize.y))
 		{
 			rs->GetFrameBufferPtr()->Resize(rs->GetDevice(), (int)viewportPanelSize.x, (int)viewportPanelSize.y);
 			//m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-			camera.ResizeCamera(viewportPanelSize.x, viewportPanelSize.y);
+			camera->ResizeCamera(viewportPanelSize.x, viewportPanelSize.y);
 		}
-		
+
 
 		ImGui::Image((ImTextureID)rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
 		ImGui::End();
@@ -288,17 +299,274 @@ namespace RTE {
 		}
 
 		if (attachLightToCamera) {
-			this->lightPos = camera.GetPositionFloat3();
+			this->lightPos = camera->GetPositionFloat3();
 		}
 		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
 		ImGui::Text("Entities were drawn:%d", rs->GetFrameStats().ObjectsWasDrawed);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::ShowDemoWindow();
-		
+
 		DrawSelectedObjUi();
 		ImGui::End();
 
+		ImGuiWindowFlags cbflags = ImGuiWindowFlags_MenuBar;
+		ImGui::Begin("Property panel", 0, cbflags);
+
+		if (selectedEN.isValid) {
+
+			bool hasMeshRenderer = scenePTR->GetRegistryPtr()->any_of<RTE::MeshRenderer>(selectedEN.ent);
+			bool hasLightComponent = scenePTR->GetRegistryPtr()->any_of<RTE::LightComponent>(selectedEN.ent);
+			bool hasScriptComponent = scenePTR->GetRegistryPtr()->any_of<RTE::ScriptComponent>(selectedEN.ent);
+			bool hasCamera = scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent);
+
+			if (ImGui::BeginMenuBar())
+			{
+
+
+				if (ImGui::BeginMenu("Add component"))
+				{
+					if (!hasMeshRenderer) {
+						if (ImGui::MenuItem("Add mesh renderer component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<MeshRenderer>();
+						}
+					}
+
+					if (!hasLightComponent) {
+						if (ImGui::MenuItem("Add light component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<LightComponent>();
+						}
+					}
+
+					if (!hasScriptComponent) {
+						if (ImGui::MenuItem("Add script component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<ScriptComponent>();
+						}
+					}
+
+					if (!hasCamera) {
+						if (ImGui::MenuItem("Add camera component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<Camera>();
+						}
+					}
+
+
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Delete component"))
+				{
+
+					if (hasMeshRenderer) {
+						if (ImGui::MenuItem("Delete mesh renderer component")) {
+							scenePTR->GetRegistryPtr()->remove<MeshRenderer>(selectedEN.ent);
+						}
+					}
+
+					if (hasLightComponent) {
+						if (ImGui::MenuItem("Delete light component")) {
+							scenePTR->GetRegistryPtr()->remove<LightComponent>(selectedEN.ent);
+						}
+					}
+
+					if (hasScriptComponent) {
+						if (ImGui::MenuItem("Delete script component")) {
+							scenePTR->GetRegistryPtr()->remove<ScriptComponent>(selectedEN.ent);
+						}
+					}
+
+					if (hasCamera) {
+						if (ImGui::MenuItem("Delete camera component")) {
+							scenePTR->GetRegistryPtr()->remove<Camera>(selectedEN.ent);
+						}
+					}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenuBar();
+			}
+
+
+
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::Transform>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("Transform")) {
+					auto& tr = scenePTR->GetRegistryPtr()->get<Transform>(selectedEN.ent);
+					auto pos = tr.GetPosition();
+					ImGui::DragFloat3("Position", &pos.x, 0.1);
+					tr.SetPosition(pos);
+
+					auto rot = tr.GetRotation();
+					ImGui::DragFloat3("Rotation", &rot.x, 0.1);
+					tr.SetRotation(rot);
+
+					auto scale = tr.GetScale();
+					ImGui::DragFloat3("Scale", &scale.x, 0.1);
+					tr.SetScale(scale);
+
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::MeshRenderer>(selectedEN.ent)) {
+
+				if (ImGui::CollapsingHeader("Mesh renderer")) {
+					auto& ar = Application::Get().scene.GetRegistryPtr()->get<MeshRenderer>(selectedEN.ent);
+
+					int selectedMesh;
+					if (ar.GetMesh().GetResourceID() == "invalid") selectedMesh = -1;
+
+					auto iter = std::find(meshesIDs.begin(), meshesIDs.end(), ar.GetMesh().GetResourceID());
+					if (iter != meshesIDs.end()) selectedMesh = std::distance(meshesIDs.begin(), iter);
+
+					if (ImGui::Combo("Meshes", &selectedMesh,
+						[](void* vec, int idx, const char** out_text) {
+							std::vector<std::string>* vector = reinterpret_cast<std::vector<std::string>*>(vec);
+							if (idx < 0 || idx >= vector->size())return false;
+							*out_text = vector->at(idx).c_str();
+							return true;
+						}, reinterpret_cast<void*>(&meshesIDs), meshesIDs.size()))
+					{
+						ar.SetMesh(ResourceFactory::Get().GetResource<RTE::Model>(meshesIDs[selectedMesh]));
+					}
+
+						ImGui::Separator();
+						int selectedMaterial;
+						if (ar.GetMaterial().GetResourceID() == "invalid") selectedMaterial = -1;
+
+						auto iter2 = std::find(materialsIDs.begin(), materialsIDs.end(), ar.GetMaterial().GetResourceID());
+						if (iter2 != materialsIDs.end()) selectedMaterial = std::distance(materialsIDs.begin(), iter2);
+
+						if (ImGui::Combo("Materials", &selectedMaterial,
+							[](void* vec, int idx, const char** out_text) {
+								std::vector<std::string>* vector = reinterpret_cast<std::vector<std::string>*>(vec);
+								if (idx < 0 || idx >= vector->size())return false;
+								*out_text = vector->at(idx).c_str();
+								return true;
+							}, reinterpret_cast<void*>(&materialsIDs), materialsIDs.size()))
+						{
+							ar.SetMaterial(ResourceFactory::Get().GetResource<RTE::Material>(materialsIDs[selectedMaterial]));
+						}
+
+
+
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::MeshRenderer>(selectedEN.ent)) {
+
+				if (ImGui::CollapsingHeader("Material")) {
+					auto& ar = Application::Get().scene.GetRegistryPtr()->get<MeshRenderer>(selectedEN.ent);
+					if (ar.GetMaterial().matPtr.use_count() != 0)
+						ar.GetMaterial().matPtr->DrawImGui();
+
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::LightComponent>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("Light component")) {
+
+					auto& ar = scenePTR->GetRegistryPtr()->get<LightComponent>(selectedEN.ent);
+
+					ImGui::DragFloat4("Color", &ar.lightComponent.Color.x, 0.1, 0, 1);
+
+					ImGui::DragFloat("SpotlightAngle", &ar.lightComponent.SpotlightAngle, 0.1);
+					ImGui::DragFloat("Range", &ar.lightComponent.Range, 0.1);
+
+					ImGui::DragFloat("Intensity", &ar.lightComponent.Intensity, 0.1);
+					ImGui::Checkbox("Enabled", (bool*)&ar.lightComponent.Enabled);
+
+					static const char* items[]{ "POINT_LIGHT",	"SPOT_LIGHT",	"DIRECTIONAL_LIGHT" };
+					static int selectedItem; selectedItem = ar.lightComponent.Type;
+					ImGui::Combo("Light type", &selectedItem, items, IM_ARRAYSIZE(items));
+					ar.lightComponent.Type = (Light::LightType)selectedItem;
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::ScriptComponent>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("Script component")) {
+
+					auto& sc = scenePTR->GetRegistryPtr()->get<ScriptComponent>(selectedEN.ent);
+					ImGui::Text(sc.GetScript().c_str());
+
+				}
+			}
+			if (scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("Camera")) {
+
+					auto& sc = scenePTR->GetRegistryPtr()->get<Camera>(selectedEN.ent);
+					ImGui::Checkbox("IsActive", sc.GetActivateFlagPtr());
+
+				}
+			}
+
+
+
+		}
+		ImGui::End();
+
+		cbflags = ImGuiWindowFlags_MenuBar;
+		ImGui::Begin("World outliner", 0, cbflags);
+
+		//ImGui::PushID("outliner");
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Add"))
+			{
+				if (ImGui::MenuItem("Add new entity"))
+					scenePTR->CreateGameObject();
+
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Delete"))
+			{
+				if (ImGui::MenuItem("Delete selected entity")) {
+					if (selectedEN.isValid == true) {
+						scenePTR->GetRegistryPtr()->destroy(selectedEN.ent);
+						selectedEN.isValid = false;
+					}
+				}
+
+				ImGui::EndMenu();
+			}
+			/*if (ImGui::Button("Add new entity"))
+			{
+				scenePTR->CreateGameObject();
+			}*/
+
+			ImGui::EndMenuBar();
+		}
+
+		//ImGui::Separator();
+		scenePTR->GetRegistryPtr()->each([&](auto entity) {
+			bool isSelected = false;
+
+			if (selectedEN.isValid && selectedEN.ent == entity)
+				isSelected = true;
+
+			unsigned int tmpInt = (unsigned int)entity;
+			std::string tmp = std::to_string(tmpInt);
+
+
+
+
+			if (ImGui::MenuItem(tmp.c_str(), "", &isSelected)) {
+				selectedEN.ent = entity;
+				selectedEN.isValid = true;
+			}
+			if (ImGui::BeginPopupContextItem()) // <-- use last item id as popup id
+			{
+				if (ImGui::Button("Delete")) {
+					ImGui::CloseCurrentPopup();
+					scenePTR->GetRegistryPtr()->destroy(entity);
+					if (selectedEN.ent == entity) selectedEN.isValid = false;
+				}
+				ImGui::EndPopup();
+
+				return;
+			}
+
+			//ImGui::Text("%u", entity);
+
+			});
+
+		//ImGui::PopID();
+
+		ImGui::End();
 		attachContentBrowserWindow();
 
 	}
@@ -328,33 +596,33 @@ namespace RTE {
 			signY = offsetY > 0 ? -1 : 1;
 
 			if (offsetX) {
-				camera.AdjustRotation(XMFLOAT3(0, cameraSensitivity * -offsetX * timer.DeltaTime(), 0));
+				camera->AdjustRotation(XMFLOAT3(0, cameraSensitivity * -offsetX * timer.DeltaTime(), 0));
 				posX = RTE::Input::GetMouseX();
 			}
 			if (offsetY) {
-				camera.AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
+				camera->AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
 				posY = RTE::Input::GetMouseY();
 			}
 
 		}
 
 		if (RTE::Input::IsKeyPressed(RTE_KEY_W)) {
-			camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetForwardVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_S)) {
-			camera.AdjustPosition(camera.GetBackwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetBackwardVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_A)) {
-			camera.AdjustPosition(camera.GetLeftVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetLeftVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_D)) {
-			camera.AdjustPosition(camera.GetRightVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetRightVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_SPACE)) {
-			camera.AdjustPosition(XMFLOAT3(0.f, cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_CONTROL)) {
-			camera.AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 	}
 	void EditorLayer::UpdateLight() {
@@ -367,7 +635,7 @@ namespace RTE {
 		lightCbuffer.data.lightPosition = this->lightPos;
 
 		lightCbuffer.data.specularStrength = this->specularStrength;
-		lightCbuffer.data.viewPosition = this->camera.GetPositionFloat3();
+		lightCbuffer.data.viewPosition = this->camera->GetPositionFloat3();
 
 		lightCbuffer.WriteBuffer();
 
@@ -386,15 +654,15 @@ namespace RTE {
 		int sy = (int)my;
 
 		//picking code
-		XMFLOAT4X4 P; XMStoreFloat4x4(&P, camera.GetProjectionMatrix());
+		XMFLOAT4X4 P; XMStoreFloat4x4(&P, camera->GetProjectionMatrix());
 		// Compute picking ray in view space.
-		float vx = (+2.0f * sx / viewportSize.x - 1.0f) /P(0, 0);
-		float vy = (-2.0f * sy / viewportSize.y + 1.0f) /P(1, 1);
+		float vx = (+2.0f * sx / viewportSize.x - 1.0f) / P(0, 0);
+		float vy = (-2.0f * sy / viewportSize.y + 1.0f) / P(1, 1);
 		// Ray definition in view space.
 		XMVECTOR rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 		XMVECTOR rayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
 
-		XMMATRIX V =  camera.GetViewMatrix();
+		XMMATRIX V = camera->GetViewMatrix();
 		auto d = XMMatrixDeterminant(V);
 		XMMATRIX invView = XMMatrixInverse(nullptr, V);
 
@@ -468,7 +736,34 @@ namespace RTE {
 				XMFLOAT3 scale = obj.GetScale();
 				ImGui::DragFloat3("Scale", &scale.x, 0.01f);
 				obj.SetScale(scale);
-								
+
+
+
+				if (Application::Get().scene.GetRegistryPtr()->all_of<MeshRenderer>(selectedEN.ent)) {
+					auto& ar = Application::Get().scene.GetRegistryPtr()->get<MeshRenderer>(selectedEN.ent);
+					ar.GetMaterial().matPtr->DrawImGui();
+				}
+				if (Application::Get().scene.GetRegistryPtr()->all_of<LightComponent, Transform>(selectedEN.ent)) {
+
+					ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen);
+					auto& ar = Application::Get().scene.GetRegistryPtr()->get<LightComponent>(selectedEN.ent);
+
+					ImGui::DragFloat4("Color", &ar.lightComponent.Color.x, 0.1, 0, 1);
+
+					ImGui::DragFloat("SpotlightAngle", &ar.lightComponent.SpotlightAngle, 0.1);
+					ImGui::DragFloat("Range", &ar.lightComponent.Range, 0.1);
+
+					ImGui::DragFloat("Intensity", &ar.lightComponent.Intensity, 0.1);
+					ImGui::Checkbox("Enabled", (bool*)&ar.lightComponent.Enabled);
+
+					static const char* items[]{ "POINT_LIGHT",	"SPOT_LIGHT",	"DIRECTIONAL_LIGHT" };
+					static int selectedItem; selectedItem = ar.lightComponent.Type;
+					ImGui::Combo("Light type", &selectedItem, items, IM_ARRAYSIZE(items));
+					ar.lightComponent.Type = (Light::LightType)selectedItem;
+
+					ImGui::TreePop();
+
+				}
 
 			}
 

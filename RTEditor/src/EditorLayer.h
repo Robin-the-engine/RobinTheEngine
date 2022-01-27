@@ -4,6 +4,7 @@
 #include "imgui/imgui.h"
 #include "RobinTheEngine/Scene/Serializer.h"
 #include "RobinTheEngine/Scene/GameObject.h"
+#include "RobinTheEngine/UI/ContentBrowser.h"
 
 
 namespace RTE {
@@ -11,7 +12,7 @@ namespace RTE {
 	struct selectedEnt
 	{	
 		entt::entity ent;
-		bool isValid;
+		bool isValid = false;
 	};
 
 
@@ -33,7 +34,7 @@ namespace RTE {
 	    void attachContentBrowserWindow();
 		void pickObject();
 		void DrawSelectedObjUi();
-		RTE::Camera camera;
+		RTE::Camera* camera;
 		//using JobHandle = RTE::JobHandle;
 
 		RTE::Window* window;
@@ -50,7 +51,7 @@ namespace RTE {
 		DirectX::XMFLOAT3 lightPos = DirectX::XMFLOAT3(0, 0, 0);
 		float specularStrength = 1;
 		float simulationSpeed = 1;
-		RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
+		//RTE::ConstantBuffer<RTE::CB_VS_MATRIX4x4> cbuffer;
 		RTE::ConstantBuffer<RTE::CB_PS_LIGHT> lightCbuffer;
 		RTE::GameObject go2;
 		float angle = 0;
@@ -59,6 +60,8 @@ namespace RTE {
 		bool IsViewPortHowered = false;
 		bool IsViewPortPressed = false;
 		selectedEnt selectedEN;
+		std::vector<std::string> meshesIDs;
+		std::vector<std::string> materialsIDs;
 
 	};
 

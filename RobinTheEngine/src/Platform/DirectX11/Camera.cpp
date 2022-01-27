@@ -87,6 +87,7 @@ void RTE::Camera::AdjustPosition(const XMVECTOR& vec)
 	XMVECTOR tmp = XMLoadFloat3(&m_pos); tmp += vec;
 	XMStoreFloat3(&m_pos, tmp);
 	UpdateViewMatrix();
+	dirtyFlag = true;
 }
 
 void RTE::Camera::AdjustPosition(const XMFLOAT3& vec)
@@ -94,6 +95,7 @@ void RTE::Camera::AdjustPosition(const XMFLOAT3& vec)
 	XMVECTOR tmp = XMLoadFloat3(&m_pos); tmp += XMLoadFloat3(&vec);
 	XMStoreFloat3(&m_pos, tmp);
 	UpdateViewMatrix();
+	dirtyFlag = true;
 }
 
 void RTE::Camera::SetRotation(const XMVECTOR& vec)
@@ -101,6 +103,7 @@ void RTE::Camera::SetRotation(const XMVECTOR& vec)
 	m_rotVec = vec;
 	XMStoreFloat3(&m_rot, m_rotVec);
 	UpdateViewMatrix();
+	
 }
 
 void RTE::Camera::SetRotation(const XMFLOAT3& vec)
@@ -108,6 +111,7 @@ void RTE::Camera::SetRotation(const XMFLOAT3& vec)
 	m_rot = vec;
 	m_rotVec = XMLoadFloat3(&m_rot);
 	UpdateViewMatrix();
+	
 }
 
 void RTE::Camera::AdjustRotation(const XMVECTOR& vec)
@@ -115,6 +119,7 @@ void RTE::Camera::AdjustRotation(const XMVECTOR& vec)
 	m_rotVec += vec;
 	XMStoreFloat3(&m_rot, m_rotVec);
 	UpdateViewMatrix();
+	dirtyFlag = true;
 }
 
 void RTE::Camera::ResizeCamera(float width, float height)
@@ -128,6 +133,7 @@ void RTE::Camera::AdjustRotation(const XMFLOAT3& vec)
 	m_rotVec += XMLoadFloat3(&vec);
 	XMStoreFloat3(&m_rot, m_rotVec);
 	UpdateViewMatrix();
+	dirtyFlag = true;
 }
 
 const XMVECTOR RTE::Camera::GetForwardVector()

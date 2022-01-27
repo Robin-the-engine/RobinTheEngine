@@ -1,6 +1,7 @@
 #pragma once
 #include "Platform/DirectX11/Camera.h"
 #include "RobinTheEngine/Scene/Components.h"
+#include "RobinTheEngine/Scene/Scene.h"
 
 namespace RTE {
 
@@ -16,6 +17,8 @@ namespace RTE {
 
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes) = 0;
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps) = 0;
+		virtual void DoRender(RTE::Scene* scene) = 0;
+
 		virtual void SetCamera(Camera* camera) = 0;
 	};
 

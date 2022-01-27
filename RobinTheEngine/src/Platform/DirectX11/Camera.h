@@ -2,13 +2,14 @@
 #include <DirectXMath.h>
 #include "RobinTheEngine/Core.h"
 #include "Platform/DirectX11/ConstantBuffer.h"
+#include "RobinTheEngine/Scene/Component.h"
 using namespace DirectX;
 
 
 
 namespace RTE {
 
-	class RTE_API Camera {
+	class RTE_API Camera : public RTE::Component {
 
 	public:
 
@@ -41,8 +42,10 @@ namespace RTE {
 		const XMVECTOR GetRightVector();
 		const XMVECTOR GetLeftVector();
 		ConstantBuffer<CB_VS_CAMERA> constBuffer;
-
-
+		bool GetDirtyFlag() { return dirtyFlag; }
+		void SetDirtyFlag(bool newFlag) { dirtyFlag = newFlag; }
+		bool* GetActivateFlagPtr() { return &Activate; }
+		bool Activate = true;
 	private:
 		void UpdateViewMatrix();
 		//XMVECTOR m_posVec;
@@ -53,12 +56,12 @@ namespace RTE {
 		XMMATRIX m_projectionMatrix;
 
 
-		const XMVECTOR DEFAULT_FORWARD_VECTOR = XMVectorSet(0, 0, 1, 0);
-		const XMVECTOR DEFAULT_UP_VECTOR = XMVectorSet(0, 1, 0, 0);
-		const XMVECTOR DEFAULT_BACKWARD_VECTOR = XMVectorSet(0, 0, -1, 0);
-		const XMVECTOR DEFAULT_LEFT_VECTOR = XMVectorSet(-1, 0, 0, 0);
-		const XMVECTOR DEFAULT_RIGHT_VECTOR = XMVectorSet(1, 0, 1, 0);
-		const XMVECTOR DEFAULT_DOWN_VECTOR = XMVectorSet(0, 1, 0, 0);
+		 XMVECTOR DEFAULT_FORWARD_VECTOR = XMVectorSet(0, 0, 1, 0);
+		XMVECTOR DEFAULT_UP_VECTOR = XMVectorSet(0, 1, 0, 0);
+		XMVECTOR DEFAULT_BACKWARD_VECTOR = XMVectorSet(0, 0, -1, 0);
+		XMVECTOR DEFAULT_LEFT_VECTOR = XMVectorSet(-1, 0, 0, 0);
+		XMVECTOR DEFAULT_RIGHT_VECTOR = XMVectorSet(1, 0, 1, 0);
+		XMVECTOR DEFAULT_DOWN_VECTOR = XMVectorSet(0, 1, 0, 0);
 		
 		XMFLOAT4 vec_left;
 		XMFLOAT4 vec_right;
@@ -69,6 +72,8 @@ namespace RTE {
 		float m_aspectRatio;
 		float m_nearZ;
 		float m_farZ;
+
+		bool dirtyFlag = false;
 		
 		
 

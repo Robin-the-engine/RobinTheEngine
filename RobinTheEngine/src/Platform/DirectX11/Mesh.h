@@ -46,11 +46,11 @@ namespace RTE {
 	class Mesh : public IMesh
 	{
 	public:
-		Mesh(std::vector<T>& vertices, std::vector<DWORD>& indices) {
+		Mesh(std::vector<T>& vertices, std::vector<DWORD>& indices, std::string id) {
 			using namespace D3DUtils;
 
-			ThrowIfFailed(vert.Init(vertices.data(), vertices.size(), "name"));
-			ThrowIfFailed(indexBuffer.Init(indices.data(), indices.size(), "name"));
+			ThrowIfFailed(vert.Init(vertices.data(), vertices.size(), id));
+			ThrowIfFailed(indexBuffer.Init(indices.data(), indices.size(), id));
 			elementCount = indexBuffer.ElementCount();
 		}
 		Mesh(const Mesh& mesh) = default;

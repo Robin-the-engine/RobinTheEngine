@@ -1,6 +1,3 @@
-#resources
-#mesh layout 1 : position float3, normal float3
-#mesh layout 2 : position float3, normal float3, textureCoords float2
 
 meshes:
     ogre:
@@ -14,9 +11,16 @@ meshes:
 textures:
     textureErrorChecker: Content\assets\textures\error_checker.png
     ogreDiffuse: Content\objects\ogre\diffuse.png
+    ogreNormal: Content\objects\ogre\normalmap.png
+    ogreBump: Content\objects\ogre\bump.png
+    ogreOcclusion: Content\objects\ogre\ao_rest.png
 
 shaders:
     litColorPS: Content\shaders\coloredps.hlsl
     litColorVS: Content\shaders\coloredvs.hlsl
     texturedPS: Content\shaders\PS.hlsl
     texturedVS: Content\shaders\VS.hlsl
+    extentedVS: Content\shaders\extentedvs.hlsl
+    extentedPS: Content\shaders\extentedps.hlsl
+
+

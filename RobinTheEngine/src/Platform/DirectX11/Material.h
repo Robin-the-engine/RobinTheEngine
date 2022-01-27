@@ -15,7 +15,8 @@ namespace RTE {
 	{
 		None,
 		ColoredMaterial,
-		TexturedMaterial
+		TexturedMaterial,
+		TexturedExtendedMaterial
 
 	};
 
@@ -30,6 +31,43 @@ namespace RTE {
 		std::string psPath;
 		std::string textureKey;
 
+		XMFLOAT4  AmbientColor;
+		XMFLOAT4  EmissiveColor;
+		XMFLOAT4  DiffuseColor;
+		XMFLOAT4  SpecularColor;
+		XMFLOAT4  Reflectance;
+		float   Opacity;
+		float   SpecularPower;
+		float   IndexOfRefraction;
+
+		std::string AmbientTextureKey;
+		std::string EmissiveTextureKey;
+		std::string DiffuseTextureKey;
+		std::string SpecularTextureKey;
+		std::string SpecularPowerTextureKey;
+		std::string NormalTextureKey;
+		std::string BumpTextureKey;
+		std::string OpacityTextureKey;
+
+		float   BumpIntensity;
+		float   SpecularScale;
+		float   AlphaThreshold;
+
+
+		MaterialDescriptor()
+			: AmbientColor(0, 0, 0, 1)
+			, EmissiveColor(0, 0, 0, 1)
+			, DiffuseColor(1, 1, 1, 1)
+			, SpecularColor(0, 0, 0, 1)
+			, Reflectance(0, 0, 0, 0)
+			, Opacity(1.0f)
+			, SpecularPower(-1.0f)
+			, IndexOfRefraction(-1.0f)
+			, BumpIntensity(5.0f)
+			, SpecularScale(128.0f)
+			, AlphaThreshold(0.1f)
+		{}
+
 	};
 
 	//class ColoredMaterialBase;
@@ -40,6 +78,7 @@ namespace RTE {
 		virtual void ApplyMaterial() = 0;
 		virtual MaterialType GetMaterialType() = 0;
 		virtual ~MaterialBase() {};
+		virtual void DrawImGui() {};
 
 	};
 
@@ -105,6 +144,55 @@ namespace RTE {
 		vertexShader vs;
 		pixelShader ps;
 		Texture diffuseTexture;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> repeatSampler;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> clampSampler;
+
+	};
+
+	//TODO: create texture sampler class and add it to that material base
+	class TexturedExtentedMaterialBase : public MaterialBase
+	{
+
+	public:
+		TexturedExtentedMaterialBase(MaterialDescriptor desc);
+
+		// Inherited via Material
+		virtual void ApplyMaterial() override;
+		//TODO: just empty destructor?
+		~TexturedExtentedMaterialBase()override {};
+
+
+		MaterialType GetMaterialType() override;
+		void DrawImGui() override;
+
+	private:
+
+		void SetTextureByKey(Texture* txt, std::string* key, std::string* localKey);
+		bool isKeyNotNull(std::string* key);
+		vertexShader vs;
+		pixelShader ps;
+
+		Texture ambientTexture;
+		Texture emissiveTexture;
+		Texture diffuseTexture;
+		Texture specularTexture;
+		Texture specularPowerTexture;
+		Texture normalTexture;
+		Texture bumpTexture;
+		Texture opacityTexture;
+
+		std::string AmbientTextureKey;
+		std::string EmissiveTextureKey;
+		std::string DiffuseTextureKey;
+		std::string SpecularTextureKey;
+		std::string SpecularPowerTextureKey;
+		std::string NormalTextureKey;
+		std::string BumpTextureKey;
+		std::string OpacityTextureKey;
+
+		ConstantBuffer<CB_PS_MATERIAL> cb;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> repeatSampler;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> clampSampler;
 	};
 
 
@@ -128,7 +216,9 @@ namespace RTE {
 			case 2:
 				matPtr = std::shared_ptr<TexturedMaterialBase>(new TexturedMaterialBase(desc));
 				break;
-
+			case 3:
+				matPtr = std::shared_ptr<TexturedExtentedMaterialBase>(new TexturedExtentedMaterialBase(desc));
+				break;
 
 			default:
 				RTE_CORE_ASSERT(false, "Bad material type with value:{0}", desc.MaterialType);

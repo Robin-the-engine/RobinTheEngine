@@ -9,6 +9,9 @@
 #include <DirectXCollision.h>
 #include <dxgi1_4.h>
 
+#include "Platform/Directx11/Buffer.h"
+#include "Platform/DirectX11/LightStructure.h"
+
 #include "RobinTheEngine/RenderSystem.h"
 #include "Platform/DirectX11/FrameBuffer.h"
 
@@ -50,10 +53,13 @@ namespace RTE {
 
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes) override;
 		virtual void DoRender(std::tuple<RTE::Transform, RTE::MeshRenderer> meshes, void* lightComps) override;
+		virtual void DoRender(Scene* scene) override;
 		FrameStats& GetFrameStats() { return frameStats; }
 		FrameBuffer* GetFrameBufferPtr() { return &framebufferForTexture; }
 		void SetDefaultRenderTarget();
 
+		//temp public cam ptr
+		Camera* mainCamera = nullptr;
 	protected:
 
 	private:
@@ -65,7 +71,7 @@ namespace RTE {
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_RasterizerState;
-		
+
 
 		static const int SwapChainBufferCount = 1;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
@@ -96,12 +102,13 @@ namespace RTE {
 		std::vector<IDXGIAdapter*> adapterList;
 		DirectX::XMFLOAT4 clearColor;
 
-		Camera* mainCamera = nullptr;
+		
 		DirectX::BoundingFrustum frameFrustrum;
 
 		bool frustrumCullingEnabled = true;
 		FrameStats frameStats;
 		FrameBuffer framebufferForTexture;
+		structuredBuffer<Light> lightBuffer;
 
 	};
 

@@ -157,7 +157,7 @@ void RTE::DirectX11RenderSystem::OnResize(int width, int height)
 
 void RTE::DirectX11RenderSystem::OnRenderBegin()
 {
-	
+
 	//	// Clear the back buffer and depth buffer.
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), &clearColor.x);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
@@ -365,6 +365,108 @@ void RTE::DirectX11RenderSystem::DoRender(std::tuple<RTE::Transform, RTE::MeshRe
 	frameStats.ObjectsWasDrawed++;
 }
 
+
+void RTE::DirectX11RenderSystem::DoRender(Scene* scene)
+{
+	auto MeshesToRender = scene->GetRegistryPtr()->view<RTE::Transform, RTE::MeshRenderer>();
+	RTE_CORE_ASSERT(scene->cameraptr, "Invalid main camera ptr");
+	mainCamera = scene->cameraptr;
+
+	using namespace DirectX;
+	static ConstantBuffer<CB_VS_WORLD_MAT> world;
+	static ConstantBuffer<CB_PS_NUM_LIGHTS> numOfLightsCB;
+	static bool flag = true;
+	static std::vector<Light> lightVectro;
+	auto viewFOrLight = scene->GetRegistryPtr()->view<RTE::LightComponent>();
+	auto numOfLights = viewFOrLight.size();
+	lightVectro.clear();
+	for (auto light : viewFOrLight) {
+		auto& l = viewFOrLight.get<LightComponent>(light);
+		lightVectro.push_back(l.lightComponent);
+	}
+
+	if (numOfLights > 0) {
+		if (numOfLights > 0 && !(lightBuffer.BufferSize() > 0))
+			lightBuffer.Init(lightVectro.data(), numOfLights);
+		else
+			lightBuffer.Update(lightVectro.data(), numOfLights);
+
+	}
+
+	if (flag) {
+		world.InitializeSharedBuffer("worldMat");
+		flag = false;
+		BoundingFrustum::CreateFromMatrix(frameFrustrum, mainCamera->GetProjectionMatrix());
+		numOfLightsCB.InitializeSharedBuffer("numOfLights");
+
+	}
+
+	mainCamera->UpdateBuffer();
+	numOfLightsCB.data.numLights = numOfLights;
+	numOfLightsCB.WriteBuffer();
+
+	XMFLOAT4X4 tmpView; XMStoreFloat4x4(&tmpView, mainCamera->GetViewMatrix());
+	XMFLOAT4X4 tmpProjection; XMStoreFloat4x4(&tmpProjection, mainCamera->GetProjectionMatrix());
+	PrimitivesBatcher::SetViewProjection(tmpView, tmpProjection);
+
+
+	for (auto go : MeshesToRender)
+	{
+		auto toRen = MeshesToRender.get<RTE::Transform, RTE::MeshRenderer>(go);
+
+		auto& mr = std::get<1>(toRen);
+		if(mr.GetMaterial().matPtr.use_count() == 0) continue;
+		if(mr.GetMesh().meshes.size() == 0) continue;
+		mr.GetMaterial().matPtr->ApplyMaterial();
+
+
+		//get Transform
+		auto& transform = std::get<0>(toRen);
+		auto worldMatrix = transform.GetMatrix();
+		XMStoreFloat4x4(&world.data.worldMatrix, XMMatrixTranspose(worldMatrix));
+
+		auto tmpVec = XMMatrixDeterminant(worldMatrix);
+		XMMATRIX invWorld = XMMatrixInverse(&tmpVec, worldMatrix);
+		tmpVec = XMMatrixDeterminant(mainCamera->GetViewMatrix());
+		XMMATRIX invView = XMMatrixInverse(&tmpVec, mainCamera->GetViewMatrix());
+		XMMATRIX viewToLocal = XMMatrixMultiply(invView, invWorld);
+		DirectX::BoundingFrustum localSpaceFrustrum;
+		frameFrustrum.Transform(localSpaceFrustrum, viewToLocal);
+
+		//if (localSpaceFrustrum.Contains(mr.GetMesh().box) == DirectX::DISJOINT || (frustrumCullingEnabled == false))
+		//	continue;
+
+
+		world.WriteBuffer();
+
+		//set camera
+		m_DeviceContext->VSSetConstantBuffers(0, 1, mainCamera->constBuffer.GetAddressOf());
+		//set world
+		m_DeviceContext->VSSetConstantBuffers(1, 1, world.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(1, 1, numOfLightsCB.GetAddressOf());
+		m_DeviceContext->PSSetShaderResources(8, 1, lightBuffer.GetAddressOfSRV());
+
+		for (int i = 0; i < mr.GetMesh().meshes.size(); i++) {
+			mr.GetMesh().meshes[i]->BindMesh(m_DeviceContext.Get());
+			m_DeviceContext->DrawIndexed(mr.GetMesh().meshes[i]->elementCount, 0, 0);
+		}
+
+
+		BoundingBox proverka = mr.GetMesh().box;
+		BoundingBox tmpBox; mr.GetMesh().box.Transform(tmpBox, worldMatrix);
+		PrimitivesBatcher::DrawPrimitive(m_DeviceContext.Get(), tmpBox);
+
+
+
+		frameStats.ObjectsWasDrawed++;
+
+
+	}
+
+	PrimitivesBatcher::DrawGrid(m_DeviceContext.Get());
+
+
+}
 
 void RTE::DirectX11RenderSystem::SetDefaultRenderTarget()
 {

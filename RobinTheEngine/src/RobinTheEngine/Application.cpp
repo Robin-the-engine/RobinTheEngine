@@ -51,36 +51,6 @@ namespace RTE {
 	{
 
 
-		const D3D11_INPUT_ELEMENT_DESC layout[] =
-		{
-			D3D11_INPUT_ELEMENT_DESC {"TEXCOORD",0,DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC {"NORMAL", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-			D3D11_INPUT_ELEMENT_DESC {"POSITION", 0,DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		};
-
-		UINT numElements = ARRAYSIZE(layout);
-		vertexShader vs(L"Content\\shaders\\VS.hlsl", layout, numElements);
-		pixelShader ps(L"Content\\shaders\\PS.hlsl");
-
-		//Create sampler description for sampler state
-		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		auto rs = ((DirectX11RenderSystem*)m_RenderSystem.get());
-		ComPtr<ID3D11SamplerState> samplerState;
-		ThrowIfFailed(rs->GetDevice()->CreateSamplerState(&sampDesc, samplerState.GetAddressOf())); //Create sampler state
-
-
-		auto context = static_cast<DirectX11RenderSystem*>(m_RenderSystem.get())->GetContext();
-		context->IASetInputLayout(vs.GetInputLayout());
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		context->VSSetShader(vs.GetShader(), 0, 0);
-		context->PSSetShader(ps.GetShader(), 0, 0);
-		context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
-		context->CSSetSamplers(0, 1, samplerState.GetAddressOf());
-
-
 		const int TICKS_PER_SECOND = 50;
 		const int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 		const int MAX_FRAMESKIP = 10;
@@ -91,7 +61,7 @@ namespace RTE {
 
 			loops = 0;
 			m_Window->OnUpdate();
-
+			scene.UpdateScene();
 			while (GetTickCount64() > next_game_tick && loops < MAX_FRAMESKIP) {
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate();
@@ -102,7 +72,8 @@ namespace RTE {
 
 
 			m_RenderSystem->OnRenderBegin();
-			scene.RenderScene(*m_RenderSystem);
+			//scene.RenderScene(*m_RenderSystem);
+			m_RenderSystem->DoRender(&scene);
 			//for (Layer* layer : m_LayerStack)
 				//layer->OnRender();
 

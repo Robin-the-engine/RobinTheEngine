@@ -13,7 +13,7 @@
 using namespace D3DUtils;
 
 
-std::shared_ptr<RTE::IMesh> processDefaultMesh(aiMesh* mesh) {
+std::shared_ptr<RTE::IMesh> processDefaultMesh(aiMesh* mesh, std::string id) {
 	// Data to fill
 	std::vector<RTE::vertex_pos_color> vertices;
 	std::vector<DWORD> indices;
@@ -65,13 +65,13 @@ std::shared_ptr<RTE::IMesh> processDefaultMesh(aiMesh* mesh) {
 	}
 	using namespace RTE;
 	//std::shared_ptr<RTE::IMeshTwo> meshPtr = std::make_shared<RTE::MeshTwo<RTE::vertex_pos_color>>(vertices, indices);
-	std::shared_ptr<IMesh> meshPtr = std::shared_ptr<Mesh<vertex_pos_color>>(new Mesh<vertex_pos_color>(vertices, indices));
+	std::shared_ptr<IMesh> meshPtr = std::shared_ptr<Mesh<vertex_pos_color>>(new Mesh<vertex_pos_color>(vertices, indices,id));
 	meshPtr->min = minPoint;
 	meshPtr->max = maxPoint;
 	return meshPtr;
 }
 
-std::shared_ptr<RTE::IMesh> processTexturedMesh(aiMesh* mesh) {
+std::shared_ptr<RTE::IMesh> processTexturedMesh(aiMesh* mesh, std::string id) {
 	// Data to fill
 	std::vector<RTE::vertex_Gouraud_shading> vertices;
 	std::vector<DWORD> indices;
@@ -91,6 +91,14 @@ std::shared_ptr<RTE::IMesh> processTexturedMesh(aiMesh* mesh) {
 		vertex.normal.x = mesh->mNormals[i].x;
 		vertex.normal.y = mesh->mNormals[i].y;
 		vertex.normal.z = mesh->mNormals[i].z;
+
+		vertex.bitangent.x = mesh->mBitangents[i].x;
+		vertex.bitangent.y = mesh->mBitangents[i].y;
+		vertex.bitangent.z = mesh->mBitangents[i].z;
+
+		vertex.tangent.x = mesh->mTangents[i].x;
+		vertex.tangent.y = mesh->mTangents[i].y;
+		vertex.tangent.z = mesh->mTangents[i].z;
 
 		if (mesh->mTextureCoords[0])
 		{
@@ -118,7 +126,8 @@ std::shared_ptr<RTE::IMesh> processTexturedMesh(aiMesh* mesh) {
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
-	std::shared_ptr<RTE::IMesh> meshPtr = std::make_shared<RTE::Mesh<RTE::vertex_Gouraud_shading>>(vertices, indices);
+	std::string meshName = mesh->mName.C_Str();
+	std::shared_ptr<RTE::IMesh> meshPtr = std::make_shared<RTE::Mesh<RTE::vertex_Gouraud_shading>>(vertices, indices,id+ meshName);
 	meshPtr->min = minPoint;
 	meshPtr->max = maxPoint;
 	return meshPtr;
@@ -147,13 +156,15 @@ bool RTE::Model::Initialize(const std::string& path, int layout)
 
 }
 
-RTE::Model* RTE::Model::CreateModel(const std::string& path, int layout)
+RTE::Model* RTE::Model::CreateModel(std::string& id, const std::string& path, int layout)
 {
 	Model* m = new Model();
+	m->id = id;
 	if (!m->LoadModel(path, layout)) {
 		std::string warn = "Cant load model with path: " + path;
 		RTE_CORE_WARN(warn);
 	}
+
 	m->GetBoundingCoords();
 	return m;
 }
@@ -163,7 +174,7 @@ bool RTE::Model::LoadModel(const std::string& filePath, int layout)
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
+		aiProcess_Triangulate | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == NULL)
@@ -199,10 +210,10 @@ std::shared_ptr<RTE::IMesh> RTE::Model::ProcessMesh(aiMesh* mesh, int layout)
 	{
 	case (1):
 
-		return processDefaultMesh(mesh);
+		return processDefaultMesh(mesh, id);
 		break;
 	case (2):
-		return processTexturedMesh(mesh);
+		return processTexturedMesh(mesh,id);
 
 		break;
 	default:

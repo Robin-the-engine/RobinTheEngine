@@ -108,7 +108,7 @@ namespace RTE {
 
 			if (loadedResources.find(key) == loadedResources.end())
 			{
-				loadedResources[key] = Model::CreateModel(desc.path, desc.layout);
+				loadedResources[key] = Model::CreateModel(desc.key,desc.path, desc.layout);
 			}
 			return *((Model*)(loadedResources[key]));
 
@@ -117,7 +117,8 @@ namespace RTE {
 		}
 
 		int GetHashValue(std::string name);
-
+		std::unordered_map<std::string, MeshDesc>& GetMeshDescriptorMap() { return meshDescriptors; }
+		std::unordered_map<std::string, MaterialDescriptor>& GetMaterialDescriptorMap() { return materialDescriptors; }
 	private:
 		void ReadYamlKeys();
 		void ReadMaterialDescriptors();

@@ -51,7 +51,7 @@ namespace RTE {
         virtual void OnEvent(Event& event);
         virtual void OnImGuiRender();
         virtual void OnRender();
-
+        std::string GetScript() { return script; }
     protected:
         virtual bool checkScript();
         virtual void onScriptAttachStart(const std::string& script, bool isFile = true);

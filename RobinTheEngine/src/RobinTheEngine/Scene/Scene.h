@@ -1,6 +1,7 @@
 #pragma once
 #include "entt.hpp"
-#include <RobinTheEngine/RenderSystem.h>
+#include "Platform/DirectX11/Camera.h"
+
 
 namespace RTE
 {
@@ -15,15 +16,21 @@ namespace RTE
 		GameObject CreateGameObject(entt::entity id);
 		GameObject GetGameObject(entt::entity entity);
 
-		void RenderScene(RenderSystem& rs);
+		void UpdateScene();
+		//tmp cam ptr
+		RTE::Camera* cameraptr = nullptr;
+
+		//void RenderScene(RenderSystem& rs);
 
 		std::string name = "Untitled";
 		
 		//temp method. we need to create some iterator for scene
 		entt::registry* GetRegistryPtr() { return &registry; }
-
+		
 	private:
 		entt::registry registry;
+		void UpdateLight(RTE::Camera cam);
+		void UpdateCameras();
 
 		friend class GameObject;
 		friend class Serializer;

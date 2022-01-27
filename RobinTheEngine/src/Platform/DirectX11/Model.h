@@ -20,7 +20,7 @@ namespace RTE {
 		std::vector<std::shared_ptr<IMesh>> meshes;
 		DirectX::BoundingBox box;
 
-		static Model* CreateModel(const std::string& path, int layout);
+		static Model* CreateModel(std::string& id, const std::string& path, int layout);
 
 
 	private:

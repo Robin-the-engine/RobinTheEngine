@@ -5,6 +5,8 @@
 #include "RobinTheEngine/d3dUtils.h"
 #include "RobinTheEngine/ComsManager.h"
 
+#include "Platform/DirectX11/LightStructure.h"
+
 namespace RTE {
 
 	Microsoft::WRL::ComPtr<ID3D11Device> GetDevice();
@@ -117,6 +119,14 @@ namespace RTE {
 		DirectX::XMFLOAT4X4 worldMatrix;
 	};
 
+	struct CB_PS_NUM_LIGHTS
+	{
+		int numLights;
+		int foo;
+		int bar;
+		int foobar;
+	};
+
 
 	//Constant buffer types
 	struct CB_VS_MATRIX4x4
@@ -144,6 +154,66 @@ namespace RTE {
 		DirectX::XMFLOAT3 viewPosition;
 		float specularStrength;
 	};
+
+	struct CB_PS_LIGHTS
+	{
+		DirectX::XMFLOAT3 padding;
+		int numLights;
+
+		Light light;
+	};
+
+
+	struct CB_PS_MATERIAL
+	{
+
+		XMFLOAT4  AmbientColor;
+		XMFLOAT4  EmissiveColor;
+		XMFLOAT4  DiffuseColor;
+		XMFLOAT4  SpecularColor;
+		XMFLOAT4  Reflectance;
+		float   Opacity;
+		float   SpecularPower;
+		float   IndexOfRefraction;
+
+		uint32_t HasAmbientTexture;
+		uint32_t HasEmissiveTexture;
+		uint32_t HasDiffuseTexture;
+		uint32_t HasSpecularTexture;
+		uint32_t HasSpecularPowerTexture;
+		uint32_t HasNormalTexture;
+		uint32_t HasBumpTexture;
+		uint32_t HasOpacityTexture;
+
+		float   BumpIntensity;
+		float   SpecularScale;
+		float   AlphaThreshold;
+		float padding[2];
+
+		CB_PS_MATERIAL()
+			: AmbientColor(0, 0, 0, 1)
+			, EmissiveColor(0, 0, 0, 1)
+			, DiffuseColor(1, 1, 1, 1)
+			, SpecularColor(0, 0, 0, 1)
+			, Reflectance(0, 0, 0, 0)
+			, Opacity(1.0f)
+			, SpecularPower(-1.0f)
+			, IndexOfRefraction(-1.0f)
+			, HasAmbientTexture(false)
+			, HasEmissiveTexture(false)
+			, HasDiffuseTexture(false)
+			, HasSpecularTexture(false)
+			, HasSpecularPowerTexture(false)
+			, HasNormalTexture(false)
+			, HasBumpTexture(false)
+			, HasOpacityTexture(false)
+			, BumpIntensity(5.0f)
+			, SpecularScale(128.0f)
+			, AlphaThreshold(0.1f)
+		{}
+
+	};
+
 
 }
 

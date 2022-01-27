@@ -16,7 +16,7 @@ RTE::IndexBuffer::IndexBuffer(DWORD* data, int arraySize, std::string bufferName
 	name = bufferName;
 
 	if (ComsManager::Get().IsHaveComPtrResource(name+ "\\IndexBuffer")) {
-		auto res = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\IndexBuffer");
+		buffer = ComsManager::Get().GetComPtrResource<ID3D11Buffer>(name + "\\IndexBuffer");
 		return;
 
 	}

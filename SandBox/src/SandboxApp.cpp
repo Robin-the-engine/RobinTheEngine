@@ -19,7 +19,7 @@ class ExampleLayer : public RTE::Layer
 {
 public:
 
-	RTE::Camera camera;
+	RTE::Camera* camera;
 	//using JobHandle = RTE::JobHandle;
 
 	RTE::Window* window;
@@ -28,8 +28,6 @@ public:
 	float posX, posY;
 	float cameraSpeed;
 
-	
-	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
@@ -62,8 +60,13 @@ public:
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
 
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 50; j++) {
+		auto cam = scenePTR->CreateGameObject();
+		camera = &cam.AddComponent<RTE::Camera>();
+		camera->SetPosition(XMFLOAT3(5, 4, -15));
+		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
+
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
 
 				auto go = scenePTR->CreateGameObject();
 				auto& mr = go.AddComponent<RTE::MeshRenderer>();
@@ -72,7 +75,7 @@ public:
 				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 				int baseX = -10;
 				int basey = -10;
-				transform.SetPosition(baseX + (i * 2), basey + (j * 2),0);
+				transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
 			}
 
 		}
@@ -80,8 +83,6 @@ public:
 
 
 		rs->GetContext()->PSSetConstantBuffers(0, 1, lightCbuffer.GetAddressOf());
-		camera.SetPosition(XMFLOAT3(0, 0, -10));
-		camera.SetProjectionProperties(90, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 0.05, 1000);
 		window = &RTE::Application::Get().GetWindow();
 		cameraSensitivity = 5000;
 		cameraSpeed = 15000;
@@ -103,9 +104,9 @@ public:
 		angle += timer.DeltaTime() * 200 * simulationSpeed;
 
 		lightCbuffer.WriteBuffer();
-		rs->SetCamera(&camera);
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
 		//	RTE_TRACE("Tab key is pressed (poll)!");
+		camera = scenePTR->cameraptr;
 	}
 
 	virtual void OnImGuiRender() override
@@ -167,7 +168,7 @@ public:
 		}
 
 		if (attachLightToCamera) {
-			this->lightPos = camera.GetPositionFloat3();
+			this->lightPos = camera->GetPositionFloat3();
 		}
 		ImGui::DragFloat("Simulation speed", &this->simulationSpeed, 0.2f, 0, 100);
 		ImGui::DragFloat3("Clear color", &rs->GetClearColor().x, 0.001, 0, 1);
@@ -176,7 +177,7 @@ public:
 
 		//ImGui::ShowDemoWindow();
 		ImVec2 vec = ImVec2(800, 600);
-		ImGui::Image((ImTextureID) rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
+		ImGui::Image((ImTextureID)rs->GetFrameBufferPtr()->GetShaderResourceView().Get(), vec);
 
 
 		ImGui::End();
@@ -209,33 +210,33 @@ public:
 			signY = offsetY > 0 ? -1 : 1;
 
 			if (offsetX) {
-				camera.AdjustRotation(XMFLOAT3(0, cameraSensitivity * -offsetX * timer.DeltaTime(), 0));
+				camera->AdjustRotation(XMFLOAT3(0, cameraSensitivity * -offsetX * timer.DeltaTime(), 0));
 				posX = RTE::Input::GetMouseX();
 			}
 			if (offsetY) {
-				camera.AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
+				camera->AdjustRotation(XMFLOAT3(cameraSensitivity * -offsetY * timer.DeltaTime(), 0, 0));
 				posY = RTE::Input::GetMouseY();
 			}
 
 		}
 
 		if (RTE::Input::IsKeyPressed(RTE_KEY_W)) {
-			camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetForwardVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_S)) {
-			camera.AdjustPosition(camera.GetBackwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetBackwardVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_A)) {
-			camera.AdjustPosition(camera.GetLeftVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetLeftVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_D)) {
-			camera.AdjustPosition(camera.GetRightVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetRightVector() * cameraSpeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_SPACE)) {
-			camera.AdjustPosition(XMFLOAT3(0.f, cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_CONTROL)) {
-			camera.AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
 		}
 	}
 	void UpdateLight() {
@@ -248,7 +249,7 @@ public:
 		lightCbuffer.data.lightPosition = this->lightPos;
 
 		lightCbuffer.data.specularStrength = this->specularStrength;
-		lightCbuffer.data.viewPosition = this->camera.GetPositionFloat3();
+		lightCbuffer.data.viewPosition = this->camera->GetPositionFloat3();
 
 		lightCbuffer.WriteBuffer();
 	}

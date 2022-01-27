@@ -1,7 +1,31 @@
 # This is storage of materials in all engine
 # Firstly you can se default material, that engine support right out of the box
 
-litMaterial:
+# materialType - 3
+# TexturedExtentedMaterial{     
+#   ambientColor : VEC4(r,g,b,a)
+#   emissiveColor : VEC4(r,g,b,a)
+#   diffuseColor : VEC4(r,g,b,a)
+#   specularColor : VEC4(r,g,b,a)
+#   opacity : FLOAT
+#   specularPower : FLOAT
+#   indexOfRefraction : FLOAT
+#   bumpIntensity : FLOAT
+#   specularScale : FLOAT
+#   alphaThreshold : FLOAT
+#   ambientTexture : TEXTUREKEY
+#   emissiveTexture : TEXTUREKEY
+#   diffuseTexture : TEXTUREKEY
+#   specularTexture : TEXTUREKEY
+#   specularPowerTexture : TEXTUREKEY
+#   normalTexture : TEXTUREKEY
+#   bumpTexture : TEXTUREKEY
+#   opacityTexture : TEXTUREKEY
+# }
+
+
+
+coloredMaterial:
     materialType: 1
     vsshader: litColorVS
     psshader: litColorPS
@@ -17,4 +41,14 @@ texturedMaterial:
     vsshader: texturedVS
     psshader: texturedPS
     textureKey: ogreDiffuse
+
+newMaterialTesting:
+    materialType: 3
+    vsshader: extentedVS
+    psshader: extentedPS
+    ambientTexture : ogreDiffuse
+    normalTexture : ogreNormal
+    bumpTexture : ogreBump
+    opacityTexture : ogreOcclusion
+    
 
