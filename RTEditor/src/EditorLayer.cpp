@@ -330,6 +330,7 @@ namespace RTE {
 					if (!hasScriptComponent) {
 						if (ImGui::MenuItem("Add script component")) {
 							scenePTR->GetGameObject(selectedEN.ent).AddComponent<ScriptComponent>();
+
 						}
 					}
 
@@ -484,8 +485,12 @@ namespace RTE {
 				if (ImGui::CollapsingHeader("Script component")) {
 
 					auto& sc = scenePTR->GetRegistryPtr()->get<ScriptComponent>(selectedEN.ent);
-					ImGui::Text(sc.GetScript().c_str());
-
+					char path[50] = { "none" };
+					ImGui::InputText("Script path", path, 50);
+					if (ImGui::Button("Reload")) {
+						sc.attachScript(path);
+					}
+					
 				}
 			}
 			if (scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent)) {
