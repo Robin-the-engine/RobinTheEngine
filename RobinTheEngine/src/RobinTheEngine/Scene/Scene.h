@@ -15,6 +15,7 @@ namespace RTE
 		GameObject CreateGameObject();
 		GameObject CreateGameObject(entt::entity id);
 		GameObject GetGameObject(entt::entity entity);
+		void DeleteGameObject(entt::entity entity);
 
 		void UpdateScene();
 		//tmp cam ptr

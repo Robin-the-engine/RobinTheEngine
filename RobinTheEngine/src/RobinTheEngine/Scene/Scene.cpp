@@ -25,6 +25,11 @@ namespace RTE
 		return GameObject(id, this);
 	}
 
+	void Scene::DeleteGameObject(entt::entity entity)
+	{
+		registry.destroy(entity);
+	}
+
 	void Scene::UpdateScene()
 	{
 		UpdateCameras();
