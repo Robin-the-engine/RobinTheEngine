@@ -136,13 +136,13 @@ TickResult Parallel::tick(TreeState& treeState) {
 }
 
 void Parallel::abort(TreeState& treeState) {
-    auto &state = treeState.path.back();
-    while (state.currentBehaviour.get() != this) {
-        if (state.running) {
-            state.currentBehaviour->abort(treeState); // running leaves (actions), then their parents (seq, sel, par, etc)
+    auto *state = &treeState.path.back();
+    while (state->currentBehaviour.get() != this) {
+        if (state->running) {
+            state->currentBehaviour->abort(treeState); // running leaves (actions), then their parents (seq, sel, par, etc)
         }
         treeState.path.pop_back();
-        state = treeState.path.back();
+        state = &treeState.path.back();
     }
 }
 
@@ -201,10 +201,32 @@ ScriptComponent& checkAndGetScript(TreeState& treeState) {
     return treeState.owner->GetGameObject().GetComponent<ScriptComponent>();
 }
 
+TickResult luaExecExternal(ScriptComponent& script, const std::string code) {
+    auto& lua = script.getState();
+    const auto uglyName = "_LUA_EXECUTE_EXTERNAL_123_";
+    auto wrapped = std::format(
+        R"SCRIPT(
+            {} = load('return {}')()
+            if( {} == true ) then
+                {} = TickResult.SUCCESS
+            elseif ( {} == false) then
+                {} = TickResult.FAILURE
+            end
+        )SCRIPT",
+        uglyName, code, uglyName, uglyName, uglyName, uglyName);
+    lua.script(wrapped);
+    auto res = lua[uglyName];
+    return res.get<TickResult>();
+}
+
 TickResult Action::tick(TreeState& treeState) {
     auto& script = checkAndGetScript(treeState);
     auto execLine = std::format("{}({})", fname, fparams);
-    return script.execute(execLine).get<TickResult>();
+    auto result = luaExecExternal(script, execLine);
+    if (result == TickResult::RUNNING) {
+        treeState.path.back().running = true;
+    }
+    return result;
 }
 
 void Action::abort(TreeState& treeState) {
@@ -231,12 +253,13 @@ TickResult Condition::tick(TreeState& treeState) {
         if (ec == std::errc()) {
             return op;
         }
-        return std::format(R"SCRIPT(BlackBoard:get("{}"))SCRIPT", op);
+        return std::format("BlackBoard:get(\\'{}\\')", op);
     };
 
     auto execLine = std::format("{} {} {}",
         get_operand(condition[0]), condition[1], get_operand(condition[2]));
-    return script.execute(execLine).get<TickResult>();
+
+    return luaExecExternal(script, execLine);
 }
 
 void Condition::updateCondition(const std::string& condPart) {
@@ -301,7 +324,7 @@ void TreeBuilder::processNode(
     const std::string& parentName
 ) {
     auto nodeName = node.begin()->first.Scalar();
-    logger->trace(std::format("node is: {}", nodeName));
+    //logger->trace(std::format("node is: {}", nodeName));
     if (nodeName == TIMES) {
         if (parentName != REPEAT) {
             throw RTE::BehaviourException(

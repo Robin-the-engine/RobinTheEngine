@@ -21,7 +21,7 @@ namespace RTE {
 
     struct TreeState final {
         TreeState(AIComponent* ai);
-        std::vector<BehaviourState> path;
+        std::list<BehaviourState> path;
         AIComponent* owner;
     };
 
