@@ -79,7 +79,7 @@ bool ScriptComponent::attachScript(const std::string& script, bool isFile) {
         executable();
         return true;
     }
-    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}"), script, to_string(executable.status()));
+    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}", script, to_string(executable.status())));
     return false;
 }
 
@@ -92,7 +92,7 @@ bool RTE::ScriptComponent::attachScriptNoExec(const std::string& script, bool is
         onScriptAttachEnd(script, isFile);
         return true;
     }
-    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}"), script, to_string(executable.status()));
+    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}", script, to_string(executable.status())));
     return false;
 }
 
