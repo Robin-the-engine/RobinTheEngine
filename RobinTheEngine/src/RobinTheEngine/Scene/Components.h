@@ -6,3 +6,5 @@
 #include "Components/Scripting.h"
 #include "Components/Light.h"
 #include "Components/ColliderComponent.h"
+#include "Components/AI.h"
+#include "../AI/BehaviourTree.h"
