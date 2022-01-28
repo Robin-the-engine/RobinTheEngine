@@ -20,3 +20,6 @@ shaders:
     litColorVS: Content\shaders\coloredvs.hlsl
     texturedPS: Content\shaders\PS.hlsl
     texturedVS: Content\shaders\VS.hlsl
+
+behaviours:
+    example: Content\assets\behaviour\behaviour.yaml

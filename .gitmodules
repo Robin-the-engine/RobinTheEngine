@@ -32,3 +32,7 @@
 	path = RobinTheEngine/vendor/sol2
 	url = https://github.com/Robin-the-engine/sol2
 	branch = main
+[submodule "RobinTheEngine/vendor/recastnavigation"]
+	path = RobinTheEngine/vendor/recastnavigation
+	url = git@github.com:Robin-the-engine/recastnavigation.git
+	branch = master

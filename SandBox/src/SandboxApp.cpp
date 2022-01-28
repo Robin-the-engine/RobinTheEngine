@@ -18,14 +18,18 @@ char loadFileName[nameSize] = { "Untitled" };
 class ExampleLayer : public RTE::Layer
 {
 public:
-
+		
 	RTE::Camera* camera;
+	using JobHandle = RTE::JobHandle;
+	using BehaviourTree = RTE::BehaviourTree;
 
 	RTE::Window* window;
 	GameTimer timer;
 	float cameraSensitivity;
 	float posX, posY;
 	float cameraSpeed;
+		
+	//RTE::JobSystem &jobSystem = RTE::JobSystem::GetJobSystem();
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
@@ -36,9 +40,16 @@ public:
 	{
 		scenePTR = &RTE::Application::Get().scene;
 	}
+	
+	RTE::GameObject testgo;
 
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
+
+		testgo = scenePTR->CreateGameObject();
+		testgo.AddComponent<RTE::BehaviourTree>("example");
+		auto& ai = testgo.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
+		ai.init();
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
@@ -69,6 +80,8 @@ public:
 	float angle = 0;
 	void OnUpdate() override
 	{
+		testgo.GetComponent<BehaviourTree>().tick();
+		//testgo.GetComponent<RTE::ScriptComponent>().OnUpdate();
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());

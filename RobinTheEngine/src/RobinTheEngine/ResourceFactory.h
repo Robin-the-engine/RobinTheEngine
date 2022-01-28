@@ -7,6 +7,7 @@
 #include "Platform/DirectX11/Shaders.h"
 #include "Platform/DirectX11/Texture.h"
 #include "MeshDescription.h"
+#include "AI/BehaviourTree.h"
 
 namespace RTE {
 
@@ -24,12 +25,11 @@ namespace RTE {
 		template<class T>
 		T& GetResource(std::string key) {
 			//We dont use that method. Its FALSE alwayse 	
-			throw new std::exception("We dont use that method. Its FALSE alwayse");
+			throw new std::exception("We dont use that method. Its FALSE always");
 			//STATIC_ASSERT(false);
 			//return T();
 		}
-
-		template<>
+        template<>
 		Material& GetResource<Material>(std::string key) {
 
 			RTE_CORE_ASSERT(materialDescriptors.find(key) != materialDescriptors.end(), "Dont have that key in material file!");
@@ -117,8 +117,20 @@ namespace RTE {
 		}
 
 		int GetHashValue(std::string name);
+
 		std::unordered_map<std::string, MeshDesc>& GetMeshDescriptorMap() { return meshDescriptors; }
 		std::unordered_map<std::string, MaterialDescriptor>& GetMaterialDescriptorMap() { return materialDescriptors; }
+
+	    template<>
+		BehaviourTreeImpl& GetResource<BehaviourTreeImpl>(std::string key) {
+			auto behav_tree_path = yamlKeys.find(key);
+			RTE_CORE_ASSERT(behav_tree_path != yamlKeys.end(), "Dont have that key in resource file!");
+			if (loadedResources.find(key) == loadedResources.end()) {
+				loadedResources[key] = new BehaviourTreeImpl(behav_tree_path->second);
+			}
+			return dynamic_cast<BehaviourTreeImpl&>(*loadedResources[key]);
+	    }
+
 	private:
 		void ReadYamlKeys();
 		void ReadMaterialDescriptors();

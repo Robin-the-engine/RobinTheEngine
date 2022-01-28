@@ -33,7 +33,8 @@ namespace RTE
 		void UpdateLight(RTE::Camera cam);
 		void UpdateCameras();
 		void UpdateColliders();
-
+		void UpdateAI();
+		void UpdateScript();
 		friend class GameObject;
 		friend class Serializer;
 	};

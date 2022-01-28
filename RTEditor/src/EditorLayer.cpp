@@ -308,6 +308,8 @@ namespace RTE {
 			bool hasScriptComponent = scenePTR->GetRegistryPtr()->any_of<RTE::ScriptComponent>(selectedEN.ent);
 			bool hasCamera = scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent);
 			bool hasCollider = scenePTR->GetRegistryPtr()->any_of<RTE::Collider>(selectedEN.ent);
+			bool hasAI = scenePTR->GetRegistryPtr()->any_of<RTE::AIComponent>(selectedEN.ent);
+			bool hasBehaviourTree = scenePTR->GetRegistryPtr()->any_of<RTE::BehaviourTree>(selectedEN.ent);
 
 			if (ImGui::BeginMenuBar())
 			{
@@ -345,6 +347,17 @@ namespace RTE {
 						}
 					}
 
+					if (!hasAI) {
+						if (ImGui::MenuItem("Add AIComponent component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<AIComponent>();
+						}
+					}
+
+					if (!hasBehaviourTree) {
+						if (ImGui::MenuItem("Add BehaviourTree component")) {
+							scenePTR->GetGameObject(selectedEN.ent).AddComponent<BehaviourTree>();
+						}
+					}
 
 					ImGui::EndMenu();
 				}
@@ -381,13 +394,26 @@ namespace RTE {
 						}
 					}
 
+					if (hasAI) {
+						if (ImGui::MenuItem("Delete AI component")) {
+							scenePTR->GetRegistryPtr()->remove<AIComponent>(selectedEN.ent);
+						}
+					}
+
+					if (hasBehaviourTree) {
+						if (ImGui::MenuItem("Delete BehaviourTree component")) {
+							scenePTR->GetRegistryPtr()->remove<BehaviourTree>(selectedEN.ent);
+						}
+					}
+
 					ImGui::EndMenu();
 				}
 
 				ImGui::EndMenuBar();
 			}
 
-
+			constexpr size_t maxPathLen = 500;
+			static char path[maxPathLen];
 
 			if (scenePTR->GetRegistryPtr()->any_of<RTE::Transform>(selectedEN.ent)) {
 				if (ImGui::CollapsingHeader("Transform")) {
@@ -445,9 +471,6 @@ namespace RTE {
 						{
 							ar.SetMaterial(ResourceFactory::Get().GetResource<RTE::Material>(materialsIDs[selectedMaterial]));
 						}
-
-
-
 				}
 			}
 			if (scenePTR->GetRegistryPtr()->any_of<RTE::MeshRenderer>(selectedEN.ent)) {
@@ -485,12 +508,11 @@ namespace RTE {
 				if (ImGui::CollapsingHeader("Script component")) {
 
 					auto& sc = scenePTR->GetRegistryPtr()->get<ScriptComponent>(selectedEN.ent);
-					char path[50] = { "none" };
-					ImGui::InputText("Script path", path, 50);
+					ImGui::InputText("Script path", path, maxPathLen);
 					if (ImGui::Button("Reload")) {
 						sc.attachScript(path);
+						path[0] = '\0';
 					}
-					
 				}
 			}
 			if (scenePTR->GetRegistryPtr()->any_of<RTE::Camera>(selectedEN.ent)) {
@@ -520,8 +542,28 @@ namespace RTE {
 				}
 			}
 
+			if (scenePTR->GetRegistryPtr()->any_of<AIComponent>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("AI component")) {
+				    ImGui::InputText("Script path", path, maxPathLen);
+					if (ImGui::Button("set ai")) {
+					    auto &ai = scenePTR->GetRegistryPtr()->get<AIComponent>(selectedEN.ent);
+						ai.onConstructInit(path);
+						ai.init();
+						path[0] = '\0';
+					}
+				}
+			}
 
-
+			if (scenePTR->GetRegistryPtr()->any_of<BehaviourTree>(selectedEN.ent)) {
+				if (ImGui::CollapsingHeader("BehaviourTree component")) {
+					ImGui::InputText("Tree ID (in resource file)", path, maxPathLen);
+					if (ImGui::Button("set behaviour")) {
+						auto& bt = scenePTR->GetRegistryPtr()->get<BehaviourTree>(selectedEN.ent);
+						bt.setResourceId(path);
+						path[0] = '\0';
+					}
+				}
+			}
 		}
 		ImGui::End();
 

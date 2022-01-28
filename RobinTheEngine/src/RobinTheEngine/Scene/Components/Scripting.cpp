@@ -1,7 +1,7 @@
 #include "rtepch.h"
 #include "Scripting.h"
 #include "../ScriptingAPI/ScriptingAPI.h"
-
+#include <format>
 using namespace RTE;
 
 ScriptComponent::ScriptComponent():
@@ -24,6 +24,16 @@ void ScriptComponent::onScriptAttachEnd(const std::string& script, bool isFile) 
     this->isFile = isFile;
     this->script = script;
     scriptAttached = true;
+}
+
+sol::protected_function_result ScriptComponent::execute(const std::string& code) {
+    auto res = lua.script(code);
+    if(!res.valid()) {
+        logger->error(
+            std::format("Error in script:\n{}\nStatus: {}", code, to_string(res.status()))
+        );
+    }
+    return res;
 }
 
 void ScriptComponent::OnAttach() {
@@ -50,8 +60,6 @@ void ScriptComponent::OnRender() {
     callf("OnRender");
 }
 
-
-
 void ScriptComponent::onScriptAttachStart(const std::string& script, bool isFile) {
     if (isFile) {
         executable = lua.load_file(script);
@@ -71,6 +79,7 @@ bool ScriptComponent::attachScript(const std::string& script, bool isFile) {
         executable();
         return true;
     }
+    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}", script, to_string(executable.status())));
     return false;
 }
 
@@ -83,6 +92,7 @@ bool RTE::ScriptComponent::attachScriptNoExec(const std::string& script, bool is
         onScriptAttachEnd(script, isFile);
         return true;
     }
+    logger->error(std::format("script: {} is not attached. ERR_STATUS: {}", script, to_string(executable.status())));
     return false;
 }
 

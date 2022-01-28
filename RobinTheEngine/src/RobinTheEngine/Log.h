@@ -9,8 +9,8 @@ namespace RTE
 {
 	class RTE_API Log
 	{
-	public:
 		using loggerT = spdlog::logger;
+	public:
 		using SPloggerT = std::shared_ptr<loggerT>;
 		static void Init();
 		static std::shared_ptr<spdlog::logger> GetLogger(std::string name);

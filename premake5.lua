@@ -11,7 +11,7 @@
 
 
    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
- 
+
    -- Include directories relative to root folder (solution directory)
    IncludeDir = {}
    IncludeDir["GLFW"] = "RobinTheEngine/vendor/GLFW/include"
@@ -34,6 +34,161 @@
    include "RobinTheEngine/vendor/yaml-cpp"
    group ""
 
+   SDL_DIR = "vendor/SDL"
+   RECAST_NAV = "RobinTheEngine/vendor/recastnavigation"
+   game_includes = {
+	   RECAST_NAV .. "/Detour/Include",
+       RECAST_NAV .. "/DetourCrowd/Include",
+       RECAST_NAV .. "/Recast/Include",
+	   RECAST_NAV .. "/DetourTileCache/Include",
+       SDL_DIR .. "/include", 
+   }
+
+   game_files = {
+       RECAST_NAV .. "/Detour/Include/*.h", 
+       RECAST_NAV .. "/Detour/Source/*.cpp",
+	   RECAST_NAV .. "/DetourCrowd/Include/*.h",
+       RECAST_NAV .. "/DetourCrowd/Source/*.cpp",
+	   RECAST_NAV .. "/DetourTileCache/Include/*.h",
+       RECAST_NAV .. "/DetourTileCache/Source/*.cpp",
+   }
+
+   engine_includes = {
+        RECAST_NAV .. "/DebugUtils/Include",
+        RECAST_NAV .. "/DetourTileCache/Include",
+        RECAST_NAV .. "/Recast/Include",
+	    table.unpack(game_includes),
+   }
+
+   engine_files = {
+        RECAST_NAV .. "/DebugUtils/Include/*.h",
+        RECAST_NAV .. "/DebugUtils/Source/*.cpp",
+        RECAST_NAV .. "/Recast/Include/*.h",
+        RECAST_NAV .. "/Recast/Source/*.cpp",
+        table.unpack(game_files),
+   }
+
+    group "Dependencies"
+
+    project "DebugUtils"
+	    language "C++"
+	    kind "StaticLib"
+        location "RecastDeps"
+	    includedirs { 
+		    RECAST_NAV .. "/DebugUtils/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DebugUtils/Include/*.h",
+		    RECAST_NAV .. "/DebugUtils/Source/*.cpp"
+	    }
+
+    project "Detour"
+	    language "C++"
+	    kind "StaticLib"
+        location "RecastDeps"
+	    includedirs { 
+		    RECAST_NAV .. "/Detour/Include" 
+	    }
+	    files { 
+		    RECAST_NAV .. "/Detour/Include/*.h", 
+		    RECAST_NAV .. "/Detour/Source/*.cpp" 
+	    }
+
+    project "DetourCrowd"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs {
+		    RECAST_NAV .. "/DetourCrowd/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DetourCrowd/Include/*.h",
+		    RECAST_NAV .. "/DetourCrowd/Source/*.cpp"
+	    }
+
+    project "DetourTileCache"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs {
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/Recast/Include"
+	    }
+	    files {
+		    RECAST_NAV .. "/DetourTileCache/Include/*.h",
+		    RECAST_NAV .. "/DetourTileCache/Source/*.cpp"
+	    }
+
+    project "Recast"
+	    language "C++"
+	    kind "StaticLib"
+	    location "RecastDeps"
+        includedirs { 
+		    RECAST_NAV .. "/Recast/Include" 
+	    }
+	    files { 
+		    RECAST_NAV .. "/Recast/Include/*.h",
+		    RECAST_NAV .. "/Recast/Source/*.cpp" 
+	    }
+
+    group ""
+
+    project "NavBuilder"
+	    language "C++"
+	    kind "WindowedApp"
+        location "NavBuilder"
+        cppdialect "C++20"
+	    includedirs {
+		    RECAST_NAV .. "/RecastDemo/Include",
+		    RECAST_NAV .. "/RecastDemo/Contrib",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz",
+		    RECAST_NAV .. "/DebugUtils/Include",
+		    RECAST_NAV .. "/Detour/Include",
+		    RECAST_NAV .. "/DetourCrowd/Include",
+		    RECAST_NAV .. "/DetourTileCache/Include",
+		    RECAST_NAV .. "/Recast/Include",
+            SDL_DIR .. "/include",
+	    }
+	    files	{ 
+		    RECAST_NAV .. "/RecastDemo/Include/*.h",
+		    RECAST_NAV .. "/RecastDemo/Source/*.cpp",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.h",
+		    RECAST_NAV .. "/RecastDemo/Contrib/fastlz/*.c"
+	    }
+        debugdir ("bin/" .. outputdir .. "/%{prj.name}")
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	    -- project dependencies
+	    links { 
+		    "DebugUtils",
+		    "Detour",
+		    "DetourCrowd",
+		    "DetourTileCache",
+		    "Recast"
+	    }
+
+	    -- windows library cflags and libs
+	    configuration { "windows" }
+		    includedirs { RECAST_NAV .. "/RecastDemo/Contrib/SDL/include" }
+		    libdirs { SDL_DIR .. "/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		    links { 
+			    "glu32",
+			    "opengl32",
+			    "SDL2",
+			    "SDL2main",
+		    }
+            defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
+		    postbuildcommands {
+			    -- Copy the SDL2 dll to the Bin folder.
+			    '{COPY} "%{path.getabsolute(SDL_DIR .. "/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"',
+			    '{COPY} "%{path.getabsolute(RECAST_NAV .. "/RecastDemo/bin/")}" "%{cfg.targetdir}"',
+		    }
 
    project "RobinTheEngine"
       location "RobinTheEngine"
@@ -105,7 +260,8 @@
          {
             "RTE_PLATFORM_WINDOWS",
             "RTE_BUILD_DLL",
-			"GLFW_INCLUDE_NONE"
+			"GLFW_INCLUDE_NONE",
+            "WIN32",
          }
 
 
@@ -123,7 +279,6 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
-
 
    project "Sandbox"
       location "Sandbox"
@@ -141,7 +296,8 @@
       files
       {
          "%{prj.name}/src/**.h",
-         "%{prj.name}/src/**.cpp"
+         "%{prj.name}/src/**.cpp",
+         table.unpack(game_files),
       }
 
       includedirs
@@ -154,7 +310,7 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-
+         table.unpack(game_includes),
       }
 
       links
@@ -187,10 +343,6 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
-
-
-
-
 
    project "RTEditor"
       location "RTEditor"
@@ -208,7 +360,8 @@
       files
       {
          "%{prj.name}/src/**.h",
-         "%{prj.name}/src/**.cpp"
+         "%{prj.name}/src/**.cpp",
+         table.unpack(engine_files),
       }
 
       includedirs
@@ -221,7 +374,7 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-
+         table.unpack(engine_includes),
       }
 
       links
@@ -254,3 +407,4 @@
          defines "RTE_DIST"
          optimize "on"
 		 runtime "Release"
+

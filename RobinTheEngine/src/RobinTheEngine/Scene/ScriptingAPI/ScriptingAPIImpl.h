@@ -14,6 +14,7 @@
 #include "Platform/DirectX11/Camera.h"
 #include "../../Log.h"
 #include "../../ResourceFactory.h"
+#include "../../AI/TickResult.h"
 
 namespace RTE {
 
@@ -347,7 +348,42 @@ namespace RTE {
     /// ---------- Resources related stuff finished
     ///
 
-}
 
-// TODO: (or not TODO ??)
-// Move all api to a namespace (lua table)
+    ///
+    /// ---------- AI related stuff
+    ///
+
+    template<>
+    void registerUserType<TickResult>(sol::state& lua) {
+        lua.new_enum("TickResult",
+            "FAILURE", TickResult::FAILURE,
+            "SUCCESS", TickResult::SUCCESS,
+            "RUNNING", TickResult::RUNNING
+        );
+    }
+
+    // fully implemented inside lua tables,
+    // only need for registering these tables;
+    struct UGLY_BLACK_BOARD_STUB___{};
+    template<>
+    void registerUserType<UGLY_BLACK_BOARD_STUB___>(sol::state& lua) {
+        lua.script(R"SCRIPT(
+
+        BlackBoard = {storage = {}}
+
+        function BlackBoard:get(key)
+            return self.storage[key]
+        end
+
+        function BlackBoard:set(key, value)
+            self.storage[key] = value
+        end
+
+        )SCRIPT");
+    }
+    ///
+    /// ---------- AI related stuff finished
+    ///
+
+
+}
