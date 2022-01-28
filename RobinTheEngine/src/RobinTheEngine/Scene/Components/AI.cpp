@@ -3,7 +3,14 @@
 #include "../../Scene/GameObject.h"
 using namespace RTE;
 
-AIComponent::AIComponent(std::string&& scriptPath) : ts(this), scriptPath(scriptPath) {}
+AIComponent::AIComponent(std::string&& scriptPath) {
+    onConstructInit(std::move(scriptPath));
+}
+
+void AIComponent::onConstructInit(std::string&& scriptPath) {
+    this->scriptPath = scriptPath;
+    ts.owner = this;
+}
 
 TreeState& AIComponent::getTreeState() {
     return ts;

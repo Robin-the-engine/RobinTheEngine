@@ -62,7 +62,12 @@ namespace {
 
 using namespace RTE;
 
-TreeState::TreeState(AIComponent* ai) : owner(ai) {}
+TreeState::TreeState(AIComponent* ai) {
+    setOwner(ai);
+}
+void TreeState::setOwner(AIComponent* ai) {
+    owner = ai;
+}
 
 void Behaviour::addChild(std::shared_ptr<Behaviour>) {}
 void Behaviour::abort(TreeState& treeState) {}
@@ -276,11 +281,19 @@ void SeqBehaviour::addChild(std::shared_ptr<Behaviour> behaviour) {
     childs.push_back(behaviour);
 }
 
-BehaviourTree::BehaviourTree(const std::string& path) {
-    bti = ResourceFactory::Get().GetResource<BehaviourTreeImpl>(path);
+void BehaviourTree::setResourceId(const std::string& ResourceId) {
+    bti = ResourceFactory::Get().GetResource<BehaviourTreeImpl>(ResourceId);
+    inited = true;
+}
+
+BehaviourTree::BehaviourTree(const std::string& ResourceId) {
+    setResourceId(ResourceId);
 }
 
 TickResult BehaviourTree::tick() {
+    if (!inited) {
+        return TickResult::FAILURE;
+    }
     assert(GetGameObject().HasComponent<AIComponent>());
     auto& state = GetGameObject().GetComponent<AIComponent>().getTreeState();
     if (state.path.empty()) {

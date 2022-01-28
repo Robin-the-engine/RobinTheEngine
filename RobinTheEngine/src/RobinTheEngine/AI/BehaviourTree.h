@@ -20,9 +20,11 @@ namespace RTE {
     class AIComponent;
 
     struct TreeState final {
+        TreeState() = default;
         TreeState(AIComponent* ai);
+        void setOwner(AIComponent* ai);
         std::list<BehaviourState> path;
-        AIComponent* owner;
+        AIComponent* owner = nullptr;
     };
 
     class Behaviour {
@@ -47,9 +49,12 @@ namespace RTE {
 
     class BehaviourTree final : public Component {
     public:
-        BehaviourTree(const std::string& path);
+        BehaviourTree() = default;
+        void setResourceId(const std::string& ResourceId);
+        BehaviourTree(const std::string& ResourceId);
         TickResult tick();
     private:
+        bool inited = false;
         BehaviourTreeImpl bti;
     };
 

@@ -8,7 +8,9 @@ namespace RTE {
 
     class AIComponent: public Component {
     public:
+        AIComponent() = default;
         AIComponent(std::string&& scriptPath);
+        void onConstructInit(std::string&& scriptPath);
         TreeState& getTreeState();
         void init();
     private:
