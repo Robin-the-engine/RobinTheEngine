@@ -29,8 +29,7 @@ namespace RTE {
 			//STATIC_ASSERT(false);
 			//return T();
 		}
-
-		template<>
+        template<>
 		Material& GetResource<Material>(std::string key) {
 
 			RTE_CORE_ASSERT(materialDescriptors.find(key) != materialDescriptors.end(), "Dont have that key in material file!");
@@ -123,13 +122,13 @@ namespace RTE {
 		std::unordered_map<std::string, MaterialDescriptor>& GetMaterialDescriptorMap() { return materialDescriptors; }
 
 	    template<>
-		BehaviourTree& GetResource<BehaviourTree>(std::string key) {
+		BehaviourTreeImpl& GetResource<BehaviourTreeImpl>(std::string key) {
 			auto behav_tree_path = yamlKeys.find(key);
 			RTE_CORE_ASSERT(behav_tree_path != yamlKeys.end(), "Dont have that key in resource file!");
 			if (loadedResources.find(key) == loadedResources.end()) {
-				loadedResources[key] = new BehaviourTree(behav_tree_path->second);
+				loadedResources[key] = new BehaviourTreeImpl(behav_tree_path->second);
 			}
-			return dynamic_cast<BehaviourTree&>(*loadedResources[key]);
+			return dynamic_cast<BehaviourTreeImpl&>(*loadedResources[key]);
 	    }
 
 	private:
