@@ -4,6 +4,7 @@
 #include <sol/sol.hpp>
 #include "../Component.h"
 #include "../../Events/Event.h"
+#include "../../Log.h"
 
 namespace RTE {
 
@@ -41,8 +42,15 @@ namespace RTE {
             if (!checkScript()) {
                 return;
             }
-            lua[func](std::forward<Params>(args)...);
+            if (auto res = lua[func](std::forward<Params>(args)...); !res.valid()) {
+                logger->error(
+                    std::format("Error in function:\n{}\nStatus: {}\n", func, to_string(res.status()))
+                );
+            }
         }
+
+        // API for AI
+        sol::protected_function_result execute(const std::string& code);
 
         // API for RTE::Layer
         virtual void OnAttach();
@@ -63,6 +71,7 @@ namespace RTE {
         sol::load_result executable;
         bool isFile = true;
         bool scriptAttached = false;
+        Log::SPloggerT logger = Log::GetLogger("ScriptComponent");
     };
 
 }
