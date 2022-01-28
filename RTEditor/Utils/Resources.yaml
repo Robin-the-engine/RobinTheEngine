@@ -23,4 +23,5 @@ shaders:
     extentedVS: Content\shaders\extentedvs.hlsl
     extentedPS: Content\shaders\extentedps.hlsl
 
-
+behaviours:
+    example: Content\assets\behaviour\behaviour.yaml

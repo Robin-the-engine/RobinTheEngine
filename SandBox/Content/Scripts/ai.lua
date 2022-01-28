@@ -15,8 +15,8 @@ function bark(times)
 end
 
 function OnUpdate()
-    t = bark(3)
-    Log.info("res: " .. t)
+--    t = bark(3)
+--    Log.info("res: " .. t)
 end
 
 function abort()
