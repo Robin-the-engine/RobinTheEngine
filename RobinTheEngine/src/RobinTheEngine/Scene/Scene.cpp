@@ -35,7 +35,8 @@ namespace RTE
 		UpdateCameras();
 		UpdateColliders();
 		UpdateLight(*cameraptr);
-		
+		UpdateScript();
+		UpdateAI();
 	}
 
 	void Scene::UpdateLight(RTE::Camera cam)
@@ -114,7 +115,23 @@ namespace RTE
 
 	}
 
-	/*void Scene::RenderScene(RenderSystem& rs)
+    void Scene::UpdateAI() {
+		auto aiUsers = registry.view<BehaviourTree>();
+
+		for (auto user : aiUsers) {
+			aiUsers.get<BehaviourTree>(user).tick();
+		}
+	}
+
+    void Scene::UpdateScript() {
+		auto scriptUsers = registry.view<ScriptComponent>();
+
+		for (auto user : scriptUsers) {
+			scriptUsers.get<ScriptComponent>(user).OnUpdate();
+		}
+	}
+
+    /*void Scene::RenderScene(RenderSystem& rs)
 	{
 		auto MeshesToRender = registry.view<RTE::Transform, RTE::MeshRenderer>();
 		for (auto go : MeshesToRender)
