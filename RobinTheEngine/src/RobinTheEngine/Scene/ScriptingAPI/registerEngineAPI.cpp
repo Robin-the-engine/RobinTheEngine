@@ -31,4 +31,7 @@ void RTE::registerEngineAPI(sol::state& lua) {
     registerUserType<MeshDesc>(lua);
     registerUserType<ResourceFactory>(lua);
 
+    registerUserType<TickResult>(lua);
+    registerUserType<UGLY_BLACK_BOARD_STUB___>(lua);
+
 }
