@@ -1,10 +1,15 @@
 #include "rtepch.h"
-#include "../Log.h"
-#include "BehaviourTree.h"
-#include "../Exceptions/BehaviourException.h"
-#include "yaml-cpp/yaml.h"
+
 #include <unordered_map>
 #include <format>
+#include <charconv>
+#include "../Log.h"
+#include "../Exceptions/BehaviourException.h"
+#include "../ResourceFactory.h"
+#include "yaml-cpp/yaml.h"
+#include "RobinTheEngine/Scene/Components/AI.h"
+#include "RobinTheEngine/Scene/GameObject.h"
+#include "BehaviourTree.h"
 
 namespace {
     auto logger = RTE::Log::GetLogger("behaviours");
@@ -19,6 +24,9 @@ namespace {
     const std::string CONDITION = "condition";
     const std::string ACTION = "action";
     const std::string INVERT = "invert";
+
+    using RTE::Parallel;
+    using RTE::Behaviour;
 
     const std::unordered_map<std::string, Parallel::Policy> policymap = {
         {"REQUIRE_ALL", Parallel::REQUIRE_ALL},
@@ -52,58 +60,62 @@ namespace {
     };
 }
 
-void Behaviour::addChild(std::shared_ptr<Behaviour>) {}
-void Behaviour::abort(TreeState& treePath) {}
+using namespace RTE;
 
-TickResult Sequence::tick(TreeState& treePath) {
+TreeState::TreeState(AIComponent* ai) : owner(ai) {}
+
+void Behaviour::addChild(std::shared_ptr<Behaviour>) {}
+void Behaviour::abort(TreeState& treeState) {}
+
+TickResult Sequence::tick(TreeState& treeState) {
     TickResult tickResult = TickResult::SUCCESS;
-    auto& pathInfo = treePath.path.back();
+    auto& pathInfo = treeState.path.back();
     while (tickResult == TickResult::SUCCESS && pathInfo.currentChild < childs.size()) {
         auto child = childs[pathInfo.currentChild];
         BehaviourState newState;
         newState.currentBehaviour = child;
-        treePath.path.push_back(newState);
-        tickResult = child->tick(treePath);
+        treeState.path.push_back(newState);
+        tickResult = child->tick(treeState);
         if (tickResult == TickResult::RUNNING) {
             pathInfo.running = true;
             break;
         }
-        treePath.path.pop_back();
+        treeState.path.pop_back();
         pathInfo.currentChild++;
         pathInfo.running = false;
     }
     return tickResult;
 }
 
-TickResult Selector::tick(TreeState& treePath) {
+TickResult Selector::tick(TreeState& treeState) {
     TickResult tickResult = TickResult::SUCCESS;
-    auto& pathInfo = treePath.path.back();
+    auto& pathInfo = treeState.path.back();
     while (tickResult == TickResult::FAILURE && pathInfo.currentChild < childs.size()) {
         auto child = childs[pathInfo.currentChild];
         BehaviourState newState;
         newState.currentBehaviour = child;
-        treePath.path.push_back(newState);
-        tickResult = child->tick(treePath);
+        treeState.path.push_back(newState);
+        tickResult = child->tick(treeState);
         if (tickResult == TickResult::RUNNING) {
             break;
         }
-        treePath.path.pop_back();
+        treeState.path.pop_back();
         pathInfo.currentChild++;
     }
     return tickResult;
 }
 
-TickResult Parallel::tick(TreeState& treePath) {
+TickResult Parallel::tick(TreeState& treeState) {
     TickResult tickResult = TickResult::SUCCESS;
-    auto& pathInfo = treePath.path.back();
+    auto& pathInfo = treeState.path.back();
     while (pathInfo.currentChild < childs.size()) {
         auto child = childs[pathInfo.currentChild];
         BehaviourState newState;
         newState.currentBehaviour = child;
-        treePath.path.push_back(newState);
-        tickResult = child->tick(treePath);
+        treeState.path.push_back(newState);
+        tickResult = child->tick(treeState);
         if (tickResult != TickResult::RUNNING) {
-            treePath.path.pop_back();
+            treeState.path.pop_back();
         }
         if (policy == SUCCESS_ANY && tickResult == TickResult::SUCCESS ||
             policy == FAILURE_ANY && tickResult == TickResult::FAILURE ||
@@ -114,23 +126,23 @@ TickResult Parallel::tick(TreeState& treePath) {
         if (policy == SUCCESS_ALL && tickResult == TickResult::FAILURE ||
             policy == FAILURE_ALL && tickResult == TickResult::SUCCESS) {
             // *_ALL condition is not achieved, restart subtree
-            abort(treePath);
+            abort(treeState);
             pathInfo.currentChild = 0;
             tickResult = TickResult::SUCCESS;
         }
     }
-    abort(treePath);
+    abort(treeState);
     return tickResult;
 }
 
-void Parallel::abort(TreeState& treePath) {
-    auto &state = treePath.path.back();
+void Parallel::abort(TreeState& treeState) {
+    auto &state = treeState.path.back();
     while (state.currentBehaviour.get() != this) {
         if (state.running) {
-            state.currentBehaviour->abort(treePath); // running leaves (actions), then their parents (seq, sel, par, etc)
+            state.currentBehaviour->abort(treeState); // running leaves (actions), then their parents (seq, sel, par, etc)
         }
-        treePath.path.pop_back();
-        state = treePath.path.back();
+        treeState.path.pop_back();
+        state = treeState.path.back();
     }
 }
 
@@ -142,8 +154,8 @@ void Decorator::addChild(std::shared_ptr<Behaviour> behaviour) {
     child = behaviour;
 }
 
-TickResult Repeat::tick(TreeState& treePath) {
-    auto& pathInfo = treePath.path.back();
+TickResult Repeat::tick(TreeState& treeState) {
+    auto& pathInfo = treeState.path.back();
     // here we have only one child, so
     // we can reuse pathInfo.currentChild as our cycle counter.
     // And also we use pathInfo.running as abort signal here,
@@ -152,10 +164,10 @@ TickResult Repeat::tick(TreeState& treePath) {
         pathInfo.running = true;
         BehaviourState newState;
         newState.currentBehaviour = child;
-        treePath.path.push_back(newState);
-        TickResult tickResult = child->tick(treePath);
+        treeState.path.push_back(newState);
+        TickResult tickResult = child->tick(treeState);
         if (tickResult != TickResult::RUNNING) {
-            treePath.path.pop_back();
+            treeState.path.pop_back();
             pathInfo.currentChild++;
         }
         return TickResult::RUNNING;
@@ -168,31 +180,63 @@ void Repeat::setTimes(size_t times) {
     repeatCondition = [times = times](size_t repeats) {return repeats < times; };
 }
 
-TickResult Invert::tick(TreeState& treePath) {
+TickResult Invert::tick(TreeState& treeState) {
     BehaviourState newState;
     newState.currentBehaviour = child;
-    treePath.path.push_back(newState);
-    TickResult tickResult = child->tick(treePath);
+    treeState.path.push_back(newState);
+    TickResult tickResult = child->tick(treeState);
     if (tickResult == TickResult::RUNNING) {
         return tickResult;
     }
-    treePath.path.pop_back();
+    treeState.path.pop_back();
     if (tickResult == TickResult::SUCCESS) {
         return TickResult::FAILURE;
     }
     return TickResult::SUCCESS;
 }
 
-TickResult Action::tick(TreeState& treePath) {
-    return {};
+ScriptComponent& checkAndGetScript(TreeState& treeState) {
+    assert(treeState.owner->GetGameObject().HasComponent<ScriptComponent>(),
+        "AI do not have script to execute");
+    return treeState.owner->GetGameObject().GetComponent<ScriptComponent>();
 }
 
-void Action::abort(TreeState& tree_path) {
-    Behaviour::abort(tree_path);
+TickResult Action::tick(TreeState& treeState) {
+    auto& script = checkAndGetScript(treeState);
+    auto execLine = std::format("{}({})", fname, fparams);
+    return script.execute(execLine).get<TickResult>();
 }
 
-TickResult Condition::tick(TreeState& treePath) {
-    return {};
+void Action::abort(TreeState& treeState) {
+    Behaviour::abort(treeState);
+    auto& script = checkAndGetScript(treeState);
+    script.callf("abort");
+}
+
+void Action::setAction(const std::string& description) {
+    auto firstSpace = description.find(' ');
+    fname = description.substr(0, firstSpace);
+
+    if (firstSpace != std::string::npos) {
+        fparams = description.substr(firstSpace + 1);
+    }
+}
+
+TickResult Condition::tick(TreeState& treeState) {
+    auto& script = checkAndGetScript(treeState);
+
+    auto get_operand = [](const std::string& op) {
+        double res;
+        auto [ptr, ec] { std::from_chars(op.data(), op.data() + op.size(), res) };
+        if (ec == std::errc()) {
+            return op;
+        }
+        return std::format(R"SCRIPT(BlackBoard:get("{}"))SCRIPT", op);
+    };
+
+    auto execLine = std::format("{} {} {}",
+        get_operand(condition[0]), condition[1], get_operand(condition[2]));
+    return script.execute(execLine).get<TickResult>();
 }
 
 void Condition::updateCondition(const std::string& condPart) {
@@ -209,13 +253,15 @@ void SeqBehaviour::addChild(std::shared_ptr<Behaviour> behaviour) {
     childs.push_back(behaviour);
 }
 
-BehaviourTree::BehaviourTree(const std::string& path): BaseResource("BehaviourTree") {
-    buildTree(path);
+BehaviourTree::BehaviourTree(const std::string& path) {
+    bti = ResourceFactory::Get().GetResource<BehaviourTreeImpl>(path);
 }
 
-TickResult BehaviourTree::tick(TreeState& state) {
+TickResult BehaviourTree::tick() {
+    assert(GetGameObject().HasComponent<AIComponent>());
+    auto& state = GetGameObject().GetComponent<AIComponent>().getTreeState();
     if (state.path.empty()) {
-        state.path.emplace_back(head, 0, false);
+        state.path.emplace_back(bti.getHead(), 0, false);
     }
     auto tickResult = state.path.back().currentBehaviour->tick(state);
     if (tickResult != TickResult::RUNNING) {
@@ -224,7 +270,15 @@ TickResult BehaviourTree::tick(TreeState& state) {
     return tickResult;
 }
 
-void BehaviourTree::buildTree(const std::string& path) {
+BehaviourTreeImpl::BehaviourTreeImpl(const std::string& path) : BaseResource("BehaviourTree") {
+    buildTree(path);
+}
+
+std::shared_ptr<Behaviour> BehaviourTreeImpl::getHead() {
+    return head;
+}
+
+void BehaviourTreeImpl::buildTree(const std::string& path) {
     TreeBuilder tb;
     YAML::Node node = YAML::LoadFile(path);
     tb.build(node, head);
@@ -271,6 +325,10 @@ void TreeBuilder::processNode(
         dynamic_cast<Condition*>(parent.get())->updateCondition(node.Scalar());
         return;
     }
+    if (parentName == ACTION) {
+        dynamic_cast<Action*>(parent.get())->setAction(node.Scalar());
+        return;
+    }
     auto current = generateNode(nodeName);
     build(node.begin()->second, current, nodeName);
     parent->addChild(current);
@@ -281,7 +339,7 @@ void TreeBuilder::build(
     std::shared_ptr<Behaviour>& parent,
     const std::string& parentName
 ) {
-    if (currentNode.IsMap()) {
+    if (currentNode.IsMap() || currentNode.IsScalar()) {
         processNode(currentNode, parent, parentName);
     }
     if (currentNode.IsSequence()) {
