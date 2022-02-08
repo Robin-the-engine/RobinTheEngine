@@ -15,6 +15,8 @@
 #include "../../Log.h"
 #include "../../ResourceFactory.h"
 #include "../../AI/TickResult.h"
+#include "../../AI/PerceptionManager.h"
+#include "../../AI/Steering.h"
 
 namespace RTE {
 
@@ -381,6 +383,12 @@ namespace RTE {
 
         )SCRIPT");
     }
+
+    template<>
+    void registerUserType<Position>(sol::state& lua) {
+
+    }
+
     ///
     /// ---------- AI related stuff finished
     ///

@@ -41,7 +41,7 @@
        RECAST_NAV .. "/DetourCrowd/Include",
        RECAST_NAV .. "/Recast/Include",
 	   RECAST_NAV .. "/DetourTileCache/Include",
-       SDL_DIR .. "/include", 
+       SDL_DIR .. "/include",
    }
 
    game_files = {
@@ -233,7 +233,7 @@
 		 "%{IncludeDir.ViennaGameJobSystem}/include",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-
+         table.unpack(engine_includes),
       }
       
       links
@@ -244,6 +244,9 @@
 		 "DirectXTK",
          "yaml-cpp",
          "liblua54",
+		 "Detour",
+		 "DetourCrowd",
+		 "DetourTileCache",
       }
 	  
 
@@ -297,7 +300,6 @@
       {
          "%{prj.name}/src/**.h",
          "%{prj.name}/src/**.cpp",
-         table.unpack(game_files),
       }
 
       includedirs
@@ -310,7 +312,6 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-         table.unpack(game_includes),
       }
 
       links
@@ -361,7 +362,6 @@
       {
          "%{prj.name}/src/**.h",
          "%{prj.name}/src/**.cpp",
-         table.unpack(engine_files),
       }
 
       includedirs
@@ -374,7 +374,6 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
-         table.unpack(engine_includes),
       }
 
       links

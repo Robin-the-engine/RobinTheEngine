@@ -2,6 +2,8 @@
 #include <functional>
 #include "PerceptionManager.h"
 
+using namespace RTE;
+
 Stimulus::Stimulus(const std::string& type) {
     id = std::hash<std::string>{}(type);
 }

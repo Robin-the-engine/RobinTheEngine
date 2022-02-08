@@ -6,6 +6,8 @@
 #include "RobinTheEngine/Scene/GameObject.h"
 #include "RobinTheEngine/ResourceFactory.h"
 #include "RobinTheEngine/UI/ContentBrowser.h"
+#include "RobinTheEngine/AI/PerceptionManager.h"
+#include "RobinTheEngine/AI/Steering.h"
 #include <fstream>
 
 using namespace DirectX;
@@ -22,6 +24,8 @@ public:
 	RTE::Camera* camera;
 	using JobHandle = RTE::JobHandle;
 	using BehaviourTree = RTE::BehaviourTree;
+	using CrowdManager = RTE::CrowdManager;
+	using PerceptionManager = RTE::PerceptionManager;
 
 	RTE::Window* window;
 	GameTimer timer;
@@ -33,7 +37,8 @@ public:
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
-
+	PerceptionManager pm;
+	CrowdManager cm;
 
 	ExampleLayer()
 		: Layer("Example")

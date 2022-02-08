@@ -15,6 +15,7 @@ namespace RTE {
         void init();
     private:
         TreeState ts;
+        dtCrowdAgent agent;
         std::string scriptPath;
     };
 
