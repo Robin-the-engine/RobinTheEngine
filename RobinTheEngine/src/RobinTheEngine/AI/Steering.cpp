@@ -20,8 +20,8 @@ void CrowdManager::init(const std::string& navMeshKey, int agents, float agentRa
     crowd->setObstacleAvoidanceParams(1, &avoidanceParams);
 }
 
-void CrowdManager::addAgent(const float* pos, const dtCrowdAgentParams* params) {
-    crowd->addAgent(pos, params);
+int CrowdManager::addAgent(const float* pos, const dtCrowdAgentParams* params) {
+    return crowd->addAgent(pos, params);
 }
 
 int CrowdManager::getActiveAgents(dtCrowdAgent** agents, const int maxAgents) {

@@ -19,7 +19,7 @@ namespace RTE {
         ~CrowdManager();
 
         void init(const std::string& navMeshKey, int agents, float agentRadius);
-        void addAgent(const float* pos, const dtCrowdAgentParams* params);
+        int  addAgent(const float* pos, const dtCrowdAgentParams* params);
         int getActiveAgents(dtCrowdAgent** agents, const int maxAgents);
         bool move(int agentIdx, dtPolyRef ref, const float* pos);
         void update(float dt);

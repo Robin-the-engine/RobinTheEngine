@@ -90,7 +90,8 @@ public:
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
-
+		pm.notify();
+		cm.update(timer.DeltaTime());
 		UpdateCamera();
 
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))
