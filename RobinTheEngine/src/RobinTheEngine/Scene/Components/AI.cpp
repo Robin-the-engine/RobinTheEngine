@@ -1,6 +1,7 @@
 #include "rtepch.h"
 #include "AI.h"
 #include "../../Scene/GameObject.h"
+#include "RobinTheEngine/AI/PerceptionManager.h"
 using namespace RTE;
 
 AIComponent::AIComponent(std::string&& scriptPath) {
@@ -16,13 +17,31 @@ void AIComponent::onConstructInit(std::string&& scriptPath) {
     agentParams.maxAcceleration = 100;
 }
 
-void AIComponent::setEventReaction(EventListener::notifyer&& nf) {
-    ev.setNotifyer(std::move(nf));
-}
-
 void AIComponent::registerAgent(CrowdManager* cm) {
     const auto pos = GetGameObject().GetComponent<Transform>().GetPosition();
-    agentID = cm->addAgent(&pos.x, &agentParams);
+    agentId = cm->addAgent(&pos.x, &agentParams);
+    this->cm = cm;
+}
+
+void AIComponent::setPerceptionManager(PerceptionManager* pm) {
+    this->pm = pm;
+}
+
+void AIComponent::requestMove(DirectX::XMFLOAT3 pos) {
+    cm->move(agentId, 0, &pos.x);
+}
+
+void AIComponent::onConsume(std::shared_ptr<Stimulus> stimulus) {
+    auto& script = GetGameObject().AddComponent<ScriptComponent>();
+    script.callf("onEvent", stimulus.get());
+}
+
+void AIComponent::onProduce(std::shared_ptr<Stimulus> stimulus) {
+    EventExecutor::onProduce(pm, stimulus);
+}
+
+int AIComponent::getAgentId() {
+    return agentId;
 }
 
 TreeState& AIComponent::getTreeState() {

@@ -1,74 +1,110 @@
-
-cbuffer lights : register(b1)
-{
-    int numLights;
-	int foo;
-	int bar;
-	int foobar;
-
-}
-
-cbuffer cByffer : register(b0)
-{
-    float3 ambientColor;
-    float ambientStrength;
-    
-    float3 diffuseColor;
-    float diffuseStrength;
-    
-    float3 lightPosition;
-    
-    float3 viewPositon;
-    float specularStrength;
-}
-
-//------------------------------------------
+#ifndef NUM_LIGHTS
+#pragma message( "NUM_LIGHTS undefined. Default to 8.")
+#define NUM_LIGHTS 8 // should be defined by the application.
+#endif
 
 #define POINT_LIGHT 0
 #define SPOT_LIGHT 1
 #define DIRECTIONAL_LIGHT 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct Material
 {
-    float4  GlobalAmbient;
     float4  AmbientColor;
+    //-------------------------- ( 16 bytes )
     float4  EmissiveColor;
+    //-------------------------- ( 16 bytes )
     float4  DiffuseColor;
+    //-------------------------- ( 16 bytes )
     float4  SpecularColor;
+    //-------------------------- ( 16 bytes )
     // Reflective value.
     float4  Reflectance;
+    //-------------------------- ( 16 bytes )
     float   Opacity;
     float   SpecularPower;
     // For transparent materials, IOR > 0.
     float   IndexOfRefraction;
     bool    HasAmbientTexture;
+    //-------------------------- ( 16 bytes )
     bool    HasEmissiveTexture;
     bool    HasDiffuseTexture;
     bool    HasSpecularTexture;
     bool    HasSpecularPowerTexture;
+    //-------------------------- ( 16 bytes )
     bool    HasNormalTexture;
     bool    HasBumpTexture;
     bool    HasOpacityTexture;
     float   BumpIntensity;
+    //-------------------------- ( 16 bytes )
     float   SpecularScale;
     float   AlphaThreshold;
     float2  Padding;
+    //--------------------------- ( 16 bytes )
+};  //--------------------------- ( 16 * 10 = 160 bytes )
 
-};  
+
 struct Light
 {
-    float4   PositionWS;
-    float4   DirectionWS;
+
+    //--------------------------------------------------------------( 16 bytes )
+    /**
+    * Position for point and spot lights (View space).
+    */
     float4   PositionVS;
+    //--------------------------------------------------------------( 16 bytes )
+    /**
+    * Direction for spot and directional lights (View space).
+    */
     float4   DirectionVS;
+    //--------------------------------------------------------------( 16 bytes )
+    /**
+    * Color of the light. Diffuse and specular colors are not seperated.
+    */
     float4   Color;
+    //--------------------------------------------------------------( 16 bytes )
+    /**
+    * The half angle of the spotlight cone.
+    */
     float    SpotlightAngle;
+    /**
+    * The range of the light.
+    */
     float    Range;
+
+    /**
+     * The intensity of the light.
+     */
     float    Intensity;
+
+    /**
+    * Disable or enable the light.
+    */
     bool    Enabled;
-    bool    Selected;
+    //--------------------------------------------------------------( 16 bytes )
+
+
+    /**
+    * The type of the light.
+    */
     uint    Type;
     float2  Padding;
+    //--------------------------------------------------------------( 16 bytes )
+    //--------------------------------------------------------------( 16 * 7 = 112 bytes )
 };
+
 
 struct Plane
 {
@@ -112,24 +148,55 @@ struct AppData
     float2 texCoord : TEXCOORD0;
 };
 /*
+//for vs
 cbuffer PerObject : register( b0 )
 {
     float4x4 ModelViewProjection;
     float4x4 ModelView;
-}*/
-/*
+}
+*/
+//for ps CHECKED
 cbuffer Material : register( b2 )
 {
     Material Mat;
-};*/
-/*
+};
+
+
+cbuffer cByffer : register(b0)
+{
+    float3 ambientColor;
+    float ambientStrength;
+    
+    float3 diffuseColor;
+    float diffuseStrength;
+    
+    float3 lightPosition;
+    
+    float3 viewPositon;
+    float specularStrength;
+}
+
+
+
+//for nothing?
 // Parameters required to convert screen space coordinates to view space params.
 cbuffer ScreenToViewParams : register( b3 )
 {
     float4x4 InverseProjection;
     float2 ScreenDimensions;
-}*/
-/*
+}
+
+cbuffer lights : register(b1)
+{
+    int numLights;
+	int foo;
+	int bar;
+	int foobar;
+
+}
+
+
+
 Texture2D AmbientTexture        : register( t0 );
 Texture2D EmissiveTexture       : register( t1 );
 Texture2D DiffuseTexture        : register( t2 );
@@ -137,7 +204,7 @@ Texture2D SpecularTexture       : register( t3 );
 Texture2D SpecularPowerTexture  : register( t4 );
 Texture2D NormalTexture         : register( t5 );
 Texture2D BumpTexture           : register( t6 );
-Texture2D OpacityTexture        : register( t7 );*/
+Texture2D OpacityTexture        : register( t7 );
 
 StructuredBuffer<Light> Lights : register( t8 );
 
@@ -153,7 +220,7 @@ struct VertexShaderOutput
     float3 normalVS     : NORMAL;       // View space normal.
     float4 position     : SV_POSITION;  // Clip space position.
 };
-/*
+
 // Convert clip space coordinates to view space
 float4 ClipToView( float4 clip )
 {
@@ -163,8 +230,8 @@ float4 ClipToView( float4 clip )
     view = view / view.w;
 
     return view;
-}*/
-/*
+}
+
 // Convert screen space coordinates to view space.
 float4 ScreenToView( float4 screen )
 {
@@ -175,7 +242,7 @@ float4 ScreenToView( float4 screen )
     float4 clip = float4( float2( texCoord.x, 1.0f - texCoord.y ) * 2.0f - 1.0f, screen.z, screen.w );
 
     return ClipToView( clip );
-}*/
+}
 
 // Compute a plane from 3 noncollinear points that form a triangle.
 // This equation assumes a right-handed (counter-clockwise winding order) 
@@ -324,12 +391,12 @@ float4 DoDiffuse( Light light, float4 L, float4 N )
     return light.Color * NdotL;
 }
 
-float4 DoSpecular( Light light, float4 V, float4 L, float4 N )
+float4 DoSpecular( Light light, Material material, float4 V, float4 L, float4 N )
 {
     float4 R = normalize( reflect( -L, N ) );
     float RdotV = max( dot( R, V ), 0 );
 
-    return light.Color * pow( RdotV, specularStrength );
+    return light.Color * pow( RdotV, material.SpecularPower );
 }
 
 // Compute the attenuation based on the range of the light.
@@ -353,7 +420,7 @@ float DoSpotCone( Light light, float4 L )
     return smoothstep( minCos, maxCos, cosAngle );
 }
 
-LightingResult DoPointLight( Light light, float4 V, float4 P, float4 N )
+LightingResult DoPointLight( Light light, Material mat, float4 V, float4 P, float4 N )
 {
     LightingResult result;
 
@@ -364,24 +431,24 @@ LightingResult DoPointLight( Light light, float4 V, float4 P, float4 N )
     float attenuation = DoAttenuation( light, distance );
 
     result.Diffuse = DoDiffuse( light, L, N ) * attenuation * light.Intensity;
-    result.Specular = DoSpecular( light, V, L, N ) * attenuation * light.Intensity;
+    result.Specular = DoSpecular( light, mat, V, L, N ) * attenuation * light.Intensity;
 
     return result;
 }
 
-LightingResult DoDirectionalLight( Light light, float4 V, float4 P, float4 N )
+LightingResult DoDirectionalLight( Light light, Material mat, float4 V, float4 P, float4 N )
 {
     LightingResult result;
 
     float4 L = normalize( -light.DirectionVS );
 
     result.Diffuse = DoDiffuse( light, L, N ) * light.Intensity;
-    result.Specular = DoSpecular( light, V, L, N ) * light.Intensity;
+    result.Specular = DoSpecular( light, mat, V, L, N ) * light.Intensity;
 
     return result;
 }
 
-LightingResult DoSpotLight( Light light, float4 V, float4 P, float4 N )
+LightingResult DoSpotLight( Light light, Material mat, float4 V, float4 P, float4 N )
 {
     LightingResult result;
 
@@ -393,14 +460,12 @@ LightingResult DoSpotLight( Light light, float4 V, float4 P, float4 N )
     float spotIntensity = DoSpotCone( light, L );
 
     result.Diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity * light.Intensity;
-    result.Specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity * light.Intensity;
+    result.Specular = DoSpecular( light, mat, V, L, N ) * attenuation * spotIntensity * light.Intensity;
 
     return result;
 }
 
-
-
-LightingResult DoLighting( StructuredBuffer<Light> lights, float4 eyePos, float4 P, float4 N )
+LightingResult DoLighting( StructuredBuffer<Light> lights, Material mat, float4 eyePos, float4 P, float4 N )
 {
     float4 V = normalize( eyePos - P );
 
@@ -419,17 +484,17 @@ LightingResult DoLighting( StructuredBuffer<Light> lights, float4 eyePos, float4
         {
         case DIRECTIONAL_LIGHT:
         {
-            result = DoDirectionalLight( lights[i], V, P, N );
+            result = DoDirectionalLight( lights[i], mat, V, P, N );
         }
         break;
         case POINT_LIGHT:
         {
-            result = DoPointLight( lights[i], V, P, N );
+            result = DoPointLight( lights[i], mat, V, P, N );
         }
         break;
         case SPOT_LIGHT:
         {
-            result = DoSpotLight( lights[i], V, P, N );
+            result = DoSpotLight( lights[i], mat, V, P, N );
         }
         break;
         }
@@ -442,50 +507,224 @@ LightingResult DoLighting( StructuredBuffer<Light> lights, float4 eyePos, float4
 
 
 
-//------------------------------------------
 
 
 
 
-struct PS_INPUT
+
+
+
+//----------------------------------------------------
+/*
+VertexShaderOutput VS_main( AppData IN )
 {
-    float4 inPos : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
-    float3 inNormal : NORMAL;
-    float3 inWorldPos : WORLD_POS;
-	float3 positionVS   : VIEWSPACE_POS; 
-};
+    VertexShaderOutput OUT;
 
-SamplerState samplerState : SAMPLER : register(s0);
-Texture2D text : TEXTURE : register(t0);
+    OUT.position = mul( ModelViewProjection, float4( IN.position, 1.0f ) );
 
-float4 main(PS_INPUT input) : SV_Target
+    OUT.positionVS = mul( ModelView, float4( IN.position, 1.0f ) ).xyz;
+    OUT.tangentVS = mul( ( float3x3 )ModelView, IN.tangent );
+    OUT.binormalVS = mul( ( float3x3 )ModelView, IN.binormal );
+    OUT.normalVS = mul( ( float3x3 )ModelView, IN.normal );
+
+    OUT.texCoord = IN.texCoord;
+
+    return OUT;
+}*/
+
+[earlydepthstencil]
+float4 main( VertexShaderOutput IN ) : SV_TARGET
 {
-    //texture
-    float3 textureColor = text.Sample(samplerState, input.inTexCoord);
-    //ambient
-    float3 ambient = ambientColor * ambientStrength;
-    //diffuse
-    float3 normal = normalize(input.inNormal);
-    float3 lightDir = normalize(lightPosition - input.inWorldPos);
-    float intensity = max(dot(normal, lightDir), 0.0f);
-    //float3 diffuse = intensity * diffuseStrength * diffuseColor;
-    
-    float3 viewDir = normalize(viewPositon - input.inWorldPos);
-    float3 reflectionDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectionDir), 0.f), 8);
-    //float3 specular = diffuseColor * spec * specularStrength;
-	
-	
-	float4 P = float4( input.positionVS, 1 );
-	float4 N = float4(normal, 0);
-	LightingResult lit = DoLighting( Lights, float4(lightPosition,1), P, N );
-    
-	float3 specular = diffuseColor * lit.Specular;
-	float3 diffuse =  lit.Diffuse.rgb;
-	
-	
-    float3 color = textureColor;
-    color *= ambient + diffuse + specular;
-    return float4(color, 1);
+    // Everything is in view space.
+    float4 eyePos = { 0, 0, 0, 1 };
+    Material mat = Mat;
+
+    float4 diffuse = mat.DiffuseColor;
+    if ( mat.HasDiffuseTexture )
+    {
+        float4 diffuseTex = DiffuseTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( diffuse.rgb ) )
+        {
+            diffuse *= diffuseTex;
+        }
+        else
+        {
+            diffuse = diffuseTex;
+        }
+    }
+
+    // By default, use the alpha from the diffuse component.
+    float alpha = diffuse.a;
+    if ( mat.HasOpacityTexture )
+    {
+        // If the material has an opacity texture, use that to override the diffuse alpha.
+        alpha = OpacityTexture.Sample( LinearRepeatSampler, IN.texCoord ).r;
+    }
+
+    float4 ambient = mat.AmbientColor;
+    if ( mat.HasAmbientTexture )
+    {
+        float4 ambientTex = AmbientTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( ambient.rgb ) )
+        {
+            ambient *= ambientTex;
+        }
+        else
+        {
+            ambient = ambientTex;
+        }
+    }
+    // Combine the global ambient term.
+	float4 tmAmbient = float4( ambientColor,1);
+    ambient *= tmAmbient;
+
+    float4 emissive = mat.EmissiveColor;
+    if ( mat.HasEmissiveTexture )
+    {
+        float4 emissiveTex = EmissiveTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( emissive.rgb ) )
+        {
+            emissive *= emissiveTex;
+        }
+        else
+        {
+            emissive = emissiveTex;
+        }
+    }
+
+    if ( mat.HasSpecularPowerTexture )
+    {
+        mat.SpecularPower = SpecularPowerTexture.Sample( LinearRepeatSampler, IN.texCoord ).r * mat.SpecularScale;
+    }
+
+    float4 N;
+
+    // Normal mapping
+    if ( mat.HasNormalTexture )
+    {
+        // For scense with normal mapping, I don't have to invert the binormal.
+        float3x3 TBN = float3x3( normalize( IN.tangentVS ),
+                                 normalize( IN.binormalVS ),
+                                 normalize( IN.normalVS ) );
+
+        N = DoNormalMapping( TBN, NormalTexture, LinearRepeatSampler, IN.texCoord );
+    }
+    // Bump mapping
+    else if ( mat.HasBumpTexture )
+    {
+        // For most scenes using bump mapping, I have to invert the binormal.
+        float3x3 TBN = float3x3( normalize( IN.tangentVS ),
+                                 normalize( -IN.binormalVS ), 
+                                 normalize( IN.normalVS ) );
+
+        N = DoBumpMapping( TBN, BumpTexture, LinearRepeatSampler, IN.texCoord, mat.BumpIntensity );
+    }
+    // Just use the normal from the model.
+    else
+    {
+        N = normalize( float4( IN.normalVS, 0 ) );
+    }
+
+    float4 P = float4( IN.positionVS, 1 );
+
+    LightingResult lit = DoLighting( Lights, mat, eyePos, P, N );
+
+    diffuse *= float4( lit.Diffuse.rgb, 1.0f ); // Discard the alpha value from the lighting calculations.
+
+    float4 specular = 0;
+    if ( mat.SpecularPower > 1.0f ) // If specular power is too low, don't use it.
+    {
+        specular = mat.SpecularColor;
+        if ( mat.HasSpecularTexture )
+        {
+            float4 specularTex = SpecularTexture.Sample( LinearRepeatSampler, IN.texCoord );
+            if ( any( specular.rgb ) )
+            {
+                specular *= specularTex;
+            }
+            else
+            {
+                specular = specularTex;
+            }
+        }
+        specular *= lit.Specular;
+    }
+
+    return float4( ( ambient + emissive + diffuse + specular ).rgb, alpha * mat.Opacity );
+
+}
+
+// Pixel shader for rendering lights (debug) for forward renderer.
+float4 PS_light( VertexShaderOutput IN ) : SV_TARGET
+{
+    float4 N = normalize( float4( IN.normalVS, 0 ) );
+
+    return float4( ( Mat.DiffuseColor * saturate(N.z) ).rgb, Mat.Opacity );
+}
+
+// Used for rendering unlit materials.
+float4 PS_unlit( VertexShaderOutput IN ) : SV_Target
+{
+    float4 diffuse = Mat.DiffuseColor;
+    if ( Mat.HasDiffuseTexture )
+    {
+        float4 diffuseTex = DiffuseTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( diffuse.rgb ) )
+        {
+            diffuse *= diffuseTex;
+        }
+        else
+        {
+            diffuse = diffuseTex;
+        }
+    }
+
+    // By default, use the alpha from the diffuse component.
+    float alpha = diffuse.a;
+    if ( Mat.HasOpacityTexture )
+    {
+        // If the material has an opacity texture, use that to override the diffuse alpha.
+        alpha = OpacityTexture.Sample( LinearRepeatSampler, IN.texCoord ).a;
+    }
+
+    if ( alpha * Mat.Opacity < Mat.AlphaThreshold )
+    {
+        discard;
+    }
+
+    float4 ambient = Mat.AmbientColor;
+    if ( Mat.HasAmbientTexture )
+    {
+        float4 ambientTex = AmbientTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( ambient.rgb ) )
+        {
+            ambient *= ambientTex;
+        }
+        else
+        {
+            ambient = ambientTex;
+        }
+    }
+    // Combine the global ambient term.
+    //ambient *= Mat.GlobalAmbient;
+
+    float4 emissive = Mat.EmissiveColor;
+    if ( Mat.HasEmissiveTexture )
+    {
+        float4 emissiveTex = EmissiveTexture.Sample( LinearRepeatSampler, IN.texCoord );
+        if ( any( emissive.rgb ) )
+        {
+            emissive *= emissiveTex;
+        }
+        else
+        {
+            emissive = emissiveTex;
+        }
+    }
+
+    // Do view space lighting based on normal.
+    float4 N = normalize( float4( IN.normalVS, 0 ) );
+
+    return float4( ( ambient + emissive + ( diffuse * N.z ) ).rgb, alpha * Mat.Opacity );
+
 }

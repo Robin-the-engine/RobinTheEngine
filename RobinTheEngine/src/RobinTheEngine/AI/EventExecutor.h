@@ -4,6 +4,7 @@
 
 namespace RTE {
     class GameObject;
+    struct PerceptionManager;
 
     struct Stimulus {
 
@@ -20,23 +21,23 @@ namespace RTE {
         virtual StimulusId getType();
 
     protected:
+        Stimulus() = default;
         Stimulus(const std::string& type);
         StimulusId id;
     };
 
-    struct EventListener final {
-        using notifyer = std::function<void(std::shared_ptr<Stimulus>)>;
-        EventListener();
-        void setNotifyer(notifyer&& nf);
-        ~EventListener();
-        void onNotify(std::shared_ptr<Stimulus> stimulus) const;
-    private:
-        notifyer notifyFunc = [](std::shared_ptr<Stimulus>){};
+    struct EventExecutor {
+        virtual ~EventExecutor();
+        virtual void onConsume(std::shared_ptr<Stimulus> stimulus);
+        virtual void onProduce(PerceptionManager* pm, std::shared_ptr<Stimulus> stimulus);
+    protected:
+        EventExecutor() = default;
     };
 
-
     struct Sound final : Stimulus {
+        Sound() = default;
         Sound(DirectX::XMFLOAT3 p) : Stimulus("Sound"), pos(p) {}
+        DirectX::XMFLOAT3 getPos();
     private:
         DirectX::XMFLOAT3 pos;
     };

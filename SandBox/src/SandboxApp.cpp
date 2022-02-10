@@ -26,6 +26,7 @@ public:
 	using BehaviourTree = RTE::BehaviourTree;
 	using CrowdManager = RTE::CrowdManager;
 	using PerceptionManager = RTE::PerceptionManager;
+	using EventListener = RTE::EventExecutor;
 
 	RTE::Window* window;
 	GameTimer timer;
@@ -46,15 +47,18 @@ public:
 		scenePTR = &RTE::Application::Get().scene;
 	}
 	
-	RTE::GameObject testgo;
+	RTE::GameObject follower;
 
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
 
-		testgo = scenePTR->CreateGameObject();
-		testgo.AddComponent<RTE::BehaviourTree>("example");
-		auto& ai = testgo.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
+		follower = scenePTR->CreateGameObject();
+		follower.AddComponent<RTE::BehaviourTree>("example");
+		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
 		ai.init();
+		ai.registerAgent(&cm);
+		ai.setPerceptionManager(&pm);
+		pm.registerListener(&ai, {RTE::Sound().getType()});
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
@@ -85,7 +89,7 @@ public:
 	float angle = 0;
 	void OnUpdate() override
 	{
-		testgo.GetComponent<BehaviourTree>().tick();
+		follower.GetComponent<BehaviourTree>().tick();
 		//testgo.GetComponent<RTE::ScriptComponent>().OnUpdate();
 		timer.Reset();
 		timer.Tick();

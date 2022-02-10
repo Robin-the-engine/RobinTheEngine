@@ -18,6 +18,12 @@ cbuffer inColor: register(b1) {
     float4 inputColor;
 }
 
+cbuffer lights : register(b5)
+{
+    int numLights;
+
+}
+
 struct PS_INPUT
 {
     float4 inPos : SV_POSITION;

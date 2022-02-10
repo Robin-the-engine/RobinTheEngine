@@ -6,7 +6,7 @@ using namespace RTE;
 
 PerceptionManager::PerceptionManager() = default;
 
-void PerceptionManager::registerListener(EventListener* listener, std::vector<Stimulus::StimulusId> events) {
+void PerceptionManager::registerListener(EventExecutor* listener, std::vector<Stimulus::StimulusId> events) {
     toNotify.push_back({listener, std::unordered_set(events.begin(), events.end()) });
 }
 
@@ -20,7 +20,7 @@ void PerceptionManager::notify() {
         stimulusQueue.pop();
         for(auto & [listener, usefulStimuls] : toNotify) {
             if(usefulStimuls.contains(stimulus->getType())) {
-                listener->onNotify(stimulus);
+                listener->onConsume(stimulus);
             }
         }
     }
