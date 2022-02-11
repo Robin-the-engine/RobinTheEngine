@@ -89,6 +89,7 @@
 	    language "C++"
 	    kind "StaticLib"
         location "RecastDeps"
+        staticruntime "on"
 	    includedirs { 
 		    RECAST_NAV .. "/Detour/Include" 
 	    }
@@ -96,11 +97,26 @@
 		    RECAST_NAV .. "/Detour/Include/*.h", 
 		    RECAST_NAV .. "/Detour/Source/*.cpp" 
 	    }
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
+
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
 
     project "DetourCrowd"
 	    language "C++"
 	    kind "StaticLib"
 	    location "RecastDeps"
+        staticruntime "on"
         includedirs {
 		    RECAST_NAV .. "/DetourCrowd/Include",
 		    RECAST_NAV .. "/Detour/Include",
@@ -111,10 +127,26 @@
 		    RECAST_NAV .. "/DetourCrowd/Source/*.cpp"
 	    }
 
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
+
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
+
     project "DetourTileCache"
 	    language "C++"
 	    kind "StaticLib"
 	    location "RecastDeps"
+        staticruntime "on"
         includedirs {
 		    RECAST_NAV .. "/DetourTileCache/Include",
 		    RECAST_NAV .. "/Detour/Include",
@@ -124,11 +156,27 @@
 		    RECAST_NAV .. "/DetourTileCache/Include/*.h",
 		    RECAST_NAV .. "/DetourTileCache/Source/*.cpp"
 	    }
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
+
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
+
 
     project "Recast"
 	    language "C++"
 	    kind "StaticLib"
 	    location "RecastDeps"
+        staticruntime "on"
         includedirs { 
 		    RECAST_NAV .. "/Recast/Include" 
 	    }
@@ -136,7 +184,21 @@
 		    RECAST_NAV .. "/Recast/Include/*.h",
 		    RECAST_NAV .. "/Recast/Source/*.cpp" 
 	    }
+    
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
 
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
     group ""
 
     project "NavBuilder"
@@ -144,6 +206,7 @@
 	    kind "WindowedApp"
         location "NavBuilder"
         cppdialect "C++20"
+        staticruntime "on"
 	    includedirs {
 		    RECAST_NAV .. "/RecastDemo/Include",
 		    RECAST_NAV .. "/RecastDemo/Contrib",
@@ -312,6 +375,7 @@
 		 "%{IncludeDir.entt}",
 		 "%{IncludeDir.sol2}",
 		 "%{IncludeDir.lua}",
+         table.unpack(game_includes),
       }
 
       links

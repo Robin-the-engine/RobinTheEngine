@@ -51,34 +51,45 @@ public:
 
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
+		cm.init("nav_test", 5, 5);
 
 		follower = scenePTR->CreateGameObject();
 		follower.AddComponent<RTE::BehaviourTree>("example");
+		auto mesh = follower.AddComponent<RTE::MeshRenderer>();
+		mesh.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		follower.GetComponent<RTE::Transform>().SetPosition(0, 0, 0);
 		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
 		ai.init();
 		ai.registerAgent(&cm);
 		ai.setPerceptionManager(&pm);
-		pm.registerListener(&ai, {RTE::Sound().getType()});
+
+	    pm.registerListener(&ai, {RTE::Sound().getType()});
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
 		camera->SetPosition(XMFLOAT3(5, 4, -15));
 		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 5; j++) {
+    	auto space = scenePTR->CreateGameObject();
+		auto& mr = space.AddComponent<RTE::MeshRenderer>();
+		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("space"));
+		auto& transform = space.AddComponent<RTE::Transform>();
+		transform.SetPosition(0, 0, 0);
+		//mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		//for (int i = 0; i < 5; i++) {
+		//	for (int j = 0; j < 5; j++) {
 
-				auto go = scenePTR->CreateGameObject();
-				auto& mr = go.AddComponent<RTE::MeshRenderer>();
-				auto& transform = go.AddComponent<RTE::Transform>();
-				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-				int baseX = -10;
-				int basey = -10;
-				transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
-			}
+		//		auto go = scenePTR->CreateGameObject();
+		//		auto& mr = go.AddComponent<RTE::MeshRenderer>();
+		//		auto& transform = go.AddComponent<RTE::Transform>();
+		//		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		//		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		//		int baseX = -10;
+		//		int basey = -10;
+		//		transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
+		//	}
 
-		}
+		//}
 
 
 		window = &RTE::Application::Get().GetWindow();
@@ -94,6 +105,7 @@ public:
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
+		pm.addStimulus(std::make_shared<RTE::Stimulus>(RTE::Sound(camera->GetPositionFloat3())));
 		pm.notify();
 		cm.update(timer.DeltaTime());
 		UpdateCamera();

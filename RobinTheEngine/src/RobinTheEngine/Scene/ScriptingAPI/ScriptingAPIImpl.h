@@ -384,14 +384,14 @@ namespace RTE {
         )SCRIPT");
     }
 
-    template<>
-    void registerUserType<Position>(sol::state& lua) {
-        sol::usertype<Model> ut = lua.new_usertype<Position>("Position",
-            sol::constructors<Position()>()
-            );
-        ut["Initialize"] = &Model::Initialize;
-        ut["meshes"] = &Model::meshes;
-    }
+    //template<>
+    //void registerUserType<Position>(sol::state& lua) {
+    //    sol::usertype<Model> ut = lua.new_usertype<Position>("Position",
+    //        sol::constructors<Position()>()
+    //        );
+    //    ut["Initialize"] = &Model::Initialize;
+    //    ut["meshes"] = &Model::meshes;
+    //}
 
     ///
     /// ---------- AI related stuff finished
