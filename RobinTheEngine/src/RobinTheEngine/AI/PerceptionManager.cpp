@@ -2,26 +2,11 @@
 #include <functional>
 #include "PerceptionManager.h"
 
-Stimulus::Stimulus(const std::string& type) {
-    id = std::hash<std::string>{}(type);
-}
-
-Stimulus::~Stimulus() = default;
-
-bool Stimulus::operator==(const Stimulus& other) const {
-    return id == other.id;
-}
-
-Stimulus::StimulusId Stimulus::getType() {
-    return id;
-}
-
-EventListener::EventListener(RTE::GameObject* owner): owner(owner) {}
-EventListener::~EventListener() = default;
+using namespace RTE;
 
 PerceptionManager::PerceptionManager() = default;
 
-void PerceptionManager::registerListener(EventListener* listener, std::vector<Stimulus::StimulusId> events) {
+void PerceptionManager::registerListener(EventExecutor* listener, std::vector<Stimulus::StimulusId> events) {
     toNotify.push_back({listener, std::unordered_set(events.begin(), events.end()) });
 }
 
@@ -35,13 +20,8 @@ void PerceptionManager::notify() {
         stimulusQueue.pop();
         for(auto & [listener, usefulStimuls] : toNotify) {
             if(usefulStimuls.contains(stimulus->getType())) {
-                listener->onNotify(stimulus);
+                listener->onConsume(stimulus);
             }
         }
     }
-}
-
-void PerceptionManager::notify(std::shared_ptr<Stimulus> stimulus) {
-    stimulusQueue.push(stimulus);
-    notify();
 }

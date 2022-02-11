@@ -25,3 +25,6 @@ shaders:
 
 behaviours:
     example: Content\assets\behaviour\behaviour.yaml
+
+navmesh:
+    navmesh: Content\assets\navmesh\solo_navmesh.bin

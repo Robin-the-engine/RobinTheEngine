@@ -6,6 +6,8 @@
 #include "RobinTheEngine/Scene/GameObject.h"
 #include "RobinTheEngine/ResourceFactory.h"
 #include "RobinTheEngine/UI/ContentBrowser.h"
+#include "RobinTheEngine/AI/PerceptionManager.h"
+#include "RobinTheEngine/AI/Navigation.h"
 #include <fstream>
 
 using namespace DirectX;
@@ -22,6 +24,9 @@ public:
 	RTE::Camera* camera;
 	using JobHandle = RTE::JobHandle;
 	using BehaviourTree = RTE::BehaviourTree;
+	using CrowdManager = RTE::CrowdManager;
+	using PerceptionManager = RTE::PerceptionManager;
+	using EventListener = RTE::EventExecutor;
 
 	RTE::Window* window;
 	GameTimer timer;
@@ -33,7 +38,8 @@ public:
 
 	RTE::DirectX11RenderSystem* rs = static_cast<RTE::DirectX11RenderSystem*>(RTE::Application::Get().GetRenderSystem());
 	RTE::Scene* scenePTR;
-
+	PerceptionManager pm;
+	CrowdManager cm;
 
 	ExampleLayer()
 		: Layer("Example")
@@ -41,35 +47,49 @@ public:
 		scenePTR = &RTE::Application::Get().scene;
 	}
 	
-	RTE::GameObject testgo;
+	RTE::GameObject follower;
 
 	void OnAttach() {
 		scenePTR->name = "Test Scene";
+		cm.init("nav_test", 5, 5);
 
-		testgo = scenePTR->CreateGameObject();
-		testgo.AddComponent<RTE::BehaviourTree>("example");
-		auto& ai = testgo.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
+		follower = scenePTR->CreateGameObject();
+		follower.AddComponent<RTE::BehaviourTree>("example");
+		auto mesh = follower.AddComponent<RTE::MeshRenderer>();
+		mesh.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		follower.GetComponent<RTE::Transform>().SetPosition(0, 0, 0);
+		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
 		ai.init();
+		ai.registerAgent(&cm);
+		ai.setPerceptionManager(&pm);
+
+	    pm.registerListener(&ai, {RTE::Sound().getType()});
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
 		camera->SetPosition(XMFLOAT3(5, 4, -15));
 		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 5; j++) {
+    	auto space = scenePTR->CreateGameObject();
+		auto& mr = space.AddComponent<RTE::MeshRenderer>();
+		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("space"));
+		auto& transform = space.AddComponent<RTE::Transform>();
+		transform.SetPosition(0, 0, 0);
+		//mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		//for (int i = 0; i < 5; i++) {
+		//	for (int j = 0; j < 5; j++) {
 
-				auto go = scenePTR->CreateGameObject();
-				auto& mr = go.AddComponent<RTE::MeshRenderer>();
-				auto& transform = go.AddComponent<RTE::Transform>();
-				mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-				mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
-				int baseX = -10;
-				int basey = -10;
-				transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
-			}
+		//		auto go = scenePTR->CreateGameObject();
+		//		auto& mr = go.AddComponent<RTE::MeshRenderer>();
+		//		auto& transform = go.AddComponent<RTE::Transform>();
+		//		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		//		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		//		int baseX = -10;
+		//		int basey = -10;
+		//		transform.SetPosition(baseX + (i * 2), basey + (j * 2), 0);
+		//	}
 
-		}
+		//}
 
 
 		window = &RTE::Application::Get().GetWindow();
@@ -80,12 +100,14 @@ public:
 	float angle = 0;
 	void OnUpdate() override
 	{
-		testgo.GetComponent<BehaviourTree>().tick();
+		follower.GetComponent<BehaviourTree>().tick();
 		//testgo.GetComponent<RTE::ScriptComponent>().OnUpdate();
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
-
+		pm.addStimulus(std::make_shared<RTE::Stimulus>(RTE::Sound(camera->GetPositionFloat3())));
+		pm.notify();
+		cm.update(timer.DeltaTime());
 		UpdateCamera();
 
 		//if (RTE::Input::IsKeyPressed(RTE_KEY_TAB))

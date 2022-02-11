@@ -7,6 +7,10 @@ meshes:
         layout: 2
         path: Content\objects\ogre\bs_rest.obj
 
+    space:
+        layout: 2
+        path: Content\objects\nav_test.obj
+
     pokeball: 
         layout: 2
         path: Content\objects\PokemonBall.obj
@@ -23,3 +27,6 @@ shaders:
 
 behaviours:
     example: Content\assets\behaviour\behaviour.yaml
+
+navmesh:
+    nav_test: Content\assets\navmesh\solo_navmesh.bin

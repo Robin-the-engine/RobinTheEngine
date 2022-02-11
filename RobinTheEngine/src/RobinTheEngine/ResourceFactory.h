@@ -8,6 +8,9 @@
 #include "Platform/DirectX11/Texture.h"
 #include "MeshDescription.h"
 #include "AI/BehaviourTree.h"
+#include "Scene/Components/NavMeshComponent.h"
+#include <filesystem>
+#include <fstream>
 
 namespace RTE {
 
@@ -123,13 +126,23 @@ namespace RTE {
 
 	    template<>
 		BehaviourTreeImpl& GetResource<BehaviourTreeImpl>(std::string key) {
-			auto behav_tree_path = yamlKeys.find(key);
-			RTE_CORE_ASSERT(behav_tree_path != yamlKeys.end(), "Dont have that key in resource file!");
+			auto behavTreePath = yamlKeys.find(key);
+			RTE_CORE_ASSERT(behavTreePath != yamlKeys.end(), "Dont have that key in resource file!");
 			if (loadedResources.find(key) == loadedResources.end()) {
-				loadedResources[key] = new BehaviourTreeImpl(behav_tree_path->second);
+				loadedResources[key] = new BehaviourTreeImpl(behavTreePath->second);
 			}
 			return dynamic_cast<BehaviourTreeImpl&>(*loadedResources[key]);
 	    }
+
+		template<>
+		NavMeshImpl& GetResource<NavMeshImpl>(std::string key) {
+			auto navMeshPath = yamlKeys.find(key);
+			RTE_CORE_ASSERT(navMeshPath != yamlKeys.end(), "Dont have that key in resource file!");
+			if (loadedResources.find(key) == loadedResources.end()) {
+				loadedResources[key] = new NavMeshImpl(navMeshPath->second);
+			}
+			return dynamic_cast<NavMeshImpl&>(*loadedResources[key]);
+		}
 
 	private:
 		void ReadYamlKeys();

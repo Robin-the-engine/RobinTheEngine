@@ -19,7 +19,17 @@ function OnUpdate()
 --    Log.info("res: " .. t)
 end
 
+function onEvent(Pstimulus)
+    sound = Pstimulus:getAsSound()
+    BlackBoard:set("SoundPos", sound:pos)
+    BlackBoard:set("SoundPosUpdated", 1)
+end
+
+function onSound()
+    ai:requestMove(BlackBoard:get("SoundPos"))
+    BlackBoard:set("SoundPosUpdated", 0)
+end
+
 function abort()
     Log.info("\n\n\n\n\nACTION ABORTED\n\n\n\n\n")
 end
-
