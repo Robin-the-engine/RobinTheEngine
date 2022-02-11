@@ -2,7 +2,7 @@
 
 #include "DetourCrowd.h"
 #include "Scripting.h"
-#include "../../AI/Steering.h"
+#include "../../AI/Navigation.h"
 #include "../../AI/BehaviourTree.h"
 #include "../../AI/EventExecutor.h"
 

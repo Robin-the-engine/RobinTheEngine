@@ -7,7 +7,7 @@
 #include "RobinTheEngine/ResourceFactory.h"
 #include "RobinTheEngine/UI/ContentBrowser.h"
 #include "RobinTheEngine/AI/PerceptionManager.h"
-#include "RobinTheEngine/AI/Steering.h"
+#include "RobinTheEngine/AI/Navigation.h"
 #include <fstream>
 
 using namespace DirectX;

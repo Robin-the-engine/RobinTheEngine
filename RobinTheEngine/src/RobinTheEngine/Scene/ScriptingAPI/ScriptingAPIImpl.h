@@ -16,7 +16,7 @@
 #include "../../ResourceFactory.h"
 #include "../../AI/TickResult.h"
 #include "../../AI/PerceptionManager.h"
-#include "../../AI/Steering.h"
+#include "../../AI/Navigation.h"
 
 namespace RTE {
 
