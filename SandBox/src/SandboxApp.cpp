@@ -74,9 +74,9 @@ public:
 		transform.SetPosition(0, 0, 0);
 
 		auto cam = scenePTR->CreateGameObject();
-		//camera = &cam.AddComponent<RTE::Camera>();
+		camera = &cam.AddComponent<RTE::Camera>();
 		camera->SetPosition(XMFLOAT3(5, 4, -15));
-		camera->SetPosition(follower.GetComponent<RTE::Transform>().GetPosition());
+		//camera->SetPosition(follower.GetComponent<RTE::Transform>().GetPosition());
 		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
 		//mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
