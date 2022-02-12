@@ -55,26 +55,29 @@ public:
 
 		follower = scenePTR->CreateGameObject();
 		follower.AddComponent<RTE::BehaviourTree>("example");
-		auto mesh = follower.AddComponent<RTE::MeshRenderer>();
+		auto& mesh = follower.AddComponent<RTE::MeshRenderer>();
 		mesh.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
+		mesh.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
 		follower.GetComponent<RTE::Transform>().SetPosition(0, 0, 0);
 		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
 		ai.init();
 		ai.registerAgent(&cm);
 		ai.setPerceptionManager(&pm);
-		auto type = RTE::Sound().getType();
-	    pm.registerListener(&ai, {type});
+
+	    pm.registerListener(&ai, { RTE::Sound().getType() });
+
+		auto space = scenePTR->CreateGameObject();
+		auto& mr = space.AddComponent<RTE::MeshRenderer>();
+		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("space"));
+		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		auto& transform = space.AddComponent<RTE::Transform>();
+		transform.SetPosition(0, 0, 0);
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
 		camera->SetPosition(XMFLOAT3(5, 4, -15));
 		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
-    	auto space = scenePTR->CreateGameObject();
-		auto& mr = space.AddComponent<RTE::MeshRenderer>();
-		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("space"));
-		auto& transform = space.AddComponent<RTE::Transform>();
-		transform.SetPosition(0, 0, 0);
 		//mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
 		//for (int i = 0; i < 5; i++) {
 		//	for (int j = 0; j < 5; j++) {
