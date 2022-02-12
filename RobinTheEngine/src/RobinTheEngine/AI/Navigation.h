@@ -21,6 +21,9 @@ namespace RTE {
         void init(const std::string& navMeshKey, int agents, float agentRadius);
         int  addAgent(const float* pos, const dtCrowdAgentParams* params);
         const dtCrowdAgent* getAgent(int idx);
+        const dtQueryFilter* getFilter(int i);
+        dtNavMesh* getNavMesh();
+        const float* getQueryExtents();
         bool move(int agentIdx, dtPolyRef ref, const float* pos);
         void update(float dt);
 

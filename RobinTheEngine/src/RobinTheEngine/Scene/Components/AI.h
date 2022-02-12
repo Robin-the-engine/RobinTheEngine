@@ -12,6 +12,7 @@ namespace RTE {
     public:
         AIComponent() = default;
         AIComponent(std::string&& scriptPath);
+        ~AIComponent();
         void onConstructInit(std::string&& scriptPath);
         void registerAgent(CrowdManager* cm);
         void setPerceptionManager(PerceptionManager* pm);
@@ -21,7 +22,7 @@ namespace RTE {
         void onUpdate();
         int getAgentId();
         TreeState& getTreeState();
-        void init();
+        void init(CrowdManager* cm, PerceptionManager* pm);
     private:
         CrowdManager* cm = nullptr;
         PerceptionManager* pm = nullptr;
@@ -29,6 +30,8 @@ namespace RTE {
         int agentId{};
         dtCrowdAgentParams agentParams{};
         std::string scriptPath{};
+
+        dtNavMeshQuery* m_navQuery;
     };
 
 }

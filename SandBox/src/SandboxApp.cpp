@@ -60,9 +60,7 @@ public:
 		mesh.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
 		follower.GetComponent<RTE::Transform>().SetPosition( 4.3752, -0.130411, -12.8999 );
 		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
-		ai.init();
-		ai.registerAgent(&cm);
-		ai.setPerceptionManager(&pm);
+		ai.init(&cm, &pm);
 
 	    pm.registerListener(&ai, { RTE::Sound().getType() });
 

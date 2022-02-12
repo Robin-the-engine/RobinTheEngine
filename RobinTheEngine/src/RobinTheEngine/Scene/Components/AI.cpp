@@ -10,6 +10,10 @@ AIComponent::AIComponent(std::string&& scriptPath) {
     onConstructInit(std::move(scriptPath));
 }
 
+AIComponent::~AIComponent() {
+    dtFreeNavMeshQuery(m_navQuery);
+}
+
 void AIComponent::onConstructInit(std::string&& scriptPath) {
     this->scriptPath = std::move(scriptPath);
     ts.owner = this;
@@ -30,9 +34,12 @@ void AIComponent::setPerceptionManager(PerceptionManager* pm) {
 }
 
 void AIComponent::requestMove(DirectX::XMFLOAT3 pos) {
-    //auto agentId = cm->getAgent(agentId; >
-    //navquery->findNearestPoly(p, halfExtents, filter, &m_targetRef, m_targetPos);
-    cm->move(agentId, 0, &pos.x);
+    //const dtQueryFilter* filter = cm->getFilter(0);
+    //const float* halfExtents = cm->getQueryExtents();
+    //dtPolyRef targetRef;
+    //m_navQuery->findNearestPoly(&pos.x, halfExtents, filter, &targetRef, &pos.x);
+    //auto succeed = cm->move(agentId, targetRef, &pos.x);
+    pos.x -= 5; pos.z -= 5; GetGameObject().GetComponent<Transform>().SetPosition(pos);
 }
 
 void AIComponent::onConsume(std::shared_ptr<Stimulus> stimulus) {
@@ -58,10 +65,14 @@ TreeState& AIComponent::getTreeState() {
     return ts;
 }
 
-void AIComponent::init() {
+void AIComponent::init(CrowdManager* cm, PerceptionManager* pm) {
     auto& script = GetGameObject().AddComponent<ScriptComponent>();
     script.attachScript(scriptPath);
     auto& lua = script.getStateRef();
     // register agent movement function
     lua["selfAI"] = this;
+    registerAgent(cm);
+    setPerceptionManager(pm);
+    m_navQuery = dtAllocNavMeshQuery();
+    m_navQuery->init(cm->getNavMesh(), 2048);
 }

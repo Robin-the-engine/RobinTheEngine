@@ -16,7 +16,7 @@ CrowdManager::~CrowdManager() {
 void CrowdManager::init(const std::string& navMeshKey, int agents, float agentRadius) {
     crowd = dtAllocCrowd();
     navMesh.init(navMeshKey);
-    crowd->init(agents, agentRadius, navMesh.get());
+    crowd->init(agents, agentRadius, getNavMesh());
 	dtObstacleAvoidanceParams avoidanceParams;
 
     // Low (11)
@@ -55,6 +55,18 @@ int CrowdManager::addAgent(const float* pos, const dtCrowdAgentParams* params) {
 
 const dtCrowdAgent* CrowdManager::getAgent(int idx) {
     return crowd->getAgent(idx);
+}
+
+const dtQueryFilter* CrowdManager::getFilter(int i) {
+    return crowd->getFilter(i);
+}
+
+dtNavMesh* CrowdManager::getNavMesh() {
+    return navMesh.get();
+}
+
+const float* CrowdManager::getQueryExtents() {
+    return crowd->getQueryExtents();
 }
 
 bool CrowdManager::move(int agentIdx, dtPolyRef ref, const float* pos) {
