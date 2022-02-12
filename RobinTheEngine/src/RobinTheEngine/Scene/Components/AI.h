@@ -18,6 +18,7 @@ namespace RTE {
         void requestMove(DirectX::XMFLOAT3 pos);
         void onConsume(std::shared_ptr<Stimulus> stimulus) override;
         void onProduce(std::shared_ptr<Stimulus> stimulus);
+        void onUpdate();
         int getAgentId();
         TreeState& getTreeState();
         void init();

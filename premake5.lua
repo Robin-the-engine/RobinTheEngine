@@ -236,6 +236,21 @@
 		    "Recast"
 	    }
 
+      filter "configurations:Debug"
+         defines "RTE_DEBUG"
+         symbols "on"
+		 runtime "Debug"
+
+      filter "configurations:Release"
+         defines "RTE_RELEASE"
+         optimize "on"
+		 runtime "Release"
+
+      filter "configurations:Dist"
+         defines "RTE_DIST"
+         optimize "on"
+		 runtime "Release"
+
 	    -- windows library cflags and libs
 	    configuration { "windows" }
 		    includedirs { RECAST_NAV .. "/RecastDemo/Contrib/SDL/include" }

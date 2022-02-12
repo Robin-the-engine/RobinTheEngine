@@ -103,6 +103,6 @@ bool ScriptComponent::reloadScript() {
     return false;
 }
 
-sol::state& ScriptComponent::getState() {
+sol::state& ScriptComponent::getStateRef() {
     return lua;
 }

@@ -20,12 +20,11 @@ namespace RTE {
 
         void init(const std::string& navMeshKey, int agents, float agentRadius);
         int  addAgent(const float* pos, const dtCrowdAgentParams* params);
-        int getActiveAgents(dtCrowdAgent** agents, const int maxAgents);
+        const dtCrowdAgent* getAgent(int idx);
         bool move(int agentIdx, dtPolyRef ref, const float* pos);
         void update(float dt);
 
     private:
-        dtObstacleAvoidanceParams avoidanceParams{};
         dtCrowd* crowd = nullptr;
         NavMeshComponent navMesh;
     };

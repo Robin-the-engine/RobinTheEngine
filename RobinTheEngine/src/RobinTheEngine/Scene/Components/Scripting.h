@@ -23,7 +23,7 @@ namespace RTE {
         virtual bool attachScript(const std::string& script, bool isFile = true);
         virtual bool attachScriptNoExec(const std::string& script, bool isFile = true);
         virtual bool reloadScript();
-        virtual sol::state& getState();
+        virtual sol::state& getStateRef();
 
         // sol can't use references to primitives
         template<NONPRIMITIVE T>

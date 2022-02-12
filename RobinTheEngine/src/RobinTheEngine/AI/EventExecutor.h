@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include "Platform/DirectX11/Camera.h"
+#include <memory>
 
 namespace RTE {
+    struct Sound;
     class GameObject;
     struct PerceptionManager;
 
@@ -12,11 +14,6 @@ namespace RTE {
 
         virtual ~Stimulus();
         bool operator==(const Stimulus& other) const;
-
-        template <typename T>
-        T* getAs() {
-            return dynamic_cast<T*>(this);
-        }
 
         virtual StimulusId getType();
 
@@ -35,12 +32,14 @@ namespace RTE {
     };
 
     struct Sound final : Stimulus {
-        Sound() = default;
+        Sound() : Stimulus("Sound"), pos{} {};
         Sound(DirectX::XMFLOAT3 p) : Stimulus("Sound"), pos(p) {}
         DirectX::XMFLOAT3 getPos();
     private:
         DirectX::XMFLOAT3 pos;
     };
 
-
 }
+
+std::shared_ptr<RTE::Sound> getStimulusAsSound(std::shared_ptr<RTE::Stimulus> pStimulus);
+std::ostream& operator<<(std::ostream& out, DirectX::XMFLOAT3 f3);

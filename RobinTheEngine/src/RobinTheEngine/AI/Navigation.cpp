@@ -17,15 +17,44 @@ void CrowdManager::init(const std::string& navMeshKey, int agents, float agentRa
     crowd = dtAllocCrowd();
     navMesh.init(navMeshKey);
     crowd->init(agents, agentRadius, navMesh.get());
-    crowd->setObstacleAvoidanceParams(1, &avoidanceParams);
+	dtObstacleAvoidanceParams avoidanceParams;
+
+    // Low (11)
+	avoidanceParams.velBias = 0.5f;
+	avoidanceParams.adaptiveDivs = 5;
+	avoidanceParams.adaptiveRings = 2;
+	avoidanceParams.adaptiveDepth = 1;
+	crowd->setObstacleAvoidanceParams(0, &avoidanceParams);
+
+	// Medium (22)
+	avoidanceParams.velBias = 0.5f;
+	avoidanceParams.adaptiveDivs = 5;
+	avoidanceParams.adaptiveRings = 2;
+	avoidanceParams.adaptiveDepth = 2;
+	crowd->setObstacleAvoidanceParams(1, &avoidanceParams);
+
+	// Good (45)
+	avoidanceParams.velBias = 0.5f;
+	avoidanceParams.adaptiveDivs = 7;
+	avoidanceParams.adaptiveRings = 2;
+	avoidanceParams.adaptiveDepth = 3;
+	crowd->setObstacleAvoidanceParams(2, &avoidanceParams);
+
+	// High (66)
+	avoidanceParams.velBias = 0.5f;
+	avoidanceParams.adaptiveDivs = 7;
+	avoidanceParams.adaptiveRings = 3;
+	avoidanceParams.adaptiveDepth = 3;
+
+	crowd->setObstacleAvoidanceParams(3, &avoidanceParams);
 }
 
 int CrowdManager::addAgent(const float* pos, const dtCrowdAgentParams* params) {
     return crowd->addAgent(pos, params);
 }
 
-int CrowdManager::getActiveAgents(dtCrowdAgent** agents, const int maxAgents) {
-    return crowd->getActiveAgents(agents, maxAgents);
+const dtCrowdAgent* CrowdManager::getAgent(int idx) {
+    return crowd->getAgent(idx);
 }
 
 bool CrowdManager::move(int agentIdx, dtPolyRef ref, const float* pos) {

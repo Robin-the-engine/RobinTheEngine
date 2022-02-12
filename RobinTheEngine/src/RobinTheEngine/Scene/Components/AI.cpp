@@ -32,12 +32,17 @@ void AIComponent::requestMove(DirectX::XMFLOAT3 pos) {
 }
 
 void AIComponent::onConsume(std::shared_ptr<Stimulus> stimulus) {
-    auto& script = GetGameObject().AddComponent<ScriptComponent>();
-    script.callf("onEvent", stimulus.get());
+    auto& script = GetGameObject().GetComponent<ScriptComponent>();
+    script.callf("onEvent", stimulus);
 }
 
 void AIComponent::onProduce(std::shared_ptr<Stimulus> stimulus) {
     EventExecutor::onProduce(pm, stimulus);
+}
+
+void AIComponent::onUpdate() {
+    auto pos = cm->getAgent(agentId)->npos;
+    GetGameObject().GetTransform().SetPosition(pos[0], pos[1], pos[2]);
 }
 
 int AIComponent::getAgentId() {
@@ -51,4 +56,7 @@ TreeState& AIComponent::getTreeState() {
 void AIComponent::init() {
     auto& script = GetGameObject().AddComponent<ScriptComponent>();
     script.attachScript(scriptPath);
+    auto& lua = script.getStateRef();
+    // register agent movement function
+    lua["selfAI"] = this;
 }

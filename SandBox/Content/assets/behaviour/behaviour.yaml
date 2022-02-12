@@ -1,30 +1,7 @@
 repeat:
-  parallel:
-    - policy: REQUIRE_ANY # if not set this is the default
-    - repeat:
-        - times: 3 # if not set, repeat forever
-        - sequence:
-            - condition:
-                # NOTE: it is not a variable, it is a key in a blackboard
-                # so it should be set to the blackboard using BlackBoard:set("bar", val)
-                # somewhere in the script before usage.
-                - bar
-                - ">"
-                - 0
-            # action must return TickResult
-            - action: bark 3 
-            # everything after first space is parameters 
-            # and will be set up to function call as is, e.g mul(3, 4)
-            - action: mul 3, 4
-            # mul(XMFLOAT(3, 4,3), "3")
-            # - action: mul XMFLOAT(3, 4,3), "3"
-    - selector:
-        - invert:
-            - condition:
-                - bar
-                - "<"
-                - 0
+    - sequence:
         - condition:
-            - bar
-            - "<"
+            - SoundPosUpdated
+            - ">"
             - 0
+        - action: onSound

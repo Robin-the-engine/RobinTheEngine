@@ -364,11 +364,10 @@ namespace RTE {
         );
     }
 
-    // fully implemented inside lua tables,
-    // only need for registering these tables;
-    struct UGLY_BLACK_BOARD_STUB___{};
     template<>
-    void registerUserType<UGLY_BLACK_BOARD_STUB___>(sol::state& lua) {
+    void registerUserType<AIComponent>(sol::state& lua) {
+        // BlackBoard fully implemented inside lua tables,
+        // only need for registering these tables;
         lua.script(R"SCRIPT(
 
         BlackBoard = {storage = {}}
@@ -382,16 +381,27 @@ namespace RTE {
         end
 
         )SCRIPT");
+
+        sol::usertype<AIComponent> ut = lua.new_usertype<AIComponent>("AIComponent",
+            sol::base_classes, sol::bases<Component, EventExecutor>()
+            );
+        ut["requestMove"] = &AIComponent::requestMove;
     }
 
-    //template<>
-    //void registerUserType<Position>(sol::state& lua) {
-    //    sol::usertype<Model> ut = lua.new_usertype<Position>("Position",
-    //        sol::constructors<Position()>()
-    //        );
-    //    ut["Initialize"] = &Model::Initialize;
-    //    ut["meshes"] = &Model::meshes;
-    //}
+    template<>
+    void registerUserType<Stimulus>(sol::state& lua) {
+        sol::usertype<Stimulus> ut = lua.new_usertype<Stimulus>("Stimulus");
+    }
+
+    template<>
+    void registerUserType<Sound>(sol::state& lua) {
+        sol::usertype<Sound> ut = lua.new_usertype<Sound>("Stimulus",
+            sol::constructors<Sound(), Sound(DirectX::XMFLOAT3)>(),
+            sol::base_classes, sol::bases<Stimulus>()
+            );
+        ut["getPos"] = &Sound::getPos;
+        lua["getStimulusAsSound"] = &getStimulusAsSound;
+    }
 
     ///
     /// ---------- AI related stuff finished

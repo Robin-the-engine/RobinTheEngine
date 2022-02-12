@@ -8,8 +8,9 @@ namespace RTE
 
 	struct NavMeshImpl final: public BaseResource {
 		NavMeshImpl(const std::string& path, int flags = 0);
-		std::vector<unsigned char> data;
-		int flags;
+		//std::vector<unsigned char> data;
+		//int flags;
+		std::string path;
 	};
 
     class NavMeshComponent final: public Component {
@@ -19,6 +20,6 @@ namespace RTE
 		void init(const std::string& navMeshKey);
 		dtNavMesh* get();
 	private:
-		dtNavMesh navmesh;
+		dtNavMesh* navmesh;
 	};
 }

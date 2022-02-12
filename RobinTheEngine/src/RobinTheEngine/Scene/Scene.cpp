@@ -116,10 +116,13 @@ namespace RTE
 	}
 
     void Scene::UpdateAI() {
-		auto aiUsers = registry.view<BehaviourTree>();
-
+		auto btUsers = registry.view<BehaviourTree>();
+		for (auto user : btUsers) {
+			btUsers.get<BehaviourTree>(user).tick();
+		}
+		auto aiUsers = registry.view<AIComponent>();
 		for (auto user : aiUsers) {
-			aiUsers.get<BehaviourTree>(user).tick();
+			aiUsers.get<AIComponent>(user).onUpdate();
 		}
 	}
 

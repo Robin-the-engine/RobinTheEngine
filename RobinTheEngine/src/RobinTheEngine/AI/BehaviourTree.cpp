@@ -207,7 +207,7 @@ ScriptComponent& checkAndGetScript(TreeState& treeState) {
 }
 
 TickResult luaExecExternal(ScriptComponent& script, const std::string code) {
-    auto& lua = script.getState();
+    auto& lua = script.getStateRef();
     const auto uglyName = "_LUA_EXECUTE_EXTERNAL_123_";
     auto wrapped = std::format(
         R"SCRIPT(
@@ -219,9 +219,15 @@ TickResult luaExecExternal(ScriptComponent& script, const std::string code) {
             end
         )SCRIPT",
         uglyName, code, uglyName, uglyName, uglyName, uglyName);
-    lua.script(wrapped);
-    auto res = lua[uglyName];
-    return res.get<TickResult>();
+    try {
+        lua.script(wrapped);
+        auto res = lua[uglyName];
+        return res.get<TickResult>();
+    }
+    catch (sol::error& e) {
+        logger->error(std::format("Error in script {}\nmsg: {}", wrapped, e.what()));
+        return TickResult::FAILURE;
+    }
 }
 
 TickResult Action::tick(TreeState& treeState) {

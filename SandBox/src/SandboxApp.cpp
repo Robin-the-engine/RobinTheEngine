@@ -62,8 +62,8 @@ public:
 		ai.init();
 		ai.registerAgent(&cm);
 		ai.setPerceptionManager(&pm);
-
-	    pm.registerListener(&ai, {RTE::Sound().getType()});
+		auto type = RTE::Sound().getType();
+	    pm.registerListener(&ai, {type});
 
 		auto cam = scenePTR->CreateGameObject();
 		camera = &cam.AddComponent<RTE::Camera>();
@@ -105,7 +105,7 @@ public:
 		timer.Reset();
 		timer.Tick();
 		//RTE_INFO("ExampleLayer::Delta time {0}",timer.DeltaTime());
-		pm.addStimulus(std::make_shared<RTE::Stimulus>(RTE::Sound(camera->GetPositionFloat3())));
+		pm.addStimulus(std::make_shared<RTE::Sound>(camera->GetPositionFloat3()));
 		pm.notify();
 		cm.update(timer.DeltaTime());
 		UpdateCamera();

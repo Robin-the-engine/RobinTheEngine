@@ -1,5 +1,6 @@
 
 BlackBoard:set("bar", 50)
+BlackBoard:set("SoundPosUpdated", 0)
 
 function mul(a, b)
     Log.info("mul: " .. a*b)
@@ -19,15 +20,22 @@ function OnUpdate()
 --    Log.info("res: " .. t)
 end
 
-function onEvent(Pstimulus)
-    sound = Pstimulus:getAsSound()
-    BlackBoard:set("SoundPos", sound:pos)
+function onEvent(stimulus)
+    sound = getStimulusAsSound(stimulus)
+    newpos = sound:getPos()
+    --print(newpos)
+    BlackBoard:set("SoundPos", newpos)
     BlackBoard:set("SoundPosUpdated", 1)
+    --print(BlackBoard:get("SoundPosUpdated"))
 end
 
 function onSound()
-    ai:requestMove(BlackBoard:get("SoundPos"))
+    topos = BlackBoard:get("SoundPos")
+    --print(topos)
+    selfAI:requestMove(topos)
     BlackBoard:set("SoundPosUpdated", 0)
+    --print(BlackBoard:get("SoundPosUpdated"))
+    return TickResult.SUCCESS
 end
 
 function abort()
