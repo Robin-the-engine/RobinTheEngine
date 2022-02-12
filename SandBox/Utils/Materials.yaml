@@ -18,3 +18,8 @@ texturedMaterial:
     psshader: texturedPS
     textureKey: ogreDiffuse
 
+texturedMaterial2:
+    materialType: 2
+    vsshader: texturedVS
+    psshader: texturedPS
+    textureKey: textureErrorChecker

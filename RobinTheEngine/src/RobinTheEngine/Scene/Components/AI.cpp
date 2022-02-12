@@ -2,6 +2,8 @@
 #include "AI.h"
 #include "../../Scene/GameObject.h"
 #include "RobinTheEngine/AI/PerceptionManager.h"
+#include "RobinTheEngine/Log.h"
+#include <format>
 using namespace RTE;
 
 AIComponent::AIComponent(std::string&& scriptPath) {
@@ -28,6 +30,8 @@ void AIComponent::setPerceptionManager(PerceptionManager* pm) {
 }
 
 void AIComponent::requestMove(DirectX::XMFLOAT3 pos) {
+    //auto agentId = cm->getAgent(agentId; >
+    //navquery->findNearestPoly(p, halfExtents, filter, &m_targetRef, m_targetPos);
     cm->move(agentId, 0, &pos.x);
 }
 
@@ -42,6 +46,7 @@ void AIComponent::onProduce(std::shared_ptr<Stimulus> stimulus) {
 
 void AIComponent::onUpdate() {
     auto pos = cm->getAgent(agentId)->npos;
+    Log::GetLogger("ai")->info(std::format("Current pos: {} {} {}", pos[0], pos[1], pos[2]));
     GetGameObject().GetTransform().SetPosition(pos[0], pos[1], pos[2]);
 }
 

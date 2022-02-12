@@ -58,7 +58,7 @@ public:
 		auto& mesh = follower.AddComponent<RTE::MeshRenderer>();
 		mesh.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("ogre"));
 		mesh.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
-		follower.GetComponent<RTE::Transform>().SetPosition(0, 0, 0);
+		follower.GetComponent<RTE::Transform>().SetPosition( 4.3752, -0.130411, -12.8999 );
 		auto& ai = follower.AddComponent<RTE::AIComponent>(R"(D:\Projects\c++\RobinTheEngine\SandBox\Content\Scripts\ai.lua)");
 		ai.init();
 		ai.registerAgent(&cm);
@@ -69,13 +69,14 @@ public:
 		auto space = scenePTR->CreateGameObject();
 		auto& mr = space.AddComponent<RTE::MeshRenderer>();
 		mr.SetMesh(RTE::ResourceFactory::Get().GetResource<RTE::Model>("space"));
-		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
+		mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial2"));
 		auto& transform = space.AddComponent<RTE::Transform>();
 		transform.SetPosition(0, 0, 0);
 
 		auto cam = scenePTR->CreateGameObject();
-		camera = &cam.AddComponent<RTE::Camera>();
+		//camera = &cam.AddComponent<RTE::Camera>();
 		camera->SetPosition(XMFLOAT3(5, 4, -15));
+		camera->SetPosition(follower.GetComponent<RTE::Transform>().GetPosition());
 		camera->SetProjectionProperties(45, static_cast<float>(RTE::Application::Get().GetWindow().GetWidth()) / static_cast<float>(RTE::Application::Get().GetWindow().GetHeight()), 1, 1000);
 
 		//mr.SetMaterial(RTE::ResourceFactory::Get().GetResource<RTE::Material>("texturedMaterial"));
@@ -198,24 +199,27 @@ public:
 			}
 
 		}
-
+		auto camspeed = cameraSpeed;
+		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_SHIFT)) {
+			camspeed *= 2;
+		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_W)) {
-			camera->AdjustPosition(camera->GetForwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetForwardVector() * camspeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_S)) {
-			camera->AdjustPosition(camera->GetBackwardVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetBackwardVector() * camspeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_A)) {
-			camera->AdjustPosition(camera->GetLeftVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetLeftVector() * camspeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_D)) {
-			camera->AdjustPosition(camera->GetRightVector() * cameraSpeed * timer.DeltaTime());
+			camera->AdjustPosition(camera->GetRightVector() * camspeed * timer.DeltaTime());
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_SPACE)) {
-			camera->AdjustPosition(XMFLOAT3(0.f, cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, camspeed * timer.DeltaTime(), 0.f));
 		}
 		if (RTE::Input::IsKeyPressed(RTE_KEY_LEFT_CONTROL)) {
-			camera->AdjustPosition(XMFLOAT3(0.f, -cameraSpeed * timer.DeltaTime(), 0.f));
+			camera->AdjustPosition(XMFLOAT3(0.f, -camspeed * timer.DeltaTime(), 0.f));
 		}
 	}
 
